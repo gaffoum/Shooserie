@@ -1,4 +1,5 @@
 import { lazy, Suspense, useState, type CSSProperties, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import type { ScanResult } from './BarcodeScanner'
 
 // Lazy-load le scanner pour ne pas plomber le first-load
@@ -40,15 +41,20 @@ export function ScanButton({
         {children ?? (variant === 'compact' ? null : 'Scanner')}
       </button>
 
-      {open && (
-        <Suspense fallback={null}>
-          <BarcodeScanner
-            open={open}
-            onClose={() => setOpen(false)}
-            onScan={handleScan}
-          />
-        </Suspense>
-      )}
+      {/* Portal vers <body> : le scanner doit échapper aux ancêtres en
+        * `position: sticky` / `backdrop-filter` / `transform` qui cassent
+        * `position: fixed` des descendants (iOS Safari notamment). */}
+      {open &&
+        createPortal(
+          <Suspense fallback={null}>
+            <BarcodeScanner
+              open={open}
+              onClose={() => setOpen(false)}
+              onScan={handleScan}
+            />
+          </Suspense>,
+          document.body,
+        )}
     </>
   )
 }
