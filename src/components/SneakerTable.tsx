@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom'
 import type { Sneaker } from '@/lib/types'
-import { calcDelta, deltaBgColor, deltaColor, formatEur, formatPct } from '@/lib/format'
+import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
 import { SneakerPhoto } from './SneakerPhoto'
 import type { CSSProperties } from 'react'
 
@@ -31,11 +31,11 @@ export function SneakerTable({ sneakers }: SneakerTableProps) {
         </thead>
         <tbody>
           {sneakers.map((s) => {
-            const delta = calcDelta(s.release_price, s.market_price)
+            const delta = calcDelta(effectiveCost(s), s.market_price)
             const sizeLabel = [s.size_eu && `EU ${s.size_eu}`, s.size_us && `US ${s.size_us}`]
               .filter(Boolean)
               .join(' · ')
-            const priceShown = s.market_price ?? s.release_price
+            const priceShown = s.market_price ?? effectiveCost(s)
             return (
               <tr
                 key={s.id}

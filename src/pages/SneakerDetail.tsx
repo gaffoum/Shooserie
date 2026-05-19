@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
-import { calcDelta, deltaColor, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
+import { calcDelta, deltaColor, effectiveCost, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
@@ -70,16 +70,25 @@ export function SneakerDetail() {
                     mono
                   />
                   <Meta label="État" value={sneaker.condition || '—'} />
-                  <Meta label="Release" value={formatDate(sneaker.release_date)} />
+                  <Meta
+                    label="Release"
+                    value={
+                      [
+                        formatDate(sneaker.release_date),
+                        sneaker.release_price !== null
+                          ? formatEur(sneaker.release_price)
+                          : null,
+                      ]
+                        .filter(Boolean)
+                        .join(' · ') || '—'
+                    }
+                  />
                 </div>
               </div>
             </div>
 
             {/* Prix grid */}
-            <PriceGrid
-              release={sneaker.release_price}
-              market={sneaker.market_price}
-            />
+            <PriceGrid sneaker={sneaker} />
 
             {/* Historique des cotes — affiché seulement si au moins 2 points */}
             <CoteHistory sneaker={sneaker} />
@@ -167,18 +176,24 @@ export function SneakerDetail() {
   )
 }
 
-function PriceGrid({
-  release,
-  market,
-}: {
-  release: number | null
-  market: number | null
-}) {
-  const delta = calcDelta(release, market)
+function PriceGrid({ sneaker }: { sneaker: Sneaker }) {
+  const cost = effectiveCost(sneaker)
+  const market = sneaker.market_price
+  const delta = calcDelta(cost, market)
+
+  // Si le prix d'achat n'est pas saisi mais qu'on utilise release comme fallback,
+  // on indique discrètement la source.
+  const costFromRelease =
+    (sneaker.purchase_price === null || sneaker.purchase_price === undefined) &&
+    sneaker.release_price !== null
 
   return (
     <div style={priceGridStyle}>
-      <Cell label="Release" value={formatEur(release)} />
+      <Cell
+        label="Achat"
+        value={formatEur(cost)}
+        sublabel={costFromRelease ? '= release' : null}
+      />
       <Cell label="Cote" value={formatEur(market)} />
       <Cell
         label="+/- €"
@@ -321,15 +336,19 @@ function Cell({
   label,
   value,
   color,
+  sublabel,
 }: {
   label: string
   value: string
   color?: string
+  /** Petite annotation sous la valeur, en gris (ex: "= release"). */
+  sublabel?: string | null
 }) {
   return (
     <div style={cellStyle}>
       <div style={cellLabelStyle}>{label}</div>
       <div style={{ ...cellValueStyle, color: color || 'var(--color-text)' }}>{value}</div>
+      {sublabel && <div style={cellSublabelStyle}>{sublabel}</div>}
     </div>
   )
 }
@@ -459,6 +478,15 @@ const cellValueStyle: CSSProperties = {
   fontSize: 15,
   fontWeight: 600,
   fontVariantNumeric: 'tabular-nums',
+}
+const cellSublabelStyle: CSSProperties = {
+  fontSize: 9,
+  letterSpacing: 'var(--tracking-wide)',
+  color: 'var(--color-text-faint)',
+  marginTop: 2,
+  fontFamily: 'var(--font-display)',
+  textTransform: 'uppercase',
+  fontStyle: 'italic',
 }
 const purchaseStyle: CSSProperties = {
   background: 'var(--color-surface)',

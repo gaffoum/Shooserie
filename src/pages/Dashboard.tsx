@@ -39,10 +39,14 @@ const SORT_LABELS: Record<SortKey, string> = {
 }
 
 function deltaPct(s: Sneaker): number {
-  if (s.market_price === null || s.release_price === null || s.release_price === 0) {
+  const cost =
+    s.purchase_price !== null && s.purchase_price !== undefined
+      ? s.purchase_price
+      : s.release_price
+  if (s.market_price === null || cost === null || cost === 0) {
     return -Infinity
   }
-  return (s.market_price - s.release_price) / s.release_price
+  return (s.market_price - cost) / cost
 }
 
 function comparator(key: SortKey): (a: Sneaker, b: Sneaker) => number {
@@ -180,7 +184,7 @@ export function Dashboard() {
         {/* KPIs — toujours visibles, même collection vide */}
         <section style={kpiGridStyle}>
           <KpiCard label="Paires" value={kpis.count} />
-          <KpiCard label="Valeur release" value={formatEur(kpis.totalRelease)} />
+          <KpiCard label="Investissement" value={formatEur(kpis.totalCost)} />
           <KpiCard label="Cote actuelle" value={formatEur(kpis.totalMarket)} />
           <KpiCard
             label="Plus-value"

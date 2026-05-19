@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Sneaker } from '@/lib/types'
-import { calcDelta, deltaBgColor, deltaColor, formatEur, formatPct } from '@/lib/format'
+import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
 import { SneakerPhoto } from './SneakerPhoto'
 import type { CSSProperties } from 'react'
 
@@ -9,9 +9,9 @@ interface SneakerCardProps {
 }
 
 export function SneakerCard({ sneaker }: SneakerCardProps) {
-  const delta = calcDelta(sneaker.release_price, sneaker.market_price)
+  const delta = calcDelta(effectiveCost(sneaker), sneaker.market_price)
   const sizeLabel = formatSize(sneaker.size_eu, sneaker.size_us)
-  const priceShown = sneaker.market_price ?? sneaker.release_price
+  const priceShown = sneaker.market_price ?? effectiveCost(sneaker)
 
   return (
     <Link to={`/sneakers/${sneaker.id}`} style={linkStyle}>

@@ -46,13 +46,28 @@ export interface Delta {
   pct: number | null
 }
 
-export function calcDelta(release: number | null, market: number | null): Delta {
-  if (release === null || market === null || release === 0) {
+/**
+ * Coût de référence pour le calcul de la plus-value : prix d'achat saisi par
+ * l'utilisateur, et à défaut, prix release. Null si on n'a aucune des deux.
+ */
+export function effectiveCost(s: Sneaker): number | null {
+  if (s.purchase_price !== null && s.purchase_price !== undefined) return s.purchase_price
+  if (s.release_price !== null && s.release_price !== undefined) return s.release_price
+  return null
+}
+
+/**
+ * Plus-value entre une base (prix d'achat ou release) et la valeur de marché.
+ * Si la base est 0 (acheté gratuit), on renvoie le delta € mais pas le %
+ * (division par zéro).
+ */
+export function calcDelta(base: number | null, market: number | null): Delta {
+  if (base === null || market === null) {
     return { eur: null, pct: null }
   }
   return {
-    eur: market - release,
-    pct: ((market - release) / release) * 100,
+    eur: market - base,
+    pct: base === 0 ? null : ((market - base) / base) * 100,
   }
 }
 
@@ -79,7 +94,9 @@ export function deltaBgColor(value: number | null | undefined): string | null {
 
 export interface KpiSummary {
   count: number
-  totalRelease: number
+  /** Somme des prix d'achat (fallback release si pas de prix saisi). */
+  totalCost: number
+  /** Somme des cotes courantes (fallback cost si pas de cote). */
   totalMarket: number
   deltaEur: number
   deltaPct: number
@@ -87,16 +104,16 @@ export interface KpiSummary {
 
 export function aggregateKpis(sneakers: Sneaker[]): KpiSummary {
   const count = sneakers.length
-  const totalRelease = sneakers.reduce((acc, s) => acc + (s.release_price ?? 0), 0)
-  // Fallback : si market_price absent, on prend release_price comme proxy
-  // (la paire vaut au moins son prix d'origine)
+  const totalCost = sneakers.reduce((acc, s) => acc + (effectiveCost(s) ?? 0), 0)
+  // Si pas de cote disponible, on retombe sur le coût d'achat (la paire vaut
+  // au moins ce qu'on l'a payée pour le calcul de portefeuille).
   const totalMarket = sneakers.reduce(
-    (acc, s) => acc + (s.market_price ?? s.release_price ?? 0),
+    (acc, s) => acc + (s.market_price ?? effectiveCost(s) ?? 0),
     0,
   )
-  const deltaEur = totalMarket - totalRelease
-  const deltaPct = totalRelease > 0 ? (deltaEur / totalRelease) * 100 : 0
-  return { count, totalRelease, totalMarket, deltaEur, deltaPct }
+  const deltaEur = totalMarket - totalCost
+  const deltaPct = totalCost > 0 ? (deltaEur / totalCost) * 100 : 0
+  return { count, totalCost, totalMarket, deltaEur, deltaPct }
 }
 
 /** Liste des marques uniques présentes dans la collection, triées alpha */
