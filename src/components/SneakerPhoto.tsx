@@ -44,7 +44,11 @@ export function SneakerPhoto({
         inset: 0,
         width: '100%',
         height: '100%',
-        objectFit: 'cover',
+        // `contain` (not `cover`) so the entire shoe stays visible.
+        // StockX catalog images and user uploads can have varied aspect
+        // ratios — cropping risks chopping off the sole or toe box.
+        objectFit: 'contain',
+        padding: 6,
       }}
     />
   )

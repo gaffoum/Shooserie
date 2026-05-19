@@ -197,57 +197,64 @@ function StockXBlock({
 
   return (
     <div style={stockxBlockStyle}>
-      <div style={stockxLeftStyle}>
-        <div style={stockxLabelStyle}>StockX</div>
-        {!linked && (
-          <div style={stockxHintStyle}>
-            Pas lié au catalogue. Modifie la paire et utilise la recherche
-            StockX pour activer la mise à jour de la cote.
-          </div>
-        )}
-        {linked && !sneaker.size_us && (
-          <div style={stockxHintStyle}>
-            Renseigne la taille US pour activer le refresh de cote.
-          </div>
-        )}
+      <div style={stockxHeaderRowStyle}>
+        <span style={stockxLabelStyle}>Cote du marché</span>
         {linked && lastCheck && (
-          <div style={stockxMetaStyle}>
-            Dernière maj : {formatDateTime(lastCheck)}
-            {sneaker.market_price_usd !== null && (
-              <span style={{ marginLeft: 8 }}>
-                · ${sneaker.market_price_usd} USD
-              </span>
-            )}
-          </div>
-        )}
-        {error && <div style={stockxErrorStyle}>{error}</div>}
-      </div>
-      <div style={stockxRightStyle}>
-        {canRefresh && (
-          <button
-            type="button"
-            onClick={onRefresh}
-            disabled={refreshing}
-            style={{
-              ...refreshBtnStyle,
-              opacity: refreshing ? 0.55 : 1,
-              cursor: refreshing ? 'wait' : 'pointer',
-            }}
-          >
-            {refreshing ? 'Maj…' : '↻ Actualiser'}
-          </button>
-        )}
-        {sneaker.stockx_url && (
-          <a
-            href={sneaker.stockx_url}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={stockxLinkStyle}
-          >
-            Voir sur StockX ↗
-          </a>
+          <span style={stockxMetaStyle}>
+            Maj {formatDateTime(lastCheck)}
+          </span>
         )}
       </div>
+
+      {!linked && (
+        <div style={stockxHintStyle}>
+          Pas lié au catalogue. Modifie la paire et utilise la barre de
+          recherche pour activer la mise à jour automatique.
+        </div>
+      )}
+
+      {linked && !sneaker.size_us && (
+        <div style={stockxHintStyle}>
+          Renseigne la taille US pour activer le refresh de cote.
+        </div>
+      )}
+
+      {linked && lastCheck && sneaker.market_price_usd !== null && (
+        <div style={stockxSubMetaStyle}>
+          Source : ${sneaker.market_price_usd}
+        </div>
+      )}
+
+      {error && <div style={stockxErrorStyle}>{error}</div>}
+
+      {(canRefresh || sneaker.stockx_url) && (
+        <div style={stockxActionsStyle}>
+          {canRefresh && (
+            <button
+              type="button"
+              onClick={onRefresh}
+              disabled={refreshing}
+              style={{
+                ...refreshBtnStyle,
+                opacity: refreshing ? 0.55 : 1,
+                cursor: refreshing ? 'wait' : 'pointer',
+              }}
+            >
+              {refreshing ? 'Maj…' : '↻ Actualiser la cote'}
+            </button>
+          )}
+          {sneaker.stockx_url && (
+            <a
+              href={sneaker.stockx_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={stockxLinkStyle}
+            >
+              Voir la fiche ↗
+            </a>
+          )}
+        </div>
+      )}
     </div>
   )
 }
@@ -490,17 +497,15 @@ const stockxBlockStyle: CSSProperties = {
   borderRadius: 'var(--radius-lg)',
   padding: 14,
   marginBottom: 18,
-  display: 'flex',
-  gap: 12,
-  alignItems: 'flex-start',
-  justifyContent: 'space-between',
-  flexWrap: 'wrap',
-}
-const stockxLeftStyle: CSSProperties = {
-  flex: 1,
-  minWidth: 200,
   display: 'grid',
-  gap: 6,
+  gap: 8,
+}
+const stockxHeaderRowStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
 }
 const stockxLabelStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',
@@ -511,8 +516,13 @@ const stockxLabelStyle: CSSProperties = {
   fontWeight: 600,
 }
 const stockxMetaStyle: CSSProperties = {
-  fontSize: 12,
+  fontSize: 11,
   color: 'var(--color-text-muted)',
+  fontVariantNumeric: 'tabular-nums',
+}
+const stockxSubMetaStyle: CSSProperties = {
+  fontSize: 11,
+  color: 'var(--color-text-faint)',
   fontVariantNumeric: 'tabular-nums',
 }
 const stockxHintStyle: CSSProperties = {
@@ -526,14 +536,15 @@ const stockxErrorStyle: CSSProperties = {
   color: 'var(--color-bred)',
   lineHeight: 1.4,
 }
-const stockxRightStyle: CSSProperties = {
+const stockxActionsStyle: CSSProperties = {
   display: 'flex',
-  flexDirection: 'column',
-  gap: 6,
-  alignItems: 'stretch',
+  gap: 10,
+  alignItems: 'center',
+  flexWrap: 'wrap',
+  marginTop: 4,
 }
 const refreshBtnStyle: CSSProperties = {
-  padding: '8px 14px',
+  padding: '10px 16px',
   fontSize: 11,
   letterSpacing: 'var(--tracking-wide)',
   textTransform: 'uppercase',
@@ -544,14 +555,19 @@ const refreshBtnStyle: CSSProperties = {
   borderRadius: 'var(--radius-md)',
   fontFamily: 'var(--font-display)',
   whiteSpace: 'nowrap',
+  flex: '1 1 auto',
+  minWidth: 0,
 }
 const stockxLinkStyle: CSSProperties = {
+  padding: '10px 14px',
   fontSize: 11,
   letterSpacing: 'var(--tracking-wide)',
   color: 'var(--color-text-muted)',
   textDecoration: 'none',
-  textAlign: 'center',
   fontFamily: 'var(--font-display)',
   textTransform: 'uppercase',
   fontWeight: 500,
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  whiteSpace: 'nowrap',
 }

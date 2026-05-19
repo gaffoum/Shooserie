@@ -116,7 +116,7 @@ export function SneakerForm({
         <StockXSearch onPick={handleStockXPick} />
         {stockxFilled && (
           <p style={stockxBadgeStyle}>
-            ✓ Pré-rempli depuis StockX — vérifie les infos avant d'enregistrer.
+            ✓ Pré-rempli depuis le catalogue — vérifie les infos avant d'enregistrer.
           </p>
         )}
       </Section>

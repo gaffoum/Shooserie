@@ -14,7 +14,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
   const { user, signOut } = useAuth()
 
   return (
-    <header style={headerStyle}>
+    <header className="app-header" style={headerStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
         {leftActions}
         <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
@@ -22,9 +22,9 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
         </Link>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {rightActions}
-        <span style={emailStyle} title={user?.email ?? ''}>
+        <span className="app-header-email" style={emailStyle} title={user?.email ?? ''}>
           {user?.email}
         </span>
         <button onClick={signOut} aria-label="Déconnexion" style={signoutStyle}>

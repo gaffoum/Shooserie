@@ -143,7 +143,7 @@ export function useRefreshMarketPrice() {
     mutationFn: async (sneaker: Sneaker): Promise<Sneaker> => {
       if (!sneaker.stockx_product_id) {
         throw new Error(
-          'Pas lié à StockX. Modifie la paire et utilise la recherche StockX.',
+          'Pas lié au catalogue. Modifie la paire et utilise la recherche pour la lier.',
         )
       }
       if (!sneaker.stockx_variant_id && !sneaker.size_us) {

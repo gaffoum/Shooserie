@@ -36,7 +36,7 @@ export function SneakerNew() {
             ? `Code scanné et infos pré-remplies depuis ${lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}. Vérifie avant d'enregistrer.`
             : fromScan
               ? 'Code scanné. Aucune info auto trouvée — complète manuellement.'
-              : "Tape le nom du modèle dans la recherche StockX pour tout pré-remplir, ou scanne un code-barre via le bouton du champ SKU."}
+              : "Tape le nom du modèle dans la barre de recherche pour tout pré-remplir, ou scanne un code-barre via le bouton du champ SKU."}
         </p>
 
         <SneakerForm

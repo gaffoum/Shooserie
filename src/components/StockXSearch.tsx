@@ -98,7 +98,7 @@ export function StockXSearch({ onPick }: StockXSearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => hits.length > 0 && setOpen(true)}
-          placeholder="Chercher sur StockX (ex: Jordan 1 Chicago)…"
+          placeholder="Chercher un modèle (ex: Jordan 1 Chicago)…"
           style={inputStyle}
           autoComplete="off"
           disabled={fetching}
