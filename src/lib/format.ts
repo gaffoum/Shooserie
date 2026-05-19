@@ -86,3 +86,79 @@ export function listBrands(sneakers: Sneaker[]): string[] {
   }
   return Array.from(set).sort()
 }
+
+/** Liste des tags uniques présents dans la collection, triés alpha */
+export function listTags(sneakers: Sneaker[]): string[] {
+  const set = new Set<string>()
+  for (const s of sneakers) {
+    for (const t of s.tags) set.add(t)
+  }
+  return Array.from(set).sort()
+}
+
+export interface TimePoint {
+  date: string
+  value: number
+}
+
+/**
+ * Build a per-sneaker timeline from its price_history. Sorted ascending.
+ * Returns empty if there are no entries.
+ */
+export function sneakerTimeline(s: Sneaker): TimePoint[] {
+  return [...(s.price_history ?? [])]
+    .filter((p) => Number.isFinite(p.price))
+    .sort((a, b) => a.date.localeCompare(b.date))
+    .map((p) => ({ date: p.date, value: p.price }))
+}
+
+/**
+ * Build the aggregate portfolio value timeline across all sneakers.
+ *
+ * Approach: walk all price_history events chronologically. After each event,
+ * the contributing sneaker's "current cote" is updated. The portfolio total
+ * at that moment = sum of every sneaker's known cote (or release_price as a
+ * baseline if no event has been seen yet for that sneaker). Sneakers with
+ * no history at all still anchor a single point at "now" with their current
+ * market_price (or release_price as fallback).
+ */
+export function portfolioTimeline(sneakers: Sneaker[]): TimePoint[] {
+  // Baseline per-sneaker value before any event: release_price, or 0.
+  const baseline = new Map<string, number>()
+  for (const s of sneakers) {
+    baseline.set(s.id, s.release_price ?? 0)
+  }
+
+  // Collect events.
+  type Event = { date: string; sneakerId: string; price: number }
+  const events: Event[] = []
+  for (const s of sneakers) {
+    for (const p of s.price_history ?? []) {
+      if (!Number.isFinite(p.price)) continue
+      events.push({ date: p.date, sneakerId: s.id, price: p.price })
+    }
+  }
+  events.sort((a, b) => a.date.localeCompare(b.date))
+
+  // No events: single flat point at "now" with current totals.
+  if (events.length === 0) {
+    const total = sneakers.reduce(
+      (acc, s) => acc + (s.market_price ?? s.release_price ?? 0),
+      0,
+    )
+    return [{ date: new Date().toISOString(), value: total }]
+  }
+
+  // Walk events, recomputing total after each one.
+  const latest = new Map<string, number>(baseline)
+  const points: TimePoint[] = []
+  for (const e of events) {
+    latest.set(e.sneakerId, e.price)
+    const total = sneakers.reduce(
+      (acc, s) => acc + (latest.get(s.id) ?? 0),
+      0,
+    )
+    points.push({ date: e.date, value: Math.round(total) })
+  }
+  return points
+}

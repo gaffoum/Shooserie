@@ -6,6 +6,7 @@ import type { StockXProduct } from '@/lib/stockx'
 import { PhotoPlaceholder } from './PhotoPlaceholder'
 import { ScanButton } from './ScanButton'
 import { StockXSearch } from './StockXSearch'
+import { TagsInput } from './TagsInput'
 
 interface SneakerFormProps {
   /** Données initiales pour édition, undefined pour création */
@@ -340,6 +341,47 @@ export function SneakerForm({
         </Field>
       </Section>
 
+      {/* Tags + à vendre */}
+      <Section title="Suivi">
+        <Field label="Tags">
+          <TagsInput
+            value={state.tags}
+            onChange={(tags) => set('tags', tags)}
+            placeholder="grail, og, été…"
+          />
+        </Field>
+        <div style={toggleRowStyle}>
+          <label style={toggleLabelStyle}>
+            <input
+              type="checkbox"
+              checked={state.is_for_sale}
+              onChange={(e) => set('is_for_sale', e.target.checked)}
+              style={{ marginRight: 8 }}
+            />
+            <span style={{ fontSize: 13 }}>Mise en vente</span>
+          </label>
+          {state.is_for_sale && (
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <input
+                type="number"
+                inputMode="decimal"
+                step="1"
+                min="0"
+                value={state.target_sale_price ?? ''}
+                onChange={(e) =>
+                  set(
+                    'target_sale_price',
+                    e.target.value === '' ? null : Number(e.target.value),
+                  )
+                }
+                placeholder="Prix demandé (€)"
+                style={{ ...inputStyle, fontVariantNumeric: 'tabular-nums' }}
+              />
+            </div>
+          )}
+        </div>
+      </Section>
+
       {/* Notes */}
       <Section title="Notes">
         <textarea
@@ -632,4 +674,18 @@ const stockxBadgeStyle: CSSProperties = {
   padding: '8px 10px',
   borderRadius: 'var(--radius-md)',
   lineHeight: 1.4,
+}
+
+const toggleRowStyle: CSSProperties = {
+  display: 'flex',
+  gap: 12,
+  alignItems: 'center',
+  flexWrap: 'wrap',
+}
+
+const toggleLabelStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  cursor: 'pointer',
+  whiteSpace: 'nowrap',
 }

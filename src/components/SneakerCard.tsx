@@ -22,6 +22,9 @@ export function SneakerCard({ sneaker }: SneakerCardProps) {
             storagePath={sneaker.photo_url}
             alt={sneaker.name}
           />
+          {sneaker.is_for_sale && (
+            <span style={forSaleRibbonStyle}>À VENDRE</span>
+          )}
         </div>
         <div style={bodyStyle}>
           {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
@@ -126,4 +129,18 @@ const deltaStyle: CSSProperties = {
   padding: '3px 8px',
   borderRadius: 'var(--radius-sm)',
   whiteSpace: 'nowrap',
+}
+const forSaleRibbonStyle: CSSProperties = {
+  position: 'absolute',
+  top: 8,
+  left: 8,
+  padding: '3px 8px',
+  background: 'var(--color-bred)',
+  color: '#FFFFFF',
+  fontFamily: 'var(--font-display)',
+  fontSize: 9,
+  fontWeight: 700,
+  letterSpacing: 'var(--tracking-wider)',
+  borderRadius: 'var(--radius-sm)',
+  zIndex: 1,
 }

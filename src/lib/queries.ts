@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import { getStockXPricing, usdToEur } from './stockx'
@@ -187,6 +188,46 @@ export function useRefreshMarketPrice() {
       qc.setQueryData(keyOne(sneaker.id), sneaker)
     },
   })
+}
+
+/**
+ * Refresh the market price for every sneaker linked to the catalog and
+ * with a known size. Runs sequentially to avoid rate-limiting. Tracks
+ * progress so the UI can show "X/N en cours". Returns errors per failed
+ * sneaker at the end.
+ */
+export function useRefreshAllMarketPrices() {
+  const refresh = useRefreshMarketPrice()
+  const qc = useQueryClient()
+  const [progress, setProgress] = useState({ done: 0, total: 0 })
+  const [errors, setErrors] = useState<Array<{ id: string; name: string; error: string }>>([])
+  const [running, setRunning] = useState(false)
+
+  const start = async (sneakers: Sneaker[]) => {
+    const eligible = sneakers.filter(
+      (s) => s.stockx_product_id && (s.stockx_variant_id || s.size_us),
+    )
+    setRunning(true)
+    setProgress({ done: 0, total: eligible.length })
+    setErrors([])
+
+    const failures: Array<{ id: string; name: string; error: string }> = []
+    for (let i = 0; i < eligible.length; i++) {
+      const s = eligible[i]
+      try {
+        await refresh.mutateAsync(s)
+      } catch (e) {
+        failures.push({ id: s.id, name: s.name, error: (e as Error).message })
+      }
+      setProgress({ done: i + 1, total: eligible.length })
+    }
+
+    setErrors(failures)
+    setRunning(false)
+    qc.invalidateQueries({ queryKey: KEY_ALL })
+  }
+
+  return { start, running, progress, errors }
 }
 
 /* =====================================================

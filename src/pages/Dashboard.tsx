@@ -1,26 +1,94 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers } from '@/lib/queries'
-import { aggregateKpis, formatEur, formatPct, listBrands } from '@/lib/format'
+import { useSneakers, useRefreshAllMarketPrices } from '@/lib/queries'
+import { aggregateKpis, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { AppHeader } from '@/components/AppHeader'
 import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
 import { BrandFilter } from '@/components/BrandFilter'
+import { TagFilter } from '@/components/TagFilter'
 import { ViewToggle, type ViewMode } from '@/components/ViewToggle'
 import { SneakerCard } from '@/components/SneakerCard'
 import { SneakerTable } from '@/components/SneakerTable'
 import { ScanButton } from '@/components/ScanButton'
 import type { ScanResult } from '@/components/BarcodeScanner'
+import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
+
+/* =====================================================
+ * Sort keys — labels shown in the dropdown, comparators below.
+ * ===================================================== */
+
+type SortKey =
+  | 'delta_desc'
+  | 'delta_asc'
+  | 'cote_desc'
+  | 'cote_asc'
+  | 'recent'
+  | 'oldest'
+  | 'name_asc'
+
+const SORT_LABELS: Record<SortKey, string> = {
+  delta_desc: '↓ Plus-value',
+  delta_asc: '↑ Moins-value',
+  cote_desc: '↓ Cote',
+  cote_asc: '↑ Cote',
+  recent: '↓ Récents',
+  oldest: '↑ Anciens',
+  name_asc: 'A → Z',
+}
+
+function deltaPct(s: Sneaker): number {
+  if (s.market_price === null || s.release_price === null || s.release_price === 0) {
+    return -Infinity
+  }
+  return (s.market_price - s.release_price) / s.release_price
+}
+
+function comparator(key: SortKey): (a: Sneaker, b: Sneaker) => number {
+  switch (key) {
+    case 'delta_desc':
+      return (a, b) => deltaPct(b) - deltaPct(a)
+    case 'delta_asc':
+      return (a, b) => deltaPct(a) - deltaPct(b)
+    case 'cote_desc':
+      return (a, b) => (b.market_price ?? -Infinity) - (a.market_price ?? -Infinity)
+    case 'cote_asc':
+      return (a, b) => (a.market_price ?? Infinity) - (b.market_price ?? Infinity)
+    case 'recent':
+      return (a, b) => b.created_at.localeCompare(a.created_at)
+    case 'oldest':
+      return (a, b) => a.created_at.localeCompare(b.created_at)
+    case 'name_asc':
+      return (a, b) => a.name.localeCompare(b.name, 'fr')
+  }
+}
 
 export function Dashboard() {
   const { data: sneakers, isLoading, error } = useSneakers()
   const navigate = useNavigate()
   const [view, setView] = useState<ViewMode>('grid')
+
+  // Filters
+  const [search, setSearch] = useState('')
   const [brandFilter, setBrandFilter] = useState<string | null>(null)
+  const [tagFilter, setTagFilter] = useState<string[]>([])
+  const [forSaleOnly, setForSaleOnly] = useState(false)
+  const [sortKey, setSortKey] = useState<SortKey>('delta_desc')
 
   const allSneakers = sneakers ?? []
   const brands = useMemo(() => listBrands(allSneakers), [allSneakers])
+  const tags = useMemo(() => listTags(allSneakers), [allSneakers])
+
+  // Bulk refresh of every linked sneaker.
+  const bulkRefresh = useRefreshAllMarketPrices()
+  const refreshableCount = useMemo(
+    () =>
+      allSneakers.filter(
+        (s) => s.stockx_product_id && (s.stockx_variant_id || s.size_us),
+      ).length,
+    [allSneakers],
+  )
 
   // Scan depuis le dashboard → vers SneakerNew avec les valeurs pré-remplies
   const handleDashboardScan = (result: ScanResult) => {
@@ -46,25 +114,32 @@ export function Dashboard() {
     })
   }
 
-  // Tri par +/- value décroissant (les pires sans data tombent en fin)
+  // Full filtering + sort pipeline.
   const sorted = useMemo(() => {
-    const filtered = brandFilter
-      ? allSneakers.filter((s) => s.brand === brandFilter)
-      : allSneakers
-    return [...filtered].sort((a, b) => {
-      const da =
-        a.market_price !== null && a.release_price !== null && a.release_price > 0
-          ? (a.market_price - a.release_price) / a.release_price
-          : -Infinity
-      const db =
-        b.market_price !== null && b.release_price !== null && b.release_price > 0
-          ? (b.market_price - b.release_price) / b.release_price
-          : -Infinity
-      return db - da
+    const q = search.trim().toLowerCase()
+    const filtered = allSneakers.filter((s) => {
+      if (brandFilter && s.brand !== brandFilter) return false
+      if (forSaleOnly && !s.is_for_sale) return false
+      if (tagFilter.length > 0 && !tagFilter.some((t) => s.tags.includes(t))) return false
+      if (q) {
+        const haystack = [
+          s.name,
+          s.brand ?? '',
+          s.colorway ?? '',
+          s.sku ?? '',
+          ...s.tags,
+        ]
+          .join(' ')
+          .toLowerCase()
+        if (!haystack.includes(q)) return false
+      }
+      return true
     })
-  }, [allSneakers, brandFilter])
+    return [...filtered].sort(comparator(sortKey))
+  }, [allSneakers, search, brandFilter, tagFilter, forSaleOnly, sortKey])
 
   const kpis = useMemo(() => aggregateKpis(allSneakers), [allSneakers])
+  const timeline = useMemo(() => portfolioTimeline(allSneakers), [allSneakers])
   const isPositive = kpis.deltaEur >= 0
 
   return (
@@ -105,7 +180,7 @@ export function Dashboard() {
                 : undefined
             }
             sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
-            sparkline={kpis.count > 0 ? <Sparkline /> : null}
+            sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
           />
         </section>
 
@@ -135,36 +210,108 @@ export function Dashboard() {
         {/* Collection */}
         {!isLoading && allSneakers.length > 0 && (
           <>
-            {brands.length > 1 && (
-              <div style={{ marginBottom: 16 }}>
+            {/* Search bar */}
+            <div style={searchWrapStyle}>
+              <span style={searchIconStyle} aria-hidden>🔍</span>
+              <input
+                type="search"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Chercher dans la collection (nom, marque, SKU, tag…)"
+                style={searchInputStyle}
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch('')}
+                  style={searchClearStyle}
+                  aria-label="Effacer la recherche"
+                >
+                  ×
+                </button>
+              )}
+            </div>
+
+            {/* Bulk refresh row (only if there's at least one linked sneaker) */}
+            {refreshableCount > 0 && (
+              <div style={bulkRowStyle}>
+                <button
+                  type="button"
+                  onClick={() => bulkRefresh.start(allSneakers)}
+                  disabled={bulkRefresh.running}
+                  style={{
+                    ...bulkBtnStyle,
+                    opacity: bulkRefresh.running ? 0.7 : 1,
+                    cursor: bulkRefresh.running ? 'wait' : 'pointer',
+                  }}
+                >
+                  {bulkRefresh.running
+                    ? `↻ Maj… ${bulkRefresh.progress.done}/${bulkRefresh.progress.total}`
+                    : `↻ Tout actualiser (${refreshableCount})`}
+                </button>
+                {!bulkRefresh.running && bulkRefresh.errors.length > 0 && (
+                  <span style={bulkErrorStyle}>
+                    {bulkRefresh.errors.length} échec{bulkRefresh.errors.length > 1 ? 's' : ''} — vérifie la taille / le lien catalogue
+                  </span>
+                )}
+              </div>
+            )}
+
+            {/* Filter rows */}
+            <div style={filtersWrapStyle}>
+              {brands.length > 1 && (
                 <BrandFilter
                   brands={brands}
                   selected={brandFilter}
                   onChange={setBrandFilter}
                 />
-              </div>
-            )}
+              )}
+              {tags.length > 0 && (
+                <TagFilter
+                  tags={tags}
+                  selected={tagFilter}
+                  onChange={setTagFilter}
+                />
+              )}
+              <button
+                type="button"
+                onClick={() => setForSaleOnly((v) => !v)}
+                aria-pressed={forSaleOnly}
+                style={forSaleTogglePillStyle(forSaleOnly)}
+              >
+                {forSaleOnly ? '✓ ' : ''}À vendre uniquement
+              </button>
+            </div>
 
             <div style={toolbarStyle}>
               <div style={countLabelStyle}>
                 Collection · {sorted.length} paire{sorted.length > 1 ? 's' : ''}
-                {brandFilter && (
+                {(brandFilter || tagFilter.length > 0 || forSaleOnly || search) && (
                   <span style={{ marginLeft: 8, color: 'var(--color-text-faint)' }}>
-                    · {brandFilter}
+                    · filtré
                   </span>
                 )}
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                <span style={sortPillStyle}>
-                  ↓ Trié par plus-value
-                </span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <select
+                  value={sortKey}
+                  onChange={(e) => setSortKey(e.target.value as SortKey)}
+                  style={sortSelectStyle}
+                  aria-label="Trier"
+                >
+                  {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+                    <option key={k} value={k}>
+                      {SORT_LABELS[k]}
+                    </option>
+                  ))}
+                </select>
                 <ViewToggle value={view} onChange={setView} />
               </div>
             </div>
 
             {sorted.length === 0 ? (
               <div style={noMatchStyle}>
-                Aucune paire ne correspond au filtre.
+                Aucune paire ne correspond à ces filtres.
               </div>
             ) : view === 'grid' ? (
               <div style={gridStyle}>
@@ -209,11 +356,101 @@ const countLabelStyle: CSSProperties = {
   color: 'var(--color-text-muted)',
   fontWeight: 500,
 }
-const sortPillStyle: CSSProperties = {
+const searchWrapStyle: CSSProperties = {
+  position: 'relative',
+  display: 'flex',
+  alignItems: 'center',
+  marginBottom: 12,
+}
+const searchIconStyle: CSSProperties = {
+  position: 'absolute',
+  left: 12,
+  fontSize: 14,
+  opacity: 0.7,
+  pointerEvents: 'none',
+}
+const searchInputStyle: CSSProperties = {
+  width: '100%',
+  padding: '10px 36px',
+  fontSize: 14,
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  color: 'var(--color-text)',
+  outline: 'none',
+  fontFamily: 'inherit',
+}
+const searchClearStyle: CSSProperties = {
+  position: 'absolute',
+  right: 8,
+  width: 26,
+  height: 26,
+  borderRadius: '50%',
+  background: 'transparent',
+  color: 'var(--color-text-muted)',
+  fontSize: 18,
+  lineHeight: 1,
+  cursor: 'pointer',
+  padding: 0,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+const filtersWrapStyle: CSSProperties = {
+  display: 'grid',
+  gap: 8,
+  marginBottom: 14,
+}
+const bulkRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  marginBottom: 14,
+  flexWrap: 'wrap',
+}
+const bulkBtnStyle: CSSProperties = {
+  padding: '8px 14px',
   fontSize: 11,
   letterSpacing: 'var(--tracking-wide)',
-  color: 'var(--color-royal)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'var(--color-royal)',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+}
+const bulkErrorStyle: CSSProperties = {
+  fontSize: 11,
+  color: 'var(--color-bred)',
+}
+const forSaleTogglePillStyle = (active: boolean): CSSProperties => ({
+  alignSelf: 'flex-start',
+  background: active ? 'var(--color-bred)' : 'var(--color-surface)',
+  border: `1px solid ${active ? 'var(--color-bred)' : 'var(--color-border)'}`,
+  color: active ? '#FFFFFF' : 'var(--color-text-muted)',
+  padding: '6px 14px',
+  borderRadius: 'var(--radius-pill)',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
   fontWeight: 500,
+  cursor: 'pointer',
+  fontFamily: 'var(--font-display)',
+  whiteSpace: 'nowrap',
+})
+const sortSelectStyle: CSSProperties = {
+  padding: '6px 8px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  color: 'var(--color-text)',
+  fontFamily: 'var(--font-display)',
+  textTransform: 'uppercase',
+  fontWeight: 500,
+  cursor: 'pointer',
 }
 const gridStyle: CSSProperties = {
   display: 'grid',

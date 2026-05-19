@@ -1,10 +1,11 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
-import { calcDelta, formatDate, formatEur, formatPct } from '@/lib/format'
+import { calcDelta, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
+import { Sparkline } from '@/components/Sparkline'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
@@ -80,7 +81,10 @@ export function SneakerDetail() {
               market={sneaker.market_price}
             />
 
-            {/* StockX block — refresh cote + link to product page */}
+            {/* Historique des cotes — affiché seulement si au moins 2 points */}
+            <CoteHistory sneaker={sneaker} />
+
+            {/* Bloc cote du marché — refresh + lien fiche en ligne */}
             <StockXBlock
               sneaker={sneaker}
               onRefresh={handleRefresh}
@@ -100,6 +104,29 @@ export function SneakerDetail() {
                 mono
               />
             </div>
+
+            {/* Tags + statut "à vendre" */}
+            {(sneaker.tags.length > 0 || sneaker.is_for_sale) && (
+              <div style={trackingBlockStyle}>
+                {sneaker.is_for_sale && (
+                  <div style={forSaleRowStyle}>
+                    <span style={forSaleBadgeStyle}>À VENDRE</span>
+                    {sneaker.target_sale_price !== null && (
+                      <span style={forSalePriceStyle}>
+                        {formatEur(sneaker.target_sale_price)}
+                      </span>
+                    )}
+                  </div>
+                )}
+                {sneaker.tags.length > 0 && (
+                  <div style={tagsRowStyle}>
+                    {sneaker.tags.map((t) => (
+                      <span key={t} style={tagPillStyle}>{t}</span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Notes */}
             {sneaker.notes && (
@@ -176,6 +203,39 @@ function PriceGrid({
               : 'var(--color-text-muted)'
         }
       />
+    </div>
+  )
+}
+
+function CoteHistory({ sneaker }: { sneaker: Sneaker }) {
+  const points = sneakerTimeline(sneaker)
+  // Only show if we have at least 2 data points worth plotting.
+  if (points.length < 2) return null
+
+  const first = points[0].value
+  const last = points[points.length - 1].value
+  const delta = last - first
+  const pct = first > 0 ? (delta / first) * 100 : null
+
+  return (
+    <div style={historyBlockStyle}>
+      <div style={historyHeaderStyle}>
+        <span style={historyLabelStyle}>Historique de la cote</span>
+        <span style={historyDeltaStyle}>
+          {formatEur(delta, true)}
+          {pct !== null && (
+            <span style={{ marginLeft: 6, color: 'var(--color-text-muted)' }}>
+              {formatPct(pct, true)}
+            </span>
+          )}
+          <span style={{ marginLeft: 8, color: 'var(--color-text-faint)', fontWeight: 400 }}>
+            sur {points.length} maj
+          </span>
+        </span>
+      </div>
+      <div style={historyChartStyle}>
+        <Sparkline points={points} height={60} />
+      </div>
     </div>
   )
 }
@@ -570,4 +630,89 @@ const stockxLinkStyle: CSSProperties = {
   border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-md)',
   whiteSpace: 'nowrap',
+}
+
+const trackingBlockStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+  marginBottom: 18,
+  display: 'grid',
+  gap: 10,
+}
+const historyBlockStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+  marginBottom: 18,
+  display: 'grid',
+  gap: 10,
+}
+const historyHeaderStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: 10,
+  flexWrap: 'wrap',
+}
+const historyLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 600,
+}
+const historyDeltaStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 11,
+  fontWeight: 600,
+  fontVariantNumeric: 'tabular-nums',
+  color: 'var(--color-text)',
+}
+const historyChartStyle: CSSProperties = {
+  height: 60,
+  width: '100%',
+}
+const forSaleRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  flexWrap: 'wrap',
+}
+const forSaleBadgeStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  padding: '4px 10px',
+  background: 'var(--color-bred)',
+  color: '#FFFFFF',
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  fontWeight: 700,
+  letterSpacing: 'var(--tracking-wider)',
+  borderRadius: 'var(--radius-sm)',
+}
+const forSalePriceStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 14,
+  fontWeight: 600,
+  fontVariantNumeric: 'tabular-nums',
+  color: 'var(--color-text)',
+}
+const tagsRowStyle: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 6,
+}
+const tagPillStyle: CSSProperties = {
+  display: 'inline-flex',
+  padding: '4px 10px',
+  background: 'var(--color-bg)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 999,
+  fontSize: 11,
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
 }
