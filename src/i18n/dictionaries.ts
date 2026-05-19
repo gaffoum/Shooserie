@@ -214,6 +214,35 @@ const fr = {
   // === ViewToggle ===
   'view.grid': 'Grille',
   'view.table': 'Tableau',
+
+  // === Account ===
+  'account.title': 'Mon compte',
+  'account.aria': 'Mon compte',
+  'account.email.section': 'Adresse email',
+  'account.email.current': 'Adresse actuelle',
+  'account.email.new': 'Nouvelle adresse',
+  'account.email.newPlaceholder': 'nouvelle@email.com',
+  'account.email.help':
+    "Tu recevras un lien de confirmation à la nouvelle adresse. L'email ne sera changé qu'après que tu auras cliqué sur ce lien.",
+  'account.email.submit': "Mettre à jour l'email",
+  'account.email.submitting': 'Envoi…',
+  'account.email.success':
+    "Email de confirmation envoyé à {email}. Clique sur le lien reçu pour valider le changement.",
+  'account.email.sameError': 'La nouvelle adresse est identique à l\'actuelle.',
+  'account.password.section': 'Mot de passe',
+  'account.password.current': 'Mot de passe actuel',
+  'account.password.new': 'Nouveau mot de passe',
+  'account.password.confirm': 'Confirmer le nouveau',
+  'account.password.help': 'Minimum 6 caractères.',
+  'account.password.submit': 'Mettre à jour le mot de passe',
+  'account.password.submitting': 'Mise à jour…',
+  'account.password.success': 'Mot de passe mis à jour.',
+  'account.password.mismatch': 'Les deux nouveaux mots de passe ne correspondent pas.',
+  'account.password.tooShort': 'Le nouveau mot de passe doit faire au moins 6 caractères.',
+  'account.password.sameAsOld': 'Le nouveau mot de passe doit être différent de l\'actuel.',
+  'account.password.invalidCurrent': 'Mot de passe actuel incorrect.',
+  'account.danger.section': 'Zone sensible',
+  'account.signOut.desc': 'Te déconnecter de ce navigateur. Tu pourras revenir avec ton email et mot de passe.',
 }
 
 const en: typeof fr = {
@@ -420,6 +449,36 @@ const en: typeof fr = {
   // === ViewToggle ===
   'view.grid': 'Grid',
   'view.table': 'List',
+
+  // === Account ===
+  'account.title': 'My account',
+  'account.aria': 'My account',
+  'account.email.section': 'Email address',
+  'account.email.current': 'Current address',
+  'account.email.new': 'New address',
+  'account.email.newPlaceholder': 'new@email.com',
+  'account.email.help':
+    "You'll receive a confirmation link at the new address. The email will only change after you click that link.",
+  'account.email.submit': 'Update email',
+  'account.email.submitting': 'Sending…',
+  'account.email.success':
+    'Confirmation email sent to {email}. Click the link to validate the change.',
+  'account.email.sameError': 'The new address is the same as the current one.',
+  'account.password.section': 'Password',
+  'account.password.current': 'Current password',
+  'account.password.new': 'New password',
+  'account.password.confirm': 'Confirm new password',
+  'account.password.help': 'Minimum 6 characters.',
+  'account.password.submit': 'Update password',
+  'account.password.submitting': 'Updating…',
+  'account.password.success': 'Password updated.',
+  'account.password.mismatch': 'The two new passwords do not match.',
+  'account.password.tooShort': 'The new password must be at least 6 characters.',
+  'account.password.sameAsOld': 'The new password must be different from the current one.',
+  'account.password.invalidCurrent': 'Current password is incorrect.',
+  'account.danger.section': 'Sensitive zone',
+  'account.signOut.desc':
+    'Sign out from this browser. You can come back with your email and password.',
 }
 
 export type DictKey = keyof typeof fr

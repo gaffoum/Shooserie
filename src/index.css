@@ -81,7 +81,12 @@ img {
  *  - the admin user count badge (purely informational)
  *  - the visible text label of action buttons / links marked .app-header-action-text
  *    (the icon remains, the button stays tappable, just less wide)
- * Header padding also tightens so the logo isn't truncated. */
+ * Header padding also tightens so the logo isn't truncated.
+ * The .app-header-account-icon is the mobile-only counterpart of the email pill:
+ * hidden on desktop, visible on narrow screens so users can still reach /account. */
+@media (min-width: 640px) {
+  .app-header-account-icon { display: none !important; }
+}
 @media (max-width: 639px) {
   .app-header-email { display: none !important; }
   .app-header-badge { display: none !important; }

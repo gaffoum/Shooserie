@@ -6,6 +6,7 @@ import { Dashboard } from '@/pages/Dashboard'
 import { SneakerNew } from '@/pages/SneakerNew'
 import { SneakerDetail } from '@/pages/SneakerDetail'
 import { SneakerEdit } from '@/pages/SneakerEdit'
+import { Account } from '@/pages/Account'
 
 export default function App() {
   return (
@@ -20,6 +21,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Dashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/account"
+            element={
+              <ProtectedRoute>
+                <Account />
               </ProtectedRoute>
             }
           />
