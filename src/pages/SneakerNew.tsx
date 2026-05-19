@@ -32,11 +32,13 @@ export function SneakerNew() {
       <main style={mainStyle}>
         <h1 style={titleStyle}>Nouvelle paire</h1>
         <p style={subtitleStyle}>
-          {fromScan && lookupSource
-            ? `Code scanné et infos pré-remplies depuis ${lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}. Vérifie avant d'enregistrer.`
-            : fromScan
-              ? 'Code scanné. Aucune info auto trouvée — complète manuellement.'
-              : "Tape le nom du modèle dans la barre de recherche pour tout pré-remplir, ou scanne un code-barre via le bouton du champ SKU."}
+          {fromScan && lookupSource === 'stockx'
+            ? "Code scanné et matché au catalogue — toutes les infos sont liées, y compris la taille. Vérifie avant d'enregistrer."
+            : fromScan && lookupSource
+              ? `Code scanné et infos pré-remplies depuis ${lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}. Vérifie avant d'enregistrer.`
+              : fromScan
+                ? 'Code scanné. Aucune info auto trouvée — complète manuellement.'
+                : "Tape le nom du modèle dans la barre de recherche pour tout pré-remplir, ou scanne un code-barre via le bouton du champ SKU."}
         </p>
 
         <SneakerForm

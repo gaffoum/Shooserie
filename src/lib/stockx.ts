@@ -138,3 +138,49 @@ export async function getStockXPricing(args: {
   else throw new Error('Provide either size or variantId')
   return fnGet<StockXPricing>('stockx-pricing', params)
 }
+
+/* =====================================================
+ * BARCODE LOOKUP ON STOCKX
+ * ===================================================== */
+
+export interface StockXBarcodeMatch {
+  productId: string
+  variantId: string
+  sizeUS: string | null
+  sizeEU: string | null
+  title: string
+  brand: string | null
+  styleId: string | null
+  urlKey: string | null
+  colorway: string | null
+  releaseDate: string | null
+  retailPrice: number | null
+  imageUrl: string | null
+  stockxUrl: string | null
+}
+
+export interface StockXBarcodeResult {
+  found: boolean
+  source: 'stockx' | null
+  code: string
+  product?: StockXBarcodeMatch
+  error?: string
+}
+
+/**
+ * Look up a barcode (UPC/EAN/GTIN) on StockX. Returns the matching product
+ * + variant if found, including the exact size (since each barcode is for one
+ * size). Caller should fall back to the UPCitemdb lookup if found:false.
+ */
+export async function lookupBarcodeOnStockX(code: string): Promise<StockXBarcodeResult> {
+  try {
+    return await fnGet<StockXBarcodeResult>('stockx-barcode', { code })
+  } catch (e) {
+    return {
+      found: false,
+      source: null,
+      code,
+      error: (e as Error).message,
+    }
+  }
+}

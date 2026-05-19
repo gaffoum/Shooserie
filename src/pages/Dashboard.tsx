@@ -100,9 +100,23 @@ export function Dashboard() {
     if (result.suggestion) {
       const sug = result.suggestion
       if (sug.name) defaults.name = sug.name
-      if (sug.brand) defaults.brand = sug.brand
+      if (sug.brand) defaults.brand = normalizeBrandFromScan(sug.brand)
       if (sug.colorway) defaults.colorway = sug.colorway
       if (sug.imageUrl) defaults.stockx_image_url = sug.imageUrl
+    }
+
+    // Si le scan a matché un produit dans le catalogue StockX, on lie directement
+    // la paire au catalogue + on pré-remplit la taille (un code-barre = une taille).
+    if (result.stockxLink) {
+      const link = result.stockxLink
+      defaults.stockx_product_id = link.productId
+      defaults.stockx_variant_id = link.variantId
+      defaults.stockx_url = link.stockxUrl
+      if (link.styleId) defaults.sku = link.styleId
+      if (link.sizeUS) defaults.size_us = link.sizeUS
+      if (link.sizeEU) defaults.size_eu = link.sizeEU
+      if (link.releaseDate) defaults.release_date = link.releaseDate
+      if (link.retailPrice !== null) defaults.release_price = link.retailPrice
     }
 
     navigate('/sneakers/new', {
@@ -327,6 +341,19 @@ export function Dashboard() {
       </main>
     </div>
   )
+}
+
+/** Maps brand strings from scan sources (StockX / UPCitemdb) to the select options. */
+function normalizeBrandFromScan(raw: string): string {
+  const b = raw.trim().toLowerCase()
+  if (b === 'jordan' || b === 'air jordan') return 'Air Jordan'
+  if (b === 'nike') return 'Nike'
+  if (b === 'adidas') return 'Adidas'
+  if (b === 'new balance') return 'New Balance'
+  if (b === 'puma') return 'Puma'
+  if (b === 'asics') return 'ASICS'
+  if (b === 'yeezy') return 'Yeezy'
+  return raw
 }
 
 const mainStyle: CSSProperties = {

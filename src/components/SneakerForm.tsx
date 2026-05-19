@@ -196,17 +196,35 @@ export function SneakerForm({
                   set('barcode', result.code)
                   if (!state.sku) set('sku', result.code)
                 }
-                // Pré-remplissage depuis UPCitemdb si suggestion trouvée
+                // Pré-remplissage depuis suggestion (StockX prioritaire, UPCitemdb sinon)
                 if (result.suggestion) {
                   const sug = result.suggestion
                   if (sug.name && !state.name) set('name', sug.name)
-                  if (sug.brand && !state.brand) set('brand', sug.brand)
+                  if (sug.brand && !state.brand) set('brand', normalizeBrand(sug.brand))
                   if (sug.colorway && !state.colorway) set('colorway', sug.colorway)
                   if (sug.imageUrl && !state.stockx_image_url)
                     set('stockx_image_url', sug.imageUrl)
                   setLookupSource(result.source ?? null)
                 } else {
                   setLookupSource(null)
+                }
+                // Si scan matché StockX : lier directement au catalogue et
+                // pré-remplir la taille exacte (un code-barre = une taille).
+                if (result.stockxLink) {
+                  const link = result.stockxLink
+                  setState((s) => ({
+                    ...s,
+                    stockx_product_id: link.productId,
+                    stockx_variant_id: link.variantId,
+                    stockx_url: link.stockxUrl,
+                    sku: s.sku?.trim() ? s.sku : link.styleId,
+                    size_us: s.size_us?.trim() ? s.size_us : link.sizeUS,
+                    size_eu: s.size_eu?.trim() ? s.size_eu : link.sizeEU,
+                    release_date: s.release_date ?? link.releaseDate,
+                    release_price:
+                      s.release_price !== null ? s.release_price : link.retailPrice,
+                  }))
+                  setStockxFilled(true)
                 }
               }}
             >
@@ -227,7 +245,7 @@ export function SneakerForm({
           )}
           {lookupSource && (
             <p style={lookupBadgeStyle}>
-              ✓ Pré-rempli depuis {lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}
+              ✓ Pré-rempli depuis {lookupSource === 'stockx' ? 'le catalogue' : lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}
               {' '}— vérifie les infos avant d'enregistrer.
             </p>
           )}

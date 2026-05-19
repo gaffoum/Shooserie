@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
-import { getStockXPricing, usdToEur } from './stockx'
+import { getStockXPricing, lookupBarcodeOnStockX, usdToEur } from './stockx'
 import type { Sneaker, PriceHistoryEntry } from './types'
 
 const KEY_ALL = ['sneakers'] as const
@@ -285,7 +285,7 @@ export function useSignedPhotoUrl(path: string | null | undefined) {
 }
 
 /* =====================================================
- * BARCODE LOOKUP (UPCitemdb via Edge Function)
+ * BARCODE LOOKUP (StockX d'abord, UPCitemdb en fallback)
  * ===================================================== */
 
 export interface LookupSuggestion {
@@ -301,23 +301,79 @@ export interface LookupSuggestion {
 
 export interface BarcodeLookupResult {
   found: boolean
-  source: 'upcitemdb' | null
+  source: 'stockx' | 'upcitemdb' | null
   code: string
   suggestion: LookupSuggestion | null
+  /** Filled when source === 'stockx': enables direct catalog linking. */
+  stockxLink?: {
+    productId: string
+    variantId: string
+    urlKey: string | null
+    stockxUrl: string | null
+    styleId: string | null
+    sizeUS: string | null
+    sizeEU: string | null
+    releaseDate: string | null
+    retailPrice: number | null
+  }
   rawCount: number
   error?: string
 }
 
 /**
- * Appelle l'Edge Function `barcode-lookup` qui interroge UPCitemdb.
- * Renvoie un objet structuré toujours, même en cas d'échec (found: false).
+ * Try the StockX catalog first (richer data, exact variant for the scanned
+ * size, productId we can link to). Fall back to the UPCitemdb edge function
+ * when StockX has no match (typical for older or low-volume models).
  */
 export async function lookupBarcode(code: string): Promise<BarcodeLookupResult> {
+  // 1. StockX
   try {
-    const { data, error } = await supabase.functions.invoke<BarcodeLookupResult>(
-      'barcode-lookup',
-      { body: { code } },
-    )
+    const sx = await lookupBarcodeOnStockX(code)
+    if (sx.found && sx.product) {
+      const p = sx.product
+      return {
+        found: true,
+        source: 'stockx',
+        code,
+        suggestion: {
+          name: p.title,
+          brand: p.brand,
+          colorway: p.colorway,
+          model: p.styleId,
+          size: p.sizeUS,
+          imageUrl: p.imageUrl,
+          category: null,
+          description: null,
+        },
+        stockxLink: {
+          productId: p.productId,
+          variantId: p.variantId,
+          urlKey: p.urlKey,
+          stockxUrl: p.stockxUrl,
+          styleId: p.styleId,
+          sizeUS: p.sizeUS,
+          sizeEU: p.sizeEU,
+          releaseDate: p.releaseDate,
+          retailPrice: p.retailPrice,
+        },
+        rawCount: 1,
+      }
+    }
+  } catch {
+    // ignore, fall through to UPCitemdb
+  }
+
+  // 2. UPCitemdb fallback
+  try {
+    const { data, error } = await supabase.functions.invoke<{
+      found: boolean
+      source: 'upcitemdb' | null
+      code: string
+      suggestion: LookupSuggestion | null
+      rawCount: number
+      error?: string
+    }>('barcode-lookup', { body: { code } })
+
     if (error) {
       return {
         found: false,
@@ -338,7 +394,14 @@ export async function lookupBarcode(code: string): Promise<BarcodeLookupResult> 
         error: 'Empty response from lookup',
       }
     }
-    return data
+    return {
+      found: data.found,
+      source: data.source,
+      code: data.code,
+      suggestion: data.suggestion,
+      rawCount: data.rawCount,
+      error: data.error,
+    }
   } catch (err) {
     return {
       found: false,

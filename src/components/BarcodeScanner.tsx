@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
-import { lookupBarcode, type LookupSuggestion } from '@/lib/queries'
+import { lookupBarcode, type LookupSuggestion, type BarcodeLookupResult } from '@/lib/queries'
 
 export interface ScanResult {
   code: string
   format: string
-  /** Données enrichies depuis UPCitemdb si trouvées */
+  /** Données enrichies — depuis StockX (prioritaire) ou UPCitemdb */
   suggestion?: LookupSuggestion | null
-  source?: 'upcitemdb' | null
+  source?: 'stockx' | 'upcitemdb' | null
+  /** Présent quand source === 'stockx' : permet de lier directement au catalogue */
+  stockxLink?: BarcodeLookupResult['stockxLink']
 }
 
 interface BarcodeScannerProps {
@@ -88,6 +90,7 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
                   format,
                   suggestion: lookup.suggestion,
                   source: lookup.source,
+                  stockxLink: lookup.stockxLink,
                 })
               })
           },
@@ -153,6 +156,7 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
       format: 'manual',
       suggestion: lookup.suggestion,
       source: lookup.source,
+      stockxLink: lookup.stockxLink,
     })
   }
 
