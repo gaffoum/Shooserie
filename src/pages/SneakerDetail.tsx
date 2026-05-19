@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
-import { calcDelta, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
+import { calcDelta, deltaColor, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
@@ -175,7 +175,6 @@ function PriceGrid({
   market: number | null
 }) {
   const delta = calcDelta(release, market)
-  const isPositive = (delta.eur ?? 0) > 0
 
   return (
     <div style={priceGridStyle}>
@@ -184,24 +183,12 @@ function PriceGrid({
       <Cell
         label="+/- €"
         value={delta.eur !== null ? formatEur(delta.eur, true) : '—'}
-        color={
-          delta.eur === null
-            ? undefined
-            : isPositive
-              ? 'var(--color-bred)'
-              : 'var(--color-text-muted)'
-        }
+        color={delta.eur !== null ? deltaColor(delta.eur) : undefined}
       />
       <Cell
         label="+/- %"
         value={delta.pct !== null ? formatPct(delta.pct, true) : '—'}
-        color={
-          delta.pct === null
-            ? undefined
-            : isPositive
-              ? 'var(--color-bred)'
-              : 'var(--color-text-muted)'
-        }
+        color={delta.pct !== null ? deltaColor(delta.pct) : undefined}
       />
     </div>
   )

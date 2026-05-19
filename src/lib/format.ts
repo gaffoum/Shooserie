@@ -56,6 +56,27 @@ export function calcDelta(release: number | null, market: number | null): Delta 
   }
 }
 
+/**
+ * Convention couleurs +/- value :
+ *  - strictement positif → vert (`--color-up`)
+ *  - strictement négatif → rouge (`--color-down`)
+ *  - 0 ou null → texte par défaut (`--color-text` / muted)
+ */
+export function deltaColor(value: number | null | undefined): string {
+  if (value === null || value === undefined) return 'var(--color-text-muted)'
+  if (value > 0) return 'var(--color-up)'
+  if (value < 0) return 'var(--color-down)'
+  return 'var(--color-text)'
+}
+
+/** Pill background for a delta. Returns null for 0/null (no tint). */
+export function deltaBgColor(value: number | null | undefined): string | null {
+  if (value === null || value === undefined) return null
+  if (value > 0) return 'var(--color-up-bg)'
+  if (value < 0) return 'var(--color-down-bg)'
+  return null
+}
+
 export interface KpiSummary {
   count: number
   totalRelease: number

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import type { Sneaker } from '@/lib/types'
-import { calcDelta, formatEur, formatPct } from '@/lib/format'
+import { calcDelta, deltaBgColor, deltaColor, formatEur, formatPct } from '@/lib/format'
 import { SneakerPhoto } from './SneakerPhoto'
 import type { CSSProperties } from 'react'
 
@@ -37,11 +37,8 @@ export function SneakerCard({ sneaker }: SneakerCardProps) {
                 style={{
                   ...deltaStyle,
                   background:
-                    delta.pct > 0
-                      ? 'var(--color-bred-bg)'
-                      : 'var(--color-neutral-chip-bg)',
-                  color:
-                    delta.pct > 0 ? 'var(--color-bred)' : 'var(--color-text-muted)',
+                    deltaBgColor(delta.pct) ?? 'var(--color-neutral-chip-bg)',
+                  color: deltaColor(delta.pct),
                 }}
               >
                 {formatPct(delta.pct, true)}

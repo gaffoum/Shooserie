@@ -27,6 +27,8 @@
   /* Sparkline colors */
   --color-up: #16A34A;
   --color-down: #DC2626;
+  --color-up-bg: rgba(22, 163, 74, 0.10);
+  --color-down-bg: rgba(220, 38, 38, 0.10);
 
   /* States */
   --color-neutral-chip-bg: rgba(107, 114, 128, 0.10);

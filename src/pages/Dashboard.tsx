@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSneakers, useRefreshAllMarketPrices } from '@/lib/queries'
-import { aggregateKpis, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
+import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { AppHeader } from '@/components/AppHeader'
 import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
@@ -154,7 +154,6 @@ export function Dashboard() {
 
   const kpis = useMemo(() => aggregateKpis(allSneakers), [allSneakers])
   const timeline = useMemo(() => portfolioTimeline(allSneakers), [allSneakers])
-  const isPositive = kpis.deltaEur >= 0
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
@@ -186,13 +185,7 @@ export function Dashboard() {
           <KpiCard
             label="Plus-value"
             value={kpis.count > 0 ? formatEur(kpis.deltaEur, true) : '—'}
-            valueColor={
-              kpis.count > 0
-                ? isPositive
-                  ? 'var(--color-bred)'
-                  : 'var(--color-text-muted)'
-                : undefined
-            }
+            valueColor={kpis.count > 0 ? deltaColor(kpis.deltaEur) : undefined}
             sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
             sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
           />
