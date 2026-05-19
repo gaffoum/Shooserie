@@ -58,6 +58,32 @@ const fr = {
   'auth.errors.signupsDisabled': "L'inscription est désactivée.",
   'auth.errors.rateLimit': 'Trop de tentatives, réessaie dans une minute.',
 
+  // === Forgot password (Login → demande de reset) ===
+  'auth.forgot.link': 'Mot de passe oublié ?',
+  'auth.forgot.title': 'Réinitialiser le mot de passe',
+  'auth.forgot.desc':
+    "Indique ton email — on t'enverra un lien pour définir un nouveau mot de passe.",
+  'auth.forgot.submit': 'Envoyer le lien',
+  'auth.forgot.submitting': 'Envoi…',
+  'auth.forgot.success':
+    'Si un compte existe pour {email}, un lien vient d\'être envoyé. Pense à vérifier les spams.',
+  'auth.forgot.back': '← Retour à la connexion',
+
+  // === Reset password (page d'arrivée depuis l'email) ===
+  'reset.title': 'Nouveau mot de passe',
+  'reset.desc': 'Choisis un nouveau mot de passe pour ton compte.',
+  'reset.new': 'Nouveau mot de passe',
+  'reset.confirm': 'Confirmer le nouveau mot de passe',
+  'reset.help': 'Minimum 6 caractères.',
+  'reset.submit': 'Définir le mot de passe',
+  'reset.submitting': 'Enregistrement…',
+  'reset.success': 'Mot de passe mis à jour. Redirection…',
+  'reset.invalidLink':
+    "Ce lien de réinitialisation est invalide ou a expiré. Recommence la procédure depuis l'écran de connexion.",
+  'reset.mismatch': 'Les deux mots de passe ne correspondent pas.',
+  'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
+  'reset.goLogin': 'Aller à la connexion',
+
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Paires',
   'dashboard.kpi.investment': 'Investissement',
@@ -292,6 +318,32 @@ const en: typeof fr = {
     'Email not confirmed. Disable confirmation in Supabase for this account.',
   'auth.errors.signupsDisabled': 'Sign-ups are disabled.',
   'auth.errors.rateLimit': 'Too many attempts, please try again in a minute.',
+
+  // === Forgot password (Login → demande de reset) ===
+  'auth.forgot.link': 'Forgot password?',
+  'auth.forgot.title': 'Reset password',
+  'auth.forgot.desc':
+    "Enter your email — we'll send a link to set a new password.",
+  'auth.forgot.submit': 'Send link',
+  'auth.forgot.submitting': 'Sending…',
+  'auth.forgot.success':
+    "If an account exists for {email}, a link was just sent. Check your spam folder if needed.",
+  'auth.forgot.back': '← Back to sign in',
+
+  // === Reset password (page d'arrivée depuis l'email) ===
+  'reset.title': 'New password',
+  'reset.desc': 'Choose a new password for your account.',
+  'reset.new': 'New password',
+  'reset.confirm': 'Confirm new password',
+  'reset.help': 'Minimum 6 characters.',
+  'reset.submit': 'Set password',
+  'reset.submitting': 'Saving…',
+  'reset.success': 'Password updated. Redirecting…',
+  'reset.invalidLink':
+    'This reset link is invalid or has expired. Please start the process again from the sign-in screen.',
+  'reset.mismatch': 'The two passwords do not match.',
+  'reset.tooShort': 'Password must be at least 6 characters.',
+  'reset.goLogin': 'Go to sign in',
 
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Pairs',

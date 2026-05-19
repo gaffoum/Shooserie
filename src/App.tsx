@@ -7,6 +7,7 @@ import { SneakerNew } from '@/pages/SneakerNew'
 import { SneakerDetail } from '@/pages/SneakerDetail'
 import { SneakerEdit } from '@/pages/SneakerEdit'
 import { Account } from '@/pages/Account'
+import { ResetPassword } from '@/pages/ResetPassword'
 
 export default function App() {
   return (
@@ -15,6 +16,11 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
+          {/* Public — reached via the email link Supabase sends after a
+            * password reset request. The recovery token in the URL hash
+            * creates a temporary session that lets the user set a new
+            * password without going through normal login. */}
+          <Route path="/reset-password" element={<ResetPassword />} />
 
           <Route
             path="/dashboard"
