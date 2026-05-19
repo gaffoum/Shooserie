@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useSneakers, useRefreshAllMarketPrices } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
+import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
@@ -14,9 +15,10 @@ import { ScanButton } from '@/components/ScanButton'
 import type { ScanResult } from '@/components/BarcodeScanner'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
+import type { DictKey } from '@/i18n/dictionaries'
 
 /* =====================================================
- * Sort keys — labels shown in the dropdown, comparators below.
+ * Sort keys — labels are dictionary keys, comparators below.
  * ===================================================== */
 
 type SortKey =
@@ -28,14 +30,14 @@ type SortKey =
   | 'oldest'
   | 'name_asc'
 
-const SORT_LABELS: Record<SortKey, string> = {
-  delta_desc: '↓ Plus-value',
-  delta_asc: '↑ Moins-value',
-  cote_desc: '↓ Cote',
-  cote_asc: '↑ Cote',
-  recent: '↓ Récents',
-  oldest: '↑ Anciens',
-  name_asc: 'A → Z',
+const SORT_LABEL_KEYS: Record<SortKey, DictKey> = {
+  delta_desc: 'dashboard.sort.deltaDesc',
+  delta_asc: 'dashboard.sort.deltaAsc',
+  cote_desc: 'dashboard.sort.coteDesc',
+  cote_asc: 'dashboard.sort.coteAsc',
+  recent: 'dashboard.sort.recent',
+  oldest: 'dashboard.sort.oldest',
+  name_asc: 'dashboard.sort.nameAsc',
 }
 
 function deltaPct(s: Sneaker): number {
@@ -71,6 +73,7 @@ function comparator(key: SortKey): (a: Sneaker, b: Sneaker) => number {
 export function Dashboard() {
   const { data: sneakers, isLoading, error } = useSneakers()
   const navigate = useNavigate()
+  const { t } = useT()
   const [view, setView] = useState<ViewMode>('grid')
 
   // Filters
@@ -165,9 +168,10 @@ export function Dashboard() {
         rightActions={
           allSneakers.length > 0 ? (
             <>
-              <ScanButton onScan={handleDashboardScan} variant="secondary" />
-              <Link to="/sneakers/new" style={addBtnStyle}>
-                + Ajouter
+              <ScanButton onScan={handleDashboardScan} variant="compact" />
+              <Link to="/sneakers/new" style={addBtnStyle} aria-label={t('common.add')}>
+                <span>+</span>
+                <span className="app-header-add-text">{t('common.add')}</span>
               </Link>
             </>
           ) : null
@@ -177,17 +181,17 @@ export function Dashboard() {
       <main style={mainStyle}>
         {error && (
           <div style={errorBoxStyle}>
-            Erreur de chargement : {(error as Error).message}
+            {t('dashboard.errorLoad', { msg: (error as Error).message })}
           </div>
         )}
 
         {/* KPIs — toujours visibles, même collection vide */}
         <section style={kpiGridStyle}>
-          <KpiCard label="Paires" value={kpis.count} />
-          <KpiCard label="Investissement" value={formatEur(kpis.totalCost)} />
-          <KpiCard label="Cote actuelle" value={formatEur(kpis.totalMarket)} />
+          <KpiCard label={t('dashboard.kpi.pairs')} value={kpis.count} />
+          <KpiCard label={t('dashboard.kpi.investment')} value={formatEur(kpis.totalCost)} />
+          <KpiCard label={t('dashboard.kpi.currentValue')} value={formatEur(kpis.totalMarket)} />
           <KpiCard
-            label="Plus-value"
+            label={t('dashboard.kpi.plusValue')}
             value={kpis.count > 0 ? formatEur(kpis.deltaEur, true) : '—'}
             valueColor={kpis.count > 0 ? deltaColor(kpis.deltaEur) : undefined}
             sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
@@ -197,21 +201,18 @@ export function Dashboard() {
 
         {/* Loading */}
         {isLoading && (
-          <div style={loadingStyle}>Chargement de la collection…</div>
+          <div style={loadingStyle}>{t('dashboard.loading')}</div>
         )}
 
         {/* Empty */}
         {!isLoading && allSneakers.length === 0 && (
           <section style={emptyStateStyle}>
             <div style={emptyIconStyle} aria-hidden>👟</div>
-            <h2 style={emptyTitleStyle}>Aucune sneaker dans ta collection</h2>
-            <p style={emptyDescStyle}>
-              Ajoute ta première paire manuellement, ou scanne le code-barre
-              d'une boîte pour pré-remplir SKU et code.
-            </p>
+            <h2 style={emptyTitleStyle}>{t('dashboard.empty.title')}</h2>
+            <p style={emptyDescStyle}>{t('dashboard.empty.desc')}</p>
             <div style={emptyActionsStyle}>
               <Link to="/sneakers/new" style={addBtnLargeStyle}>
-                + Ajouter une paire
+                + {t('dashboard.empty.action')}
               </Link>
               <ScanButton onScan={handleDashboardScan} variant="secondary" />
             </div>
@@ -228,7 +229,7 @@ export function Dashboard() {
                 type="search"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Chercher dans la collection (nom, marque, SKU, tag…)"
+                placeholder={t('dashboard.searchPlaceholder')}
                 style={searchInputStyle}
               />
               {search && (
@@ -236,14 +237,14 @@ export function Dashboard() {
                   type="button"
                   onClick={() => setSearch('')}
                   style={searchClearStyle}
-                  aria-label="Effacer la recherche"
+                  aria-label={t('dashboard.clearSearch')}
                 >
                   ×
                 </button>
               )}
             </div>
 
-            {/* Bulk refresh row (only if there's at least one linked sneaker) */}
+            {/* Bulk refresh row */}
             {refreshableCount > 0 && (
               <div style={bulkRowStyle}>
                 <button
@@ -257,12 +258,20 @@ export function Dashboard() {
                   }}
                 >
                   {bulkRefresh.running
-                    ? `↻ Maj… ${bulkRefresh.progress.done}/${bulkRefresh.progress.total}`
-                    : `↻ Tout actualiser (${refreshableCount})`}
+                    ? t('dashboard.refreshing', {
+                        done: bulkRefresh.progress.done,
+                        total: bulkRefresh.progress.total,
+                      })
+                    : t('dashboard.refreshAll', { count: refreshableCount })}
                 </button>
                 {!bulkRefresh.running && bulkRefresh.errors.length > 0 && (
                   <span style={bulkErrorStyle}>
-                    {bulkRefresh.errors.length} échec{bulkRefresh.errors.length > 1 ? 's' : ''} — vérifie la taille / le lien catalogue
+                    {t(
+                      bulkRefresh.errors.length > 1
+                        ? 'dashboard.refreshFailuresPlural'
+                        : 'dashboard.refreshFailures',
+                      { n: bulkRefresh.errors.length },
+                    )}
                   </span>
                 )}
               </div>
@@ -290,16 +299,21 @@ export function Dashboard() {
                 aria-pressed={forSaleOnly}
                 style={forSaleTogglePillStyle(forSaleOnly)}
               >
-                {forSaleOnly ? '✓ ' : ''}À vendre uniquement
+                {forSaleOnly ? t('dashboard.forSaleActive') : t('dashboard.forSaleOnly')}
               </button>
             </div>
 
             <div style={toolbarStyle}>
               <div style={countLabelStyle}>
-                Collection · {sorted.length} paire{sorted.length > 1 ? 's' : ''}
+                {t(
+                  sorted.length > 1
+                    ? 'dashboard.collectionCountPlural'
+                    : 'dashboard.collectionCount',
+                  { n: sorted.length },
+                )}
                 {(brandFilter || tagFilter.length > 0 || forSaleOnly || search) && (
                   <span style={{ marginLeft: 8, color: 'var(--color-text-faint)' }}>
-                    · filtré
+                    {' '}{t('dashboard.filtered')}
                   </span>
                 )}
               </div>
@@ -308,11 +322,11 @@ export function Dashboard() {
                   value={sortKey}
                   onChange={(e) => setSortKey(e.target.value as SortKey)}
                   style={sortSelectStyle}
-                  aria-label="Trier"
+                  aria-label={t('dashboard.sort.aria')}
                 >
-                  {(Object.keys(SORT_LABELS) as SortKey[]).map((k) => (
+                  {(Object.keys(SORT_LABEL_KEYS) as SortKey[]).map((k) => (
                     <option key={k} value={k}>
-                      {SORT_LABELS[k]}
+                      {t(SORT_LABEL_KEYS[k])}
                     </option>
                   ))}
                 </select>
@@ -322,7 +336,7 @@ export function Dashboard() {
 
             {sorted.length === 0 ? (
               <div style={noMatchStyle}>
-                Aucune paire ne correspond à ces filtres.
+                {t('dashboard.noMatch')}
               </div>
             ) : view === 'grid' ? (
               <div style={gridStyle}>
@@ -508,7 +522,10 @@ const errorBoxStyle: CSSProperties = {
   marginBottom: 16,
 }
 const addBtnStyle: CSSProperties = {
-  padding: '8px 14px',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  padding: '8px 12px',
   fontSize: 11,
   letterSpacing: 'var(--tracking-wide)',
   textTransform: 'uppercase',
@@ -519,6 +536,7 @@ const addBtnStyle: CSSProperties = {
   borderRadius: 'var(--radius-md)',
   fontFamily: 'var(--font-display)',
   textDecoration: 'none',
+  whiteSpace: 'nowrap',
 }
 const emptyStateStyle: CSSProperties = {
   background: 'var(--color-surface)',

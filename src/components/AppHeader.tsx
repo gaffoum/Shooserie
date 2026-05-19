@@ -1,7 +1,9 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { ADMIN_EMAIL, useUserCount } from '@/lib/queries'
+import { useT } from '@/i18n/I18nContext'
 import { Logo } from './Logo'
+import { LanguageToggle } from './LanguageToggle'
 import type { CSSProperties, ReactNode } from 'react'
 
 interface AppHeaderProps {
@@ -13,6 +15,7 @@ interface AppHeaderProps {
 
 export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
   const { user, signOut } = useAuth()
+  const { t } = useT()
   const isAdmin = user?.email === ADMIN_EMAIL
   const { data: userCount } = useUserCount(user?.email)
 
@@ -25,10 +28,11 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
         </Link>
       </div>
 
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+      <div className="app-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {rightActions}
         {isAdmin && userCount !== undefined && (
           <span
+            className="app-header-badge"
             style={userCountBadgeStyle}
             title={`${userCount} utilisateur${userCount > 1 ? 's' : ''} inscrit${userCount > 1 ? 's' : ''} au total`}
           >
@@ -38,8 +42,9 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
         <span className="app-header-email" style={emailStyle} title={user?.email ?? ''}>
           {user?.email}
         </span>
-        <button onClick={signOut} aria-label="Déconnexion" style={signoutStyle}>
-          Sortir
+        <LanguageToggle />
+        <button onClick={signOut} aria-label={t('common.logout')} style={signoutStyle}>
+          {t('common.logout')}
         </button>
       </div>
     </header>

@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 interface ConfirmDialogProps {
@@ -17,14 +18,17 @@ export function ConfirmDialog({
   open,
   title,
   description,
-  confirmLabel = 'Confirmer',
-  cancelLabel = 'Annuler',
+  confirmLabel,
+  cancelLabel,
   destructive,
   pending,
   onConfirm,
   onCancel,
 }: ConfirmDialogProps) {
-  // ESC pour fermer
+  const { t } = useT()
+  const finalConfirm = confirmLabel ?? t('common.confirm')
+  const finalCancel = cancelLabel ?? t('common.cancel')
+
   useEffect(() => {
     if (!open) return
     const handle = (e: KeyboardEvent) => {
@@ -56,7 +60,7 @@ export function ConfirmDialog({
             disabled={pending}
             style={cancelBtnStyle}
           >
-            {cancelLabel}
+            {finalCancel}
           </button>
           <button
             type="button"
@@ -69,7 +73,7 @@ export function ConfirmDialog({
               opacity: pending ? 0.6 : 1,
             }}
           >
-            {pending ? 'Suppression…' : confirmLabel}
+            {pending ? `${finalConfirm}…` : finalConfirm}
           </button>
         </div>
       </div>

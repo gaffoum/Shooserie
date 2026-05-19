@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom'
 import type { Sneaker } from '@/lib/types'
 import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
+import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from './SneakerPhoto'
 import type { CSSProperties } from 'react'
 
@@ -10,6 +11,7 @@ interface SneakerTableProps {
 
 export function SneakerTable({ sneakers }: SneakerTableProps) {
   const navigate = useNavigate()
+  const { t } = useT()
   return (
     <div style={wrapStyle}>
       <table style={tableStyle}>
@@ -23,10 +25,10 @@ export function SneakerTable({ sneakers }: SneakerTableProps) {
         <thead>
           <tr>
             <th style={thStyle}></th>
-            <th style={thStyle}>Modèle</th>
-            <th style={thStyle}>Taille</th>
-            <th style={{ ...thStyle, textAlign: 'right' }}>Cote</th>
-            <th style={{ ...thStyle, textAlign: 'right' }}>+/-</th>
+            <th style={thStyle}>{t('table.col.model')}</th>
+            <th style={thStyle}>{t('table.col.size')}</th>
+            <th style={{ ...thStyle, textAlign: 'right' }}>{t('table.col.cote')}</th>
+            <th style={{ ...thStyle, textAlign: 'right' }}>{t('table.col.delta')}</th>
           </tr>
         </thead>
         <tbody>

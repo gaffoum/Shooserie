@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 interface BackLinkProps {
@@ -6,9 +7,10 @@ interface BackLinkProps {
   label?: string
 }
 
-export function BackLink({ to, label = 'Retour' }: BackLinkProps) {
+export function BackLink({ to, label }: BackLinkProps) {
+  const { t } = useT()
   return (
-    <Link to={to} aria-label={label} style={style}>
+    <Link to={to} aria-label={label ?? t('common.back')} style={style}>
       <svg
         width="14"
         height="14"

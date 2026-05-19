@@ -1,4 +1,5 @@
 import { useState, type CSSProperties, type KeyboardEvent } from 'react'
+import { useT } from '@/i18n/I18nContext'
 
 interface TagsInputProps {
   value: string[]
@@ -15,17 +16,19 @@ interface TagsInputProps {
 export function TagsInput({
   value,
   onChange,
-  placeholder = 'Ajouter un tag…',
+  placeholder,
   suggestions = [],
 }: TagsInputProps) {
+  const { t } = useT()
+  const ph = placeholder ?? t('form.tagsPlaceholder')
   const [draft, setDraft] = useState('')
   const [focused, setFocused] = useState(false)
 
   const add = (raw: string) => {
-    const t = raw.trim().toLowerCase()
-    if (!t) return
-    if (value.includes(t)) return
-    onChange([...value, t])
+    const tag = raw.trim().toLowerCase()
+    if (!tag) return
+    if (value.includes(tag)) return
+    onChange([...value, tag])
     setDraft('')
   }
 
@@ -57,7 +60,7 @@ export function TagsInput({
               type="button"
               onClick={() => remove(tag)}
               style={chipRemoveStyle}
-              aria-label={`Retirer le tag ${tag}`}
+              aria-label={t('form.tagRemoveAria', { tag })}
             >
               ×
             </button>
@@ -69,13 +72,11 @@ export function TagsInput({
           onChange={(e) => setDraft(e.target.value)}
           onKeyDown={onKey}
           onBlur={() => {
-            // Commit any draft on blur so users don't lose it.
             if (draft.trim()) add(draft)
-            // Delay so suggestion clicks register first.
             window.setTimeout(() => setFocused(false), 150)
           }}
           onFocus={() => setFocused(true)}
-          placeholder={value.length === 0 ? placeholder : ''}
+          placeholder={value.length === 0 ? ph : ''}
           style={inputStyle}
         />
       </div>
@@ -86,7 +87,7 @@ export function TagsInput({
               type="button"
               key={s}
               onMouseDown={(e) => {
-                e.preventDefault() // keep input focused
+                e.preventDefault()
                 add(s)
               }}
               style={suggestionItemStyle}

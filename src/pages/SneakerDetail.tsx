@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
 import { calcDelta, deltaColor, effectiveCost, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
+import { useT, formatDateTime } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
@@ -13,6 +14,7 @@ import type { CSSProperties } from 'react'
 export function SneakerDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { t } = useT()
   const { data: sneaker, isLoading, error } = useSneaker(id)
   const deleteMutation = useDeleteSneaker()
   const refreshMutation = useRefreshMarketPrice()
@@ -39,11 +41,11 @@ export function SneakerDetail() {
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <AppHeader leftActions={<BackLink to="/dashboard" />} />
       <main style={mainStyle}>
-        {isLoading && <p style={loadingStyle}>Chargement…</p>}
+        {isLoading && <p style={loadingStyle}>{t('common.loading')}</p>}
 
         {error && (
           <div style={errorBoxStyle}>
-            Erreur : {(error as Error).message}
+            {t('common.error')} : {(error as Error).message}
           </div>
         )}
 
@@ -63,15 +65,15 @@ export function SneakerDetail() {
                 {sneaker.colorway && <div style={colorwayStyle}>{sneaker.colorway}</div>}
 
                 <div style={metaGridStyle}>
-                  <Meta label="SKU" value={sneaker.sku || '—'} mono />
+                  <Meta label={t('detail.meta.sku')} value={sneaker.sku || '—'} mono />
                   <Meta
-                    label="Taille"
+                    label={t('detail.meta.size')}
                     value={formatSizeLabel(sneaker.size_eu, sneaker.size_us)}
                     mono
                   />
-                  <Meta label="État" value={sneaker.condition || '—'} />
+                  <Meta label={t('detail.meta.condition')} value={sneaker.condition || '—'} />
                   <Meta
-                    label="Release"
+                    label={t('detail.meta.release')}
                     value={
                       [
                         formatDate(sneaker.release_date),
@@ -93,7 +95,7 @@ export function SneakerDetail() {
             {/* Historique des cotes — affiché seulement si au moins 2 points */}
             <CoteHistory sneaker={sneaker} />
 
-            {/* Bloc cote du marché — refresh + lien fiche en ligne */}
+            {/* Bloc cote du marché */}
             <StockXBlock
               sneaker={sneaker}
               onRefresh={handleRefresh}
@@ -104,11 +106,11 @@ export function SneakerDetail() {
             {/* Achat info */}
             <div style={purchaseStyle}>
               <Meta
-                label="Acheté le"
+                label={t('detail.purchase.purchasedOn')}
                 value={formatDate(sneaker.purchase_date)}
               />
               <Meta
-                label="Prix d'achat"
+                label={t('detail.purchase.price')}
                 value={formatEur(sneaker.purchase_price)}
                 mono
               />
@@ -119,7 +121,7 @@ export function SneakerDetail() {
               <div style={trackingBlockStyle}>
                 {sneaker.is_for_sale && (
                   <div style={forSaleRowStyle}>
-                    <span style={forSaleBadgeStyle}>À VENDRE</span>
+                    <span style={forSaleBadgeStyle}>{t('card.forSale')}</span>
                     {sneaker.target_sale_price !== null && (
                       <span style={forSalePriceStyle}>
                         {formatEur(sneaker.target_sale_price)}
@@ -129,8 +131,8 @@ export function SneakerDetail() {
                 )}
                 {sneaker.tags.length > 0 && (
                   <div style={tagsRowStyle}>
-                    {sneaker.tags.map((t) => (
-                      <span key={t} style={tagPillStyle}>{t}</span>
+                    {sneaker.tags.map((tag) => (
+                      <span key={tag} style={tagPillStyle}>{tag}</span>
                     ))}
                   </div>
                 )}
@@ -140,7 +142,7 @@ export function SneakerDetail() {
             {/* Notes */}
             {sneaker.notes && (
               <div style={notesStyle}>
-                <div style={notesLabelStyle}>Notes</div>
+                <div style={notesLabelStyle}>{t('form.section.notes')}</div>
                 <p style={notesTextStyle}>{sneaker.notes}</p>
               </div>
             )}
@@ -148,22 +150,22 @@ export function SneakerDetail() {
             {/* Actions */}
             <div style={actionsStyle}>
               <Link to={`/sneakers/${sneaker.id}/edit`} style={editBtnStyle}>
-                Modifier
+                {t('common.edit')}
               </Link>
               <button
                 type="button"
                 onClick={() => setConfirmOpen(true)}
                 style={deleteBtnStyle}
               >
-                Supprimer
+                {t('common.delete')}
               </button>
             </div>
 
             <ConfirmDialog
               open={confirmOpen}
-              title="Supprimer cette paire ?"
-              description={`"${sneaker.name}" sera retirée définitivement de ta collection. La photo associée sera aussi supprimée.`}
-              confirmLabel="Supprimer"
+              title={t('detail.delete.title')}
+              description={t('detail.delete.desc')}
+              confirmLabel={t('common.delete')}
               destructive
               pending={deleteMutation.isPending}
               onConfirm={handleDelete}
@@ -177,12 +179,11 @@ export function SneakerDetail() {
 }
 
 function PriceGrid({ sneaker }: { sneaker: Sneaker }) {
+  const { t } = useT()
   const cost = effectiveCost(sneaker)
   const market = sneaker.market_price
   const delta = calcDelta(cost, market)
 
-  // Si le prix d'achat n'est pas saisi mais qu'on utilise release comme fallback,
-  // on indique discrètement la source.
   const costFromRelease =
     (sneaker.purchase_price === null || sneaker.purchase_price === undefined) &&
     sneaker.release_price !== null
@@ -190,18 +191,18 @@ function PriceGrid({ sneaker }: { sneaker: Sneaker }) {
   return (
     <div style={priceGridStyle}>
       <Cell
-        label="Achat"
+        label={t('detail.price.purchase')}
         value={formatEur(cost)}
-        sublabel={costFromRelease ? '= release' : null}
+        sublabel={costFromRelease ? t('detail.price.fromRelease') : null}
       />
-      <Cell label="Cote" value={formatEur(market)} />
+      <Cell label={t('detail.price.cote')} value={formatEur(market)} />
       <Cell
-        label="+/- €"
+        label={t('detail.price.deltaEur')}
         value={delta.eur !== null ? formatEur(delta.eur, true) : '—'}
         color={delta.eur !== null ? deltaColor(delta.eur) : undefined}
       />
       <Cell
-        label="+/- %"
+        label={t('detail.price.deltaPct')}
         value={delta.pct !== null ? formatPct(delta.pct, true) : '—'}
         color={delta.pct !== null ? deltaColor(delta.pct) : undefined}
       />
@@ -210,8 +211,8 @@ function PriceGrid({ sneaker }: { sneaker: Sneaker }) {
 }
 
 function CoteHistory({ sneaker }: { sneaker: Sneaker }) {
+  const { t } = useT()
   const points = sneakerTimeline(sneaker)
-  // Only show if we have at least 2 data points worth plotting.
   if (points.length < 2) return null
 
   const first = points[0].value
@@ -222,7 +223,7 @@ function CoteHistory({ sneaker }: { sneaker: Sneaker }) {
   return (
     <div style={historyBlockStyle}>
       <div style={historyHeaderStyle}>
-        <span style={historyLabelStyle}>Historique de la cote</span>
+        <span style={historyLabelStyle}>{t('detail.history.label')}</span>
         <span style={historyDeltaStyle}>
           {formatEur(delta, true)}
           {pct !== null && (
@@ -231,7 +232,7 @@ function CoteHistory({ sneaker }: { sneaker: Sneaker }) {
             </span>
           )}
           <span style={{ marginLeft: 8, color: 'var(--color-text-faint)', fontWeight: 400 }}>
-            sur {points.length} maj
+            {' '}{t('detail.history.count', { n: points.length })}
           </span>
         </span>
       </div>
@@ -253,6 +254,7 @@ function StockXBlock({
   refreshing: boolean
   error: string | null
 }) {
+  const { t, lang } = useT()
   const linked = !!sneaker.stockx_product_id
   const canRefresh = linked && !!sneaker.size_us
   const lastCheck = sneaker.last_price_check
@@ -260,30 +262,25 @@ function StockXBlock({
   return (
     <div style={stockxBlockStyle}>
       <div style={stockxHeaderRowStyle}>
-        <span style={stockxLabelStyle}>Cote du marché</span>
+        <span style={stockxLabelStyle}>{t('detail.market.label')}</span>
         {linked && lastCheck && (
           <span style={stockxMetaStyle}>
-            Maj {formatDateTime(lastCheck)}
+            {t('detail.market.lastUpdate', { date: formatDateTime(lastCheck, lang) })}
           </span>
         )}
       </div>
 
       {!linked && (
-        <div style={stockxHintStyle}>
-          Pas lié au catalogue. Modifie la paire et utilise la barre de
-          recherche pour activer la mise à jour automatique.
-        </div>
+        <div style={stockxHintStyle}>{t('detail.market.notLinked')}</div>
       )}
 
       {linked && !sneaker.size_us && (
-        <div style={stockxHintStyle}>
-          Renseigne la taille US pour activer le refresh de cote.
-        </div>
+        <div style={stockxHintStyle}>{t('detail.market.noSize')}</div>
       )}
 
       {linked && lastCheck && sneaker.market_price_usd !== null && (
         <div style={stockxSubMetaStyle}>
-          Source : ${sneaker.market_price_usd}
+          {t('detail.market.source', { value: sneaker.market_price_usd })}
         </div>
       )}
 
@@ -302,7 +299,7 @@ function StockXBlock({
                 cursor: refreshing ? 'wait' : 'pointer',
               }}
             >
-              {refreshing ? 'Maj…' : '↻ Actualiser la cote'}
+              {refreshing ? t('detail.market.refreshing') : t('detail.market.refresh')}
             </button>
           )}
           {sneaker.stockx_url && (
@@ -312,24 +309,13 @@ function StockXBlock({
               rel="noopener noreferrer"
               style={stockxLinkStyle}
             >
-              Voir la fiche ↗
+              {t('detail.market.viewExternal')}
             </a>
           )}
         </div>
       )}
     </div>
   )
-}
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso)
-  if (Number.isNaN(d.getTime())) return '—'
-  return d.toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  })
 }
 
 function Cell({

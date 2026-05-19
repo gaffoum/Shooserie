@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import type { Sneaker } from '@/lib/types'
 import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
+import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from './SneakerPhoto'
 import type { CSSProperties } from 'react'
 
@@ -9,6 +10,7 @@ interface SneakerCardProps {
 }
 
 export function SneakerCard({ sneaker }: SneakerCardProps) {
+  const { t } = useT()
   const delta = calcDelta(effectiveCost(sneaker), sneaker.market_price)
   const sizeLabel = formatSize(sneaker.size_eu, sneaker.size_us)
   const priceShown = sneaker.market_price ?? effectiveCost(sneaker)
@@ -23,7 +25,7 @@ export function SneakerCard({ sneaker }: SneakerCardProps) {
             alt={sneaker.name}
           />
           {sneaker.is_for_sale && (
-            <span style={forSaleRibbonStyle}>À VENDRE</span>
+            <span style={forSaleRibbonStyle}>{t('card.forSale')}</span>
           )}
         </div>
         <div style={bodyStyle}>

@@ -1,6 +1,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react'
 import { Html5Qrcode, Html5QrcodeSupportedFormats } from 'html5-qrcode'
 import { lookupBarcode, type LookupSuggestion, type BarcodeLookupResult } from '@/lib/queries'
+import { useT } from '@/i18n/I18nContext'
+import type { DictKey } from '@/i18n/dictionaries'
 
 export interface ScanResult {
   code: string
@@ -28,8 +30,9 @@ const READER_ID = 'shooserie-qr-reader'
  * Fallback "saisie manuelle" si caméra refusée/indispo.
  */
 export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScannerProps) {
+  const { t } = useT()
   const [phase, setPhase] = useState<Phase>('starting')
-  const [errorMsg, setErrorMsg] = useState<string>('')
+  const [errorKey, setErrorKey] = useState<DictKey | null>(null)
   const [lastDetected, setLastDetected] = useState<string>('')
   const [manualCode, setManualCode] = useState<string>('')
   const scannerRef = useRef<Html5Qrcode | null>(null)
@@ -41,7 +44,7 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
 
     mountedRef.current = true
     setPhase('starting')
-    setErrorMsg('')
+    setErrorKey(null)
     setLastDetected('')
 
     const start = async () => {
@@ -105,15 +108,10 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
         const e = err as Error & { name?: string }
         setPhase('error')
         if (e.name === 'NotAllowedError' || /permission|denied/i.test(e.message)) {
-          setErrorMsg(
-            "L'accès à la caméra a été refusé. Active-le dans les paramètres de ton navigateur, ou utilise la saisie manuelle.",
-          )
-        } else if (e.name === 'NotFoundError' || /no camera|not found/i.test(e.message)) {
-          setErrorMsg(
-            "Aucune caméra détectée sur cet appareil. Utilise la saisie manuelle.",
-          )
+          setErrorKey('scan.permissionDenied')
         } else {
-          setErrorMsg(`Impossible de démarrer la caméra : ${e.message}`)
+          // No camera, generic error, etc. — same fallback message.
+          setErrorKey('scan.cameraUnavailable')
         }
       }
     }
@@ -163,9 +161,9 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
   if (!open) return null
 
   return (
-    <div style={overlayStyle} role="dialog" aria-modal="true" aria-label="Scanner code-barre">
+    <div style={overlayStyle} role="dialog" aria-modal="true" aria-label={t('scan.openAria')}>
       {/* Bouton fermer */}
-      <button onClick={handleClose} aria-label="Fermer le scanner" style={closeBtnStyle}>
+      <button onClick={handleClose} aria-label={t('scan.closeAria')} style={closeBtnStyle}>
         <CloseIcon />
       </button>
 
@@ -177,40 +175,38 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
           {/* Overlay UI */}
           <div style={overlayUiStyle}>
             <h2 style={titleStyle}>
-              {phase === 'starting' && 'Démarrage caméra…'}
-              {phase === 'scanning' && 'Vise le code-barre'}
-              {phase === 'looking-up' && 'Code détecté — recherche des infos…'}
-              {phase === 'error' && 'Erreur caméra'}
+              {phase === 'starting' && t('scan.starting')}
+              {phase === 'scanning' && t('scan.scanning')}
+              {phase === 'looking-up' && t('scan.lookingUp')}
+              {phase === 'error' && t('scan.error')}
             </h2>
             {phase === 'scanning' && (
-              <p style={hintStyle}>
-                Centre le code dans le cadre. La détection est automatique.
-              </p>
+              <p style={hintStyle}>{t('scan.hint')}</p>
             )}
             {(phase === 'scanning' || phase === 'looking-up') && lastDetected && (
-              <p style={detectedStyle}>Détecté : {lastDetected}</p>
+              <p style={detectedStyle}>{t('scan.detected', { code: lastDetected })}</p>
             )}
           </div>
 
           {phase === 'looking-up' && (
             <div style={lookupOverlayStyle}>
               <div style={spinnerStyle} aria-hidden />
-              <p style={lookupTextStyle}>Recherche dans la base UPCitemdb…</p>
+              <p style={lookupTextStyle}>{t('scan.lookingUpDb')}</p>
             </div>
           )}
 
           {phase === 'error' && (
             <div style={errorPanelStyle}>
-              <p style={errorTextStyle}>{errorMsg}</p>
+              <p style={errorTextStyle}>{errorKey ? t(errorKey) : ''}</p>
               <button onClick={() => setPhase('manual')} style={fallbackBtnStyle}>
-                Saisir manuellement
+                {t('scan.fallback')}
               </button>
             </div>
           )}
 
           {phase === 'scanning' && (
             <button onClick={() => setPhase('manual')} style={manualLinkStyle}>
-              Pas de code-barre ? Saisir manuellement
+              {t('scan.manualLink')}
             </button>
           )}
         </>
@@ -219,15 +215,13 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
       {/* Mode manuel */}
       {phase === 'manual' && (
         <form onSubmit={handleManualSubmit} style={manualFormStyle}>
-          <h2 style={titleStyle}>Saisie manuelle</h2>
-          <p style={hintStyle}>
-            Tape le SKU ou le code-barre (UPC/EAN) inscrit sur la boîte.
-          </p>
+          <h2 style={titleStyle}>{t('scan.manualTitle')}</h2>
+          <p style={hintStyle}>{t('scan.manualHint')}</p>
           <input
             type="text"
             value={manualCode}
             onChange={(e) => setManualCode(e.target.value)}
-            placeholder="DZ5485-612 ou 194501028530"
+            placeholder="DZ5485-612"
             autoFocus
             style={manualInputStyle}
           />
@@ -239,7 +233,7 @@ export default function BarcodeScanner({ open, onClose, onScan }: BarcodeScanner
               opacity: !manualCode.trim() ? 0.55 : 1,
             }}
           >
-            Valider
+            {t('scan.manualSubmit')}
           </button>
         </form>
       )}

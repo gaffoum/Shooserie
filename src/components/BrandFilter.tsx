@@ -1,3 +1,4 @@
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 interface BrandFilterProps {
@@ -7,10 +8,11 @@ interface BrandFilterProps {
 }
 
 export function BrandFilter({ brands, selected, onChange }: BrandFilterProps) {
+  const { t } = useT()
   return (
-    <div style={wrapStyle} role="group" aria-label="Filtre par marque">
+    <div style={wrapStyle} role="group" aria-label={t('common.all')}>
       <Chip
-        label="Toutes"
+        label={t('common.all')}
         active={selected === null}
         onClick={() => onChange(null)}
       />

@@ -2,18 +2,23 @@ import { useState, type FormEvent, type CSSProperties } from 'react'
 import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useT } from '@/i18n/I18nContext'
 import { Logo } from '@/components/Logo'
+import { LanguageToggle } from '@/components/LanguageToggle'
+import type { DictKey } from '@/i18n/dictionaries'
 
 type Mode = 'signin' | 'signup'
 type Status = 'idle' | 'submitting' | 'error'
 
 export function Login() {
   const { session, loading } = useAuth()
+  const { t } = useT()
   const [mode, setMode] = useState<Mode>('signin')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [status, setStatus] = useState<Status>('idle')
-  const [errorMsg, setErrorMsg] = useState('')
+  const [errorKey, setErrorKey] = useState<DictKey | null>(null)
+  const [errorRaw, setErrorRaw] = useState<string>('')
 
   if (!loading && session) return <Navigate to="/dashboard" replace />
 
@@ -21,7 +26,8 @@ export function Login() {
     e.preventDefault()
     if (!email || !password) return
     setStatus('submitting')
-    setErrorMsg('')
+    setErrorKey(null)
+    setErrorRaw('')
 
     const { error } =
       mode === 'signin'
@@ -30,10 +36,10 @@ export function Login() {
 
     if (error) {
       setStatus('error')
-      setErrorMsg(translateError(error.message))
+      const key = mapErrorToKey(error.message)
+      if (key) setErrorKey(key)
+      else setErrorRaw(error.message)
     } else {
-      // onAuthStateChange dans AuthContext déclenche la redirection vers /dashboard
-      // (signUp connecte directement si "Confirm email" est OFF côté Supabase)
       setStatus('idle')
     }
   }
@@ -41,7 +47,8 @@ export function Login() {
   const switchMode = () => {
     setMode((m) => (m === 'signin' ? 'signup' : 'signin'))
     setStatus('idle')
-    setErrorMsg('')
+    setErrorKey(null)
+    setErrorRaw('')
   }
 
   return (
@@ -54,8 +61,13 @@ export function Login() {
         justifyContent: 'center',
         padding: '24px',
         background: 'var(--color-bg)',
+        position: 'relative',
       }}
     >
+      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+        <LanguageToggle />
+      </div>
+
       <div
         style={{
           width: '100%',
@@ -78,18 +90,18 @@ export function Login() {
               fontWeight: 500,
             }}
           >
-            {mode === 'signin' ? 'Connexion' : 'Créer un compte'}
+            {mode === 'signin' ? t('auth.signin.title') : t('auth.signup.title')}
           </p>
         </div>
 
         <form onSubmit={handleSubmit} noValidate>
-          <label htmlFor="email" style={labelStyle}>Email</label>
+          <label htmlFor="email" style={labelStyle}>{t('auth.email')}</label>
           <input
             id="email"
             type="email"
             autoComplete="email"
             required
-            placeholder="toi@email.com"
+            placeholder={t('auth.emailPlaceholder')}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={status === 'submitting'}
@@ -99,7 +111,7 @@ export function Login() {
           />
 
           <label htmlFor="password" style={{ ...labelStyle, marginTop: 16 }}>
-            Mot de passe
+            {t('auth.password')}
           </label>
           <input
             id="password"
@@ -124,7 +136,7 @@ export function Login() {
                 lineHeight: 1.4,
               }}
             >
-              Minimum 6 caractères.
+              {t('auth.passwordHint')}
             </p>
           )}
 
@@ -150,8 +162,12 @@ export function Login() {
             }}
           >
             {status === 'submitting'
-              ? mode === 'signin' ? 'Connexion…' : 'Création…'
-              : mode === 'signin' ? 'Se connecter' : 'Créer le compte'}
+              ? mode === 'signin'
+                ? t('auth.signin.submitting')
+                : t('auth.signup.submitting')
+              : mode === 'signin'
+                ? t('auth.signin.submit')
+                : t('auth.signup.submit')}
           </button>
 
           {status === 'error' && (
@@ -164,7 +180,7 @@ export function Login() {
                 lineHeight: 1.4,
               }}
             >
-              {errorMsg || 'Une erreur est survenue, réessaie.'}
+              {errorKey ? t(errorKey) : errorRaw || t('auth.errors.generic')}
             </p>
           )}
 
@@ -176,7 +192,7 @@ export function Login() {
               color: 'var(--color-text-muted)',
             }}
           >
-            {mode === 'signin' ? "Pas encore de compte ?" : 'Déjà un compte ?'}{' '}
+            {mode === 'signin' ? t('auth.signin.noAccount') : t('auth.signup.haveAccount')}{' '}
             <button
               type="button"
               onClick={switchMode}
@@ -187,24 +203,13 @@ export function Login() {
                 fontSize: 12,
               }}
             >
-              {mode === 'signin' ? 'En créer un' : 'Se connecter'}
+              {mode === 'signin'
+                ? t('auth.signin.switchToSignup')
+                : t('auth.signup.switchToSignin')}
             </button>
           </div>
         </form>
       </div>
-
-      <p
-        style={{
-          marginTop: 24,
-          fontSize: 10,
-          letterSpacing: 'var(--tracking-wider)',
-          textTransform: 'uppercase',
-          color: 'var(--color-text-faint)',
-          fontWeight: 500,
-        }}
-      >
-        Phase 1 · Build initial
-      </p>
     </div>
   )
 }
@@ -231,16 +236,14 @@ const inputStyle: CSSProperties = {
   transition: 'border-color var(--transition-fast)',
 }
 
-/** Traduit les principaux messages d'erreur Supabase en FR */
-function translateError(msg: string): string {
+/** Maps Supabase auth error messages to our dictionary keys. */
+function mapErrorToKey(msg: string): DictKey | null {
   const m = msg.toLowerCase()
-  if (m.includes('invalid login credentials')) return 'Email ou mot de passe incorrect.'
-  if (m.includes('user already registered')) return 'Un compte existe déjà avec cet email.'
-  if (m.includes('password should be at least'))
-    return 'Mot de passe trop court (minimum 6 caractères).'
-  if (m.includes('email not confirmed'))
-    return "Email non confirmé. Désactive la confirmation dans Supabase pour ce compte."
-  if (m.includes('signups not allowed')) return "L'inscription est désactivée."
-  if (m.includes('rate limit')) return 'Trop de tentatives, réessaie dans une minute.'
-  return msg
+  if (m.includes('invalid login credentials')) return 'auth.errors.invalidCredentials'
+  if (m.includes('user already registered')) return 'auth.errors.userExists'
+  if (m.includes('password should be at least')) return 'auth.errors.passwordShort'
+  if (m.includes('email not confirmed')) return 'auth.errors.emailNotConfirmed'
+  if (m.includes('signups not allowed')) return 'auth.errors.signupsDisabled'
+  if (m.includes('rate limit')) return 'auth.errors.rateLimit'
+  return null
 }

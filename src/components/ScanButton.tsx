@@ -1,5 +1,6 @@
 import { lazy, Suspense, useState, type CSSProperties, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { useT } from '@/i18n/I18nContext'
 import type { ScanResult } from './BarcodeScanner'
 
 // Lazy-load le scanner pour ne pas plomber le first-load
@@ -21,6 +22,7 @@ export function ScanButton({
   children,
   disabled,
 }: ScanButtonProps) {
+  const { t } = useT()
   const [open, setOpen] = useState(false)
 
   const handleScan = (result: ScanResult) => {
@@ -35,10 +37,10 @@ export function ScanButton({
         onClick={() => setOpen(true)}
         disabled={disabled}
         style={getButtonStyle(variant, disabled)}
-        aria-label="Scanner un code-barre"
+        aria-label={t('scan.openAria')}
       >
         <ScanIcon variant={variant} />
-        {children ?? (variant === 'compact' ? null : 'Scanner')}
+        {children ?? (variant === 'compact' ? null : t('common.scanner'))}
       </button>
 
       {/* Portal vers <body> : le scanner doit échapper aux ancêtres en

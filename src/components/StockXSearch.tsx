@@ -5,6 +5,7 @@ import {
   type StockXSearchHit,
   type StockXProduct,
 } from '@/lib/stockx'
+import { useT } from '@/i18n/I18nContext'
 
 interface StockXSearchProps {
   /**
@@ -22,6 +23,7 @@ interface StockXSearchProps {
  * form manually.
  */
 export function StockXSearch({ onPick }: StockXSearchProps) {
+  const { t } = useT()
   const [query, setQuery] = useState('')
   const [hits, setHits] = useState<StockXSearchHit[]>([])
   const [searching, setSearching] = useState(false)
@@ -98,7 +100,7 @@ export function StockXSearch({ onPick }: StockXSearchProps) {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           onFocus={() => hits.length > 0 && setOpen(true)}
-          placeholder="Chercher un modèle (ex: Jordan 1 Chicago)…"
+          placeholder={t('form.searchPlaceholder')}
           style={inputStyle}
           autoComplete="off"
           disabled={fetching}
@@ -129,7 +131,7 @@ export function StockXSearch({ onPick }: StockXSearchProps) {
               </div>
             </button>
           ))}
-          {fetching && <div style={fetchingRowStyle}>Récupération du détail…</div>}
+          {fetching && <div style={fetchingRowStyle}>{t('form.search.fetching')}</div>}
         </div>
       )}
     </div>

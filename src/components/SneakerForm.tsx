@@ -3,6 +3,7 @@ import type { Sneaker } from '@/lib/types'
 import type { SneakerInput } from '@/lib/queries'
 import { uploadSneakerPhoto, useSignedPhotoUrl } from '@/lib/queries'
 import type { StockXProduct } from '@/lib/stockx'
+import { useT } from '@/i18n/I18nContext'
 import { PhotoPlaceholder } from './PhotoPlaceholder'
 import { ScanButton } from './ScanButton'
 import { StockXSearch } from './StockXSearch'
@@ -18,16 +19,26 @@ interface SneakerFormProps {
   submitLabel?: string
 }
 
+// Internal condition codes stored in DB. Labels translated at render time.
 const CONDITIONS = ['DS', 'VNDS', 'Porté', 'Très porté'] as const
 const BRANDS = ['Nike', 'Air Jordan', 'Adidas', 'New Balance', 'Puma', 'ASICS', 'Yeezy', 'Autre']
+
+// Dictionary keys for condition labels (stored values stay French for DB compat).
+const CONDITION_LABELS: Record<(typeof CONDITIONS)[number], string> = {
+  DS: 'form.condition.DS',
+  VNDS: 'form.condition.VNDS',
+  'Porté': 'form.condition.worn',
+  'Très porté': 'form.condition.heavyWorn',
+}
 
 export function SneakerForm({
   initial,
   defaults,
   onSubmit,
   submitting,
-  submitLabel = 'Enregistrer',
+  submitLabel,
 }: SneakerFormProps) {
+  const { t } = useT()
   const [state, setState] = useState<SneakerInput>(() => initialState(initial, defaults))
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
@@ -88,7 +99,7 @@ export function SneakerForm({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!state.name.trim()) {
-      setSubmitError('Le nom est obligatoire.')
+      setSubmitError(t('form.errors.nameRequired'))
       return
     }
     setSubmitError(null)
@@ -112,18 +123,16 @@ export function SneakerForm({
 
   return (
     <form onSubmit={handleSubmit} style={formStyle} noValidate>
-      {/* StockX search — auto-fills the catalog fields */}
-      <Section title="Auto-remplissage">
+      {/* Catalog search — auto-fills catalog fields */}
+      <Section title={t('form.section.autofill')}>
         <StockXSearch onPick={handleStockXPick} />
         {stockxFilled && (
-          <p style={stockxBadgeStyle}>
-            ✓ Pré-rempli depuis le catalogue — vérifie les infos avant d'enregistrer.
-          </p>
+          <p style={stockxBadgeStyle}>{t('form.autoFilled')}</p>
         )}
       </Section>
 
       {/* Photo */}
-      <Section title="Photo">
+      <Section title={t('form.section.photo')}>
         <PhotoField
           path={state.photo_url}
           uploading={uploading}
@@ -141,8 +150,8 @@ export function SneakerForm({
       </Section>
 
       {/* Identité */}
-      <Section title="Identité">
-        <Field label="Nom du modèle *" required>
+      <Section title={t('form.section.identity')}>
+        <Field label={`${t('form.field.name')} *`} required>
           <input
             type="text"
             required
@@ -153,7 +162,7 @@ export function SneakerForm({
           />
         </Field>
         <Row>
-          <Field label="Marque">
+          <Field label={t('form.field.brand')}>
             <select
               value={state.brand ?? ''}
               onChange={(e) => set('brand', e.target.value || null)}
@@ -161,11 +170,11 @@ export function SneakerForm({
             >
               <option value="">—</option>
               {BRANDS.map((b) => (
-                <option key={b} value={b}>{b}</option>
+                <option key={b} value={b}>{b === 'Autre' ? t('form.brand.other') : b}</option>
               ))}
             </select>
           </Field>
-          <Field label="Colorway">
+          <Field label={t('form.field.colorway')}>
             <input
               type="text"
               value={state.colorway ?? ''}
@@ -175,7 +184,7 @@ export function SneakerForm({
             />
           </Field>
         </Row>
-        <Field label="SKU">
+        <Field label={t('form.field.sku')}>
           <div style={{ display: 'flex', gap: 8 }}>
             <input
               type="text"
@@ -187,7 +196,6 @@ export function SneakerForm({
             <ScanButton
               variant="compact"
               onScan={(result) => {
-                // Classification SKU vs barcode
                 const looksLikeSku =
                   /[a-zA-Z]/.test(result.code) && result.code.length < 20
                 if (looksLikeSku) {
@@ -196,7 +204,6 @@ export function SneakerForm({
                   set('barcode', result.code)
                   if (!state.sku) set('sku', result.code)
                 }
-                // Pré-remplissage depuis suggestion (StockX prioritaire, UPCitemdb sinon)
                 if (result.suggestion) {
                   const sug = result.suggestion
                   if (sug.name && !state.name) set('name', sug.name)
@@ -208,8 +215,6 @@ export function SneakerForm({
                 } else {
                   setLookupSource(null)
                 }
-                // Si scan matché StockX : lier directement au catalogue et
-                // pré-remplir la taille exacte (un code-barre = une taille).
                 if (result.stockxLink) {
                   const link = result.stockxLink
                   setState((s) => ({
@@ -228,7 +233,7 @@ export function SneakerForm({
                 }
               }}
             >
-              Scan
+              {t('form.field.scanLabel')}
             </ScanButton>
           </div>
           {state.barcode && (
@@ -240,20 +245,23 @@ export function SneakerForm({
                 fontFamily: 'monospace',
               }}
             >
-              Code-barre : {state.barcode}
+              {t('form.field.barcode')} : {state.barcode}
             </p>
           )}
           {lookupSource && (
             <p style={lookupBadgeStyle}>
-              ✓ Pré-rempli depuis {lookupSource === 'stockx' ? 'le catalogue' : lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}
-              {' '}— vérifie les infos avant d'enregistrer.
+              {lookupSource === 'stockx'
+                ? t('form.scanFilled.stockx')
+                : lookupSource === 'upcitemdb'
+                  ? t('form.scanFilled.upcitemdb')
+                  : t('form.autoFilled')}
             </p>
           )}
         </Field>
       </Section>
 
       {/* Tailles */}
-      <Section title="Taille">
+      <Section title={t('form.section.size')}>
         <Row>
           <Field label="EU">
             <input
@@ -279,9 +287,9 @@ export function SneakerForm({
       </Section>
 
       {/* Prix */}
-      <Section title="Prix">
+      <Section title={t('form.section.release')}>
         <Row>
-          <Field label="Prix release (€)">
+          <Field label={t('form.field.releasePrice')}>
             <input
               type="number"
               inputMode="decimal"
@@ -295,7 +303,7 @@ export function SneakerForm({
               style={{ ...inputStyle, fontVariantNumeric: 'tabular-nums' }}
             />
           </Field>
-          <Field label="Cote actuelle (€)">
+          <Field label={`${t('detail.price.cote')} (€)`}>
             <input
               type="number"
               inputMode="decimal"
@@ -310,7 +318,7 @@ export function SneakerForm({
             />
           </Field>
         </Row>
-        <Field label="Date de sortie (release)">
+        <Field label={t('form.field.releaseDate')}>
           <input
             type="date"
             value={state.release_date ?? ''}
@@ -321,9 +329,9 @@ export function SneakerForm({
       </Section>
 
       {/* Achat */}
-      <Section title="Mon achat">
+      <Section title={t('form.section.purchase')}>
         <Row>
-          <Field label="Acheté le">
+          <Field label={t('form.field.purchaseDate')}>
             <input
               type="date"
               value={state.purchase_date ?? ''}
@@ -331,7 +339,7 @@ export function SneakerForm({
               style={inputStyle}
             />
           </Field>
-          <Field label="Prix d'achat (€)">
+          <Field label={t('form.field.purchasePrice')}>
             <input
               type="number"
               inputMode="decimal"
@@ -346,26 +354,26 @@ export function SneakerForm({
             />
           </Field>
         </Row>
-        <Field label="État">
+        <Field label={t('form.field.condition')}>
           <select
             value={state.condition ?? 'DS'}
             onChange={(e) => set('condition', e.target.value as typeof CONDITIONS[number])}
             style={inputStyle}
           >
             {CONDITIONS.map((c) => (
-              <option key={c} value={c}>{c}</option>
+              <option key={c} value={c}>{t(CONDITION_LABELS[c] as never)}</option>
             ))}
           </select>
         </Field>
       </Section>
 
       {/* Tags + à vendre */}
-      <Section title="Suivi">
-        <Field label="Tags">
+      <Section title={t('form.section.tracking')}>
+        <Field label={t('form.field.tags')}>
           <TagsInput
             value={state.tags}
             onChange={(tags) => set('tags', tags)}
-            placeholder="grail, og, été…"
+            placeholder={t('form.tagsPlaceholder')}
           />
         </Field>
         <div style={toggleRowStyle}>
@@ -376,7 +384,7 @@ export function SneakerForm({
               onChange={(e) => set('is_for_sale', e.target.checked)}
               style={{ marginRight: 8 }}
             />
-            <span style={{ fontSize: 13 }}>Mise en vente</span>
+            <span style={{ fontSize: 13 }}>{t('form.field.forSale')}</span>
           </label>
           {state.is_for_sale && (
             <div style={{ flex: 1, minWidth: 0 }}>
@@ -392,7 +400,7 @@ export function SneakerForm({
                     e.target.value === '' ? null : Number(e.target.value),
                   )
                 }
-                placeholder="Prix demandé (€)"
+                placeholder={t('form.field.targetSalePrice')}
                 style={{ ...inputStyle, fontVariantNumeric: 'tabular-nums' }}
               />
             </div>
@@ -401,11 +409,10 @@ export function SneakerForm({
       </Section>
 
       {/* Notes */}
-      <Section title="Notes">
+      <Section title={t('form.section.notes')}>
         <textarea
           value={state.notes ?? ''}
           onChange={(e) => set('notes', e.target.value)}
-          placeholder="Story de la paire, où tu l'as eue, anecdotes…"
           rows={3}
           style={{ ...inputStyle, resize: 'vertical', fontFamily: 'inherit', minHeight: 70 }}
         />
@@ -422,7 +429,9 @@ export function SneakerForm({
           cursor: submitting || uploading ? 'wait' : 'pointer',
         }}
       >
-        {submitting ? 'Enregistrement…' : submitLabel}
+        {submitting
+          ? t('form.submit.saving')
+          : (submitLabel ?? (initial ? t('form.submit.update') : t('form.submit.create')))}
       </button>
     </form>
   )
@@ -476,6 +485,7 @@ function PhotoField({
   onPickFile: () => void
   onClear: () => void
 }) {
+  const { t } = useT()
   const { data: signedUrl } = useSignedPhotoUrl(path)
 
   return (
@@ -484,7 +494,7 @@ function PhotoField({
         {signedUrl ? (
           <img
             src={signedUrl}
-            alt="Aperçu sneaker"
+            alt=""
             style={{ width: '100%', height: '100%', objectFit: 'cover' }}
           />
         ) : (
@@ -498,11 +508,15 @@ function PhotoField({
           disabled={uploading}
           style={photoBtnStyle(false)}
         >
-          {uploading ? 'Upload…' : path ? 'Changer la photo' : 'Choisir une photo'}
+          {uploading
+            ? t('form.photo.uploading')
+            : path
+              ? t('form.photo.change')
+              : t('form.photo.upload')}
         </button>
         {path && !uploading && (
           <button type="button" onClick={onClear} style={photoBtnStyle(true)}>
-            Retirer
+            {t('form.photo.remove')}
           </button>
         )}
       </div>

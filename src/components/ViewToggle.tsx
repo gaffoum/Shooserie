@@ -1,3 +1,4 @@
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 export type ViewMode = 'grid' | 'table'
@@ -8,12 +9,13 @@ interface ViewToggleProps {
 }
 
 export function ViewToggle({ value, onChange }: ViewToggleProps) {
+  const { t } = useT()
   return (
-    <div style={wrapStyle} role="tablist" aria-label="Mode d'affichage">
+    <div style={wrapStyle} role="tablist">
       <button
         type="button"
         onClick={() => onChange('grid')}
-        aria-label="Vue vignettes"
+        aria-label={t('view.grid')}
         aria-pressed={value === 'grid'}
         style={btnStyle(value === 'grid')}
       >
@@ -22,7 +24,7 @@ export function ViewToggle({ value, onChange }: ViewToggleProps) {
       <button
         type="button"
         onClick={() => onChange('table')}
-        aria-label="Vue table"
+        aria-label={t('view.table')}
         aria-pressed={value === 'table'}
         style={btnStyle(value === 'table')}
       >

@@ -1,3 +1,4 @@
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 interface TagFilterProps {
@@ -12,6 +13,7 @@ interface TagFilterProps {
  * Mirrors the visual language of BrandFilter.
  */
 export function TagFilter({ tags, selected, onChange }: TagFilterProps) {
+  const { t } = useT()
   const toggle = (tag: string) => {
     if (selected.includes(tag)) {
       onChange(selected.filter((t) => t !== tag))
@@ -21,14 +23,14 @@ export function TagFilter({ tags, selected, onChange }: TagFilterProps) {
   }
 
   return (
-    <div style={wrapStyle} role="group" aria-label="Filtre par tag">
+    <div style={wrapStyle} role="group" aria-label={t('form.field.tags')}>
       <Chip
-        label="Tous"
+        label={t('common.all')}
         active={selected.length === 0}
         onClick={() => onChange([])}
       />
-      {tags.map((t) => (
-        <Chip key={t} label={t} active={selected.includes(t)} onClick={() => toggle(t)} />
+      {tags.map((tg) => (
+        <Chip key={tg} label={tg} active={selected.includes(tg)} onClick={() => toggle(tg)} />
       ))}
     </div>
   )

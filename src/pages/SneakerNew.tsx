@@ -3,6 +3,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { SneakerForm } from '@/components/SneakerForm'
 import { BackLink } from '@/components/BackLink'
 import { useCreateSneaker, type SneakerInput } from '@/lib/queries'
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 interface LocationState {
@@ -14,6 +15,7 @@ interface LocationState {
 export function SneakerNew() {
   const navigate = useNavigate()
   const location = useLocation()
+  const { t } = useT()
   const state = (location.state as LocationState | null) ?? null
   const defaults = state?.defaults
   const fromScan = state?.scannedFrom === 'dashboard'
@@ -26,26 +28,24 @@ export function SneakerNew() {
     navigate(`/sneakers/${sneaker.id}`, { replace: true })
   }
 
+  const subtitle = (() => {
+    if (fromScan && lookupSource === 'stockx') return t('new.subtitleStockx')
+    if (fromScan && lookupSource === 'upcitemdb') return t('new.subtitleUpcitemdb')
+    if (fromScan) return t('new.subtitleScannedNoMatch')
+    return t('new.subtitleDefault')
+  })()
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <AppHeader leftActions={<BackLink to="/dashboard" />} />
       <main style={mainStyle}>
-        <h1 style={titleStyle}>Nouvelle paire</h1>
-        <p style={subtitleStyle}>
-          {fromScan && lookupSource === 'stockx'
-            ? "Code scanné et matché au catalogue — toutes les infos sont liées, y compris la taille. Vérifie avant d'enregistrer."
-            : fromScan && lookupSource
-              ? `Code scanné et infos pré-remplies depuis ${lookupSource === 'upcitemdb' ? 'UPCitemdb' : lookupSource}. Vérifie avant d'enregistrer.`
-              : fromScan
-                ? 'Code scanné. Aucune info auto trouvée — complète manuellement.'
-                : "Tape le nom du modèle dans la barre de recherche pour tout pré-remplir, ou scanne un code-barre via le bouton du champ SKU."}
-        </p>
+        <h1 style={titleStyle}>{t('new.title')}</h1>
+        <p style={subtitleStyle}>{subtitle}</p>
 
         <SneakerForm
           defaults={defaults}
           onSubmit={handleSubmit}
           submitting={createMutation.isPending}
-          submitLabel="Ajouter à la collection"
         />
       </main>
     </div>

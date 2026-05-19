@@ -3,11 +3,13 @@ import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { SneakerForm } from '@/components/SneakerForm'
 import { useSneaker, useUpdateSneaker, type SneakerInput } from '@/lib/queries'
+import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
 export function SneakerEdit() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
+  const { t } = useT()
   const { data: sneaker, isLoading, error } = useSneaker(id)
   const updateMutation = useUpdateSneaker()
 
@@ -21,19 +23,20 @@ export function SneakerEdit() {
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <AppHeader leftActions={<BackLink to={`/sneakers/${id}`} />} />
       <main style={mainStyle}>
-        {isLoading && <p style={loadingStyle}>Chargement…</p>}
+        {isLoading && <p style={loadingStyle}>{t('common.loading')}</p>}
         {error && (
-          <div style={errorBoxStyle}>Erreur : {(error as Error).message}</div>
+          <div style={errorBoxStyle}>
+            {t('common.error')} : {(error as Error).message}
+          </div>
         )}
         {sneaker && (
           <>
-            <h1 style={titleStyle}>Modifier</h1>
+            <h1 style={titleStyle}>{t('edit.title')}</h1>
             <p style={subtitleStyle}>{sneaker.name}</p>
             <SneakerForm
               initial={sneaker}
               onSubmit={handleSubmit}
               submitting={updateMutation.isPending}
-              submitLabel="Enregistrer les modifications"
             />
           </>
         )}

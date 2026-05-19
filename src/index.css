@@ -75,12 +75,20 @@ img {
   body { font-size: 15px; }
 }
 
-/* Hide the email in the header on narrow screens so the logo and action
- * buttons don't get squeezed together. The user knows their own email and
- * can still hover for the title attribute on desktop. */
+/* Header — mobile compaction.
+ * On narrow screens, collapse:
+ *  - the email (user knows their own address)
+ *  - the admin user count badge (purely informational)
+ *  - the visible text label of action buttons / links marked .app-header-action-text
+ *    (the icon remains, the button stays tappable, just less wide)
+ * Header padding also tightens so the logo isn't truncated. */
 @media (max-width: 639px) {
   .app-header-email { display: none !important; }
-  .app-header { padding-left: 14px !important; padding-right: 14px !important; }
+  .app-header-badge { display: none !important; }
+  .app-header-action-text { display: none !important; }
+  .app-header { padding: 10px 12px !important; gap: 8px !important; }
+  .app-header-actions { gap: 6px !important; }
+  .app-header-add-text { display: none !important; }
 }
 
 @keyframes shooserie-spin {
