@@ -1,0 +1,557 @@
+import { useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
+import { calcDelta, formatDate, formatEur, formatPct } from '@/lib/format'
+import { AppHeader } from '@/components/AppHeader'
+import { BackLink } from '@/components/BackLink'
+import { SneakerPhoto } from '@/components/SneakerPhoto'
+import { ConfirmDialog } from '@/components/ConfirmDialog'
+import type { Sneaker } from '@/lib/types'
+import type { CSSProperties } from 'react'
+
+export function SneakerDetail() {
+  const { id } = useParams<{ id: string }>()
+  const navigate = useNavigate()
+  const { data: sneaker, isLoading, error } = useSneaker(id)
+  const deleteMutation = useDeleteSneaker()
+  const refreshMutation = useRefreshMarketPrice()
+  const [confirmOpen, setConfirmOpen] = useState(false)
+  const [refreshError, setRefreshError] = useState<string | null>(null)
+
+  const handleDelete = async () => {
+    if (!sneaker) return
+    await deleteMutation.mutateAsync({ id: sneaker.id, photoPath: sneaker.photo_url })
+    navigate('/dashboard', { replace: true })
+  }
+
+  const handleRefresh = async () => {
+    if (!sneaker) return
+    setRefreshError(null)
+    try {
+      await refreshMutation.mutateAsync(sneaker)
+    } catch (e) {
+      setRefreshError((e as Error).message)
+    }
+  }
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <AppHeader leftActions={<BackLink to="/dashboard" />} />
+      <main style={mainStyle}>
+        {isLoading && <p style={loadingStyle}>Chargement…</p>}
+
+        {error && (
+          <div style={errorBoxStyle}>
+            Erreur : {(error as Error).message}
+          </div>
+        )}
+
+        {sneaker && (
+          <>
+            <div style={topStyle}>
+              <div style={imageWrapStyle}>
+                <SneakerPhoto
+                  stockxUrl={sneaker.stockx_image_url}
+                  storagePath={sneaker.photo_url}
+                  alt={sneaker.name}
+                />
+              </div>
+              <div style={{ minWidth: 0 }}>
+                {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
+                <h1 style={titleStyle}>{sneaker.name}</h1>
+                {sneaker.colorway && <div style={colorwayStyle}>{sneaker.colorway}</div>}
+
+                <div style={metaGridStyle}>
+                  <Meta label="SKU" value={sneaker.sku || '—'} mono />
+                  <Meta
+                    label="Taille"
+                    value={formatSizeLabel(sneaker.size_eu, sneaker.size_us)}
+                    mono
+                  />
+                  <Meta label="État" value={sneaker.condition || '—'} />
+                  <Meta label="Release" value={formatDate(sneaker.release_date)} />
+                </div>
+              </div>
+            </div>
+
+            {/* Prix grid */}
+            <PriceGrid
+              release={sneaker.release_price}
+              market={sneaker.market_price}
+            />
+
+            {/* StockX block — refresh cote + link to product page */}
+            <StockXBlock
+              sneaker={sneaker}
+              onRefresh={handleRefresh}
+              refreshing={refreshMutation.isPending}
+              error={refreshError}
+            />
+
+            {/* Achat info */}
+            <div style={purchaseStyle}>
+              <Meta
+                label="Acheté le"
+                value={formatDate(sneaker.purchase_date)}
+              />
+              <Meta
+                label="Prix d'achat"
+                value={formatEur(sneaker.purchase_price)}
+                mono
+              />
+            </div>
+
+            {/* Notes */}
+            {sneaker.notes && (
+              <div style={notesStyle}>
+                <div style={notesLabelStyle}>Notes</div>
+                <p style={notesTextStyle}>{sneaker.notes}</p>
+              </div>
+            )}
+
+            {/* Actions */}
+            <div style={actionsStyle}>
+              <Link to={`/sneakers/${sneaker.id}/edit`} style={editBtnStyle}>
+                Modifier
+              </Link>
+              <button
+                type="button"
+                onClick={() => setConfirmOpen(true)}
+                style={deleteBtnStyle}
+              >
+                Supprimer
+              </button>
+            </div>
+
+            <ConfirmDialog
+              open={confirmOpen}
+              title="Supprimer cette paire ?"
+              description={`"${sneaker.name}" sera retirée définitivement de ta collection. La photo associée sera aussi supprimée.`}
+              confirmLabel="Supprimer"
+              destructive
+              pending={deleteMutation.isPending}
+              onConfirm={handleDelete}
+              onCancel={() => setConfirmOpen(false)}
+            />
+          </>
+        )}
+      </main>
+    </div>
+  )
+}
+
+function PriceGrid({
+  release,
+  market,
+}: {
+  release: number | null
+  market: number | null
+}) {
+  const delta = calcDelta(release, market)
+  const isPositive = (delta.eur ?? 0) > 0
+
+  return (
+    <div style={priceGridStyle}>
+      <Cell label="Release" value={formatEur(release)} />
+      <Cell label="Cote" value={formatEur(market)} />
+      <Cell
+        label="+/- €"
+        value={delta.eur !== null ? formatEur(delta.eur, true) : '—'}
+        color={
+          delta.eur === null
+            ? undefined
+            : isPositive
+              ? 'var(--color-bred)'
+              : 'var(--color-text-muted)'
+        }
+      />
+      <Cell
+        label="+/- %"
+        value={delta.pct !== null ? formatPct(delta.pct, true) : '—'}
+        color={
+          delta.pct === null
+            ? undefined
+            : isPositive
+              ? 'var(--color-bred)'
+              : 'var(--color-text-muted)'
+        }
+      />
+    </div>
+  )
+}
+
+function StockXBlock({
+  sneaker,
+  onRefresh,
+  refreshing,
+  error,
+}: {
+  sneaker: Sneaker
+  onRefresh: () => void
+  refreshing: boolean
+  error: string | null
+}) {
+  const linked = !!sneaker.stockx_product_id
+  const canRefresh = linked && !!sneaker.size_us
+  const lastCheck = sneaker.last_price_check
+
+  return (
+    <div style={stockxBlockStyle}>
+      <div style={stockxLeftStyle}>
+        <div style={stockxLabelStyle}>StockX</div>
+        {!linked && (
+          <div style={stockxHintStyle}>
+            Pas lié au catalogue. Modifie la paire et utilise la recherche
+            StockX pour activer la mise à jour de la cote.
+          </div>
+        )}
+        {linked && !sneaker.size_us && (
+          <div style={stockxHintStyle}>
+            Renseigne la taille US pour activer le refresh de cote.
+          </div>
+        )}
+        {linked && lastCheck && (
+          <div style={stockxMetaStyle}>
+            Dernière maj : {formatDateTime(lastCheck)}
+            {sneaker.market_price_usd !== null && (
+              <span style={{ marginLeft: 8 }}>
+                · ${sneaker.market_price_usd} USD
+              </span>
+            )}
+          </div>
+        )}
+        {error && <div style={stockxErrorStyle}>{error}</div>}
+      </div>
+      <div style={stockxRightStyle}>
+        {canRefresh && (
+          <button
+            type="button"
+            onClick={onRefresh}
+            disabled={refreshing}
+            style={{
+              ...refreshBtnStyle,
+              opacity: refreshing ? 0.55 : 1,
+              cursor: refreshing ? 'wait' : 'pointer',
+            }}
+          >
+            {refreshing ? 'Maj…' : '↻ Actualiser'}
+          </button>
+        )}
+        {sneaker.stockx_url && (
+          <a
+            href={sneaker.stockx_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            style={stockxLinkStyle}
+          >
+            Voir sur StockX ↗
+          </a>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso)
+  if (Number.isNaN(d.getTime())) return '—'
+  return d.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+function Cell({
+  label,
+  value,
+  color,
+}: {
+  label: string
+  value: string
+  color?: string
+}) {
+  return (
+    <div style={cellStyle}>
+      <div style={cellLabelStyle}>{label}</div>
+      <div style={{ ...cellValueStyle, color: color || 'var(--color-text)' }}>{value}</div>
+    </div>
+  )
+}
+
+function Meta({
+  label,
+  value,
+  mono,
+}: {
+  label: string
+  value: string
+  mono?: boolean
+}) {
+  return (
+    <div>
+      <div style={metaLabelStyle}>{label}</div>
+      <div
+        style={{
+          ...metaValueStyle,
+          fontVariantNumeric: mono ? 'tabular-nums' : 'normal',
+        }}
+      >
+        {value}
+      </div>
+    </div>
+  )
+}
+
+function formatSizeLabel(eu: string | null, us: string | null): string {
+  const parts: string[] = []
+  if (eu) parts.push(`EU ${eu}`)
+  if (us) parts.push(`US ${us}`)
+  return parts.length ? parts.join(' · ') : '—'
+}
+
+/* =====================================================
+ * Styles
+ * ===================================================== */
+
+const mainStyle: CSSProperties = {
+  padding: '20px',
+  maxWidth: 640,
+  margin: '0 auto',
+}
+const topStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'minmax(120px, 180px) 1fr',
+  gap: 18,
+  marginBottom: 22,
+  alignItems: 'start',
+}
+const imageWrapStyle: CSSProperties = {
+  aspectRatio: '1',
+  borderRadius: 'var(--radius-lg)',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  position: 'relative',
+  overflow: 'hidden',
+}
+const brandStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
+}
+const titleStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 20,
+  fontWeight: 600,
+  lineHeight: 1.25,
+  color: 'var(--color-text)',
+  margin: '4px 0',
+  letterSpacing: '-0.01em',
+}
+const colorwayStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'var(--color-text-muted)',
+  marginBottom: 14,
+  fontStyle: 'italic',
+}
+const metaGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: '10px 14px',
+}
+const metaLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
+  marginBottom: 2,
+}
+const metaValueStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'var(--color-text)',
+  fontWeight: 500,
+}
+const priceGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: '14px 4px',
+  marginBottom: 18,
+}
+const cellStyle: CSSProperties = {
+  textAlign: 'center',
+  padding: '0 8px',
+  borderLeft: '1px solid var(--color-border)',
+}
+const cellLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  marginBottom: 6,
+  fontWeight: 500,
+}
+const cellValueStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 15,
+  fontWeight: 600,
+  fontVariantNumeric: 'tabular-nums',
+}
+const purchaseStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 14,
+  marginBottom: 18,
+}
+const notesStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+  marginBottom: 18,
+}
+const notesLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  marginBottom: 6,
+  fontWeight: 500,
+}
+const notesTextStyle: CSSProperties = {
+  fontSize: 14,
+  color: 'var(--color-text)',
+  lineHeight: 1.55,
+  whiteSpace: 'pre-wrap',
+}
+const actionsStyle: CSSProperties = {
+  display: 'flex',
+  gap: 10,
+}
+const editBtnStyle: CSSProperties = {
+  flex: 1,
+  padding: '12px 16px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'var(--color-text)',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+  textDecoration: 'none',
+  textAlign: 'center',
+}
+const deleteBtnStyle: CSSProperties = {
+  padding: '12px 16px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'transparent',
+  color: 'var(--color-bred)',
+  border: '1px solid var(--color-bred)',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+  cursor: 'pointer',
+}
+const loadingStyle: CSSProperties = {
+  textAlign: 'center',
+  color: 'var(--color-text-muted)',
+  fontSize: 13,
+  padding: '40px 20px',
+}
+const errorBoxStyle: CSSProperties = {
+  background: 'var(--color-bred-bg)',
+  border: '1px solid var(--color-bred)',
+  color: 'var(--color-bred)',
+  padding: '12px 14px',
+  borderRadius: 'var(--radius-md)',
+  fontSize: 13,
+}
+const stockxBlockStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+  marginBottom: 18,
+  display: 'flex',
+  gap: 12,
+  alignItems: 'flex-start',
+  justifyContent: 'space-between',
+  flexWrap: 'wrap',
+}
+const stockxLeftStyle: CSSProperties = {
+  flex: 1,
+  minWidth: 200,
+  display: 'grid',
+  gap: 6,
+}
+const stockxLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 600,
+}
+const stockxMetaStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+  fontVariantNumeric: 'tabular-nums',
+}
+const stockxHintStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.4,
+  fontStyle: 'italic',
+}
+const stockxErrorStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-bred)',
+  lineHeight: 1.4,
+}
+const stockxRightStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 6,
+  alignItems: 'stretch',
+}
+const refreshBtnStyle: CSSProperties = {
+  padding: '8px 14px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'var(--color-royal)',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+  whiteSpace: 'nowrap',
+}
+const stockxLinkStyle: CSSProperties = {
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  color: 'var(--color-text-muted)',
+  textDecoration: 'none',
+  textAlign: 'center',
+  fontFamily: 'var(--font-display)',
+  textTransform: 'uppercase',
+  fontWeight: 500,
+}
