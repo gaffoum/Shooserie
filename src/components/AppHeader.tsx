@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
+import { ADMIN_EMAIL, useUserCount } from '@/lib/queries'
 import { Logo } from './Logo'
 import type { CSSProperties, ReactNode } from 'react'
 
@@ -12,6 +13,8 @@ interface AppHeaderProps {
 
 export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
   const { user, signOut } = useAuth()
+  const isAdmin = user?.email === ADMIN_EMAIL
+  const { data: userCount } = useUserCount(user?.email)
 
   return (
     <header className="app-header" style={headerStyle}>
@@ -24,6 +27,14 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
 
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {rightActions}
+        {isAdmin && userCount !== undefined && (
+          <span
+            style={userCountBadgeStyle}
+            title={`${userCount} utilisateur${userCount > 1 ? 's' : ''} inscrit${userCount > 1 ? 's' : ''} au total`}
+          >
+            👥 {userCount}
+          </span>
+        )}
         <span className="app-header-email" style={emailStyle} title={user?.email ?? ''}>
           {user?.email}
         </span>
@@ -72,4 +83,21 @@ const signoutStyle: CSSProperties = {
   borderRadius: 'var(--radius-md)',
   background: 'var(--color-surface)',
   fontFamily: 'var(--font-display)',
+}
+
+const userCountBadgeStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 4,
+  padding: '4px 10px',
+  fontSize: 11,
+  fontWeight: 600,
+  fontVariantNumeric: 'tabular-nums',
+  color: 'var(--color-royal)',
+  background: 'rgba(29, 66, 138, 0.08)',
+  border: '1px solid rgba(29, 66, 138, 0.2)',
+  borderRadius: 'var(--radius-pill)',
+  fontFamily: 'var(--font-display)',
+  whiteSpace: 'nowrap',
+  cursor: 'default',
 }

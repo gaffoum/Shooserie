@@ -231,6 +231,51 @@ export function useRefreshAllMarketPrices() {
 }
 
 /* =====================================================
+ * ADMIN — user count visible only on the admin account
+ * ===================================================== */
+
+export const ADMIN_EMAIL = 'gaffoum@gmail.com'
+
+/**
+ * Returns the total auth users count. Only fires when the current session
+ * belongs to ADMIN_EMAIL (the edge function ALSO enforces this server-side,
+ * so it's safe even if the gate is bypassed client-side).
+ */
+export function useUserCount(currentEmail: string | null | undefined) {
+  return useQuery({
+    queryKey: ['stats', 'users'],
+    queryFn: async (): Promise<number> => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession()
+      if (!session) throw new Error('Non authentifié')
+
+      const url = `${(supabase as unknown as { supabaseUrl: string }).supabaseUrl}/functions/v1/stats-users`
+      const res = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: (supabase as unknown as { supabaseKey: string }).supabaseKey,
+        },
+      })
+      const text = await res.text()
+      let body: unknown
+      try {
+        body = JSON.parse(text)
+      } catch {
+        throw new Error(`Non-JSON: ${text.slice(0, 200)}`)
+      }
+      if (!res.ok || (body as { error?: string }).error) {
+        throw new Error((body as { error?: string }).error ?? `HTTP ${res.status}`)
+      }
+      return (body as { count: number }).count
+    },
+    enabled: currentEmail === ADMIN_EMAIL,
+    staleTime: 5 * 60 * 1000, // 5 min
+    refetchOnWindowFocus: false,
+  })
+}
+
+/* =====================================================
  * STORAGE
  * ===================================================== */
 
