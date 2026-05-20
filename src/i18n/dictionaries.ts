@@ -162,6 +162,16 @@ const fr = {
   'dashboard.scan.duplicate.confirmMany':
     "Tu as déjà {count} paires de ce modèle. L'ajouter quand même ?",
 
+  // === Invite — share the app to acquire new users ===
+  'invite.title': 'Inviter un ami',
+  'invite.desc':
+    'Partage Shooserie avec tes potes sneakerheads. Plus on est nombreux, plus les compteurs « X collectionneurs ont ce modèle » deviennent intéressants.',
+  'invite.button': 'Partager Shooserie',
+  'invite.message':
+    "Salut ! Je gère ma collec de sneakers avec Shooserie. Cote StockX en live, plus-value, scan code-barre... t'essaies ?",
+  'invite.copied': 'Lien copié',
+  'invite.copyManual': 'Copie ce message :',
+
   // === Card / Table ===
   'card.forSale': 'À VENDRE',
 
@@ -479,6 +489,16 @@ const en: typeof fr = {
     'This pair is already in your collection. Add it anyway?',
   'dashboard.scan.duplicate.confirmMany':
     'You already have {count} pairs of this model. Add it anyway?',
+
+  // === Invite — share the app to acquire new users ===
+  'invite.title': 'Invite a friend',
+  'invite.desc':
+    'Share Shooserie with your sneakerhead friends. The more we are, the more meaningful the "X collectors have this model" counters become.',
+  'invite.button': 'Share Shooserie',
+  'invite.message':
+    'Hey! I track my sneaker collection with Shooserie. Live StockX values, P&L, barcode scan... wanna try?',
+  'invite.copied': 'Link copied',
+  'invite.copyManual': 'Copy this message:',
 
   // === Card / Table ===
   'card.forSale': 'FOR SALE',
