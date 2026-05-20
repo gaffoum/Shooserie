@@ -113,9 +113,11 @@ export function Dashboard() {
   )
 
   // Scan depuis le dashboard → vers SneakerNew avec les valeurs pré-remplies.
-  // Pas de détection de doublon ici : l'utilisateur voit la fiche immédiatement
-  // après le scan, qui sert d'aperçu naturel — pas besoin d'un dialog mobile
-  // qui bloque sur la photo.
+  // Si la paire existe déjà dans la collec (via stockx_product_id, sku ou
+  // barcode), on demande confirmation au user avec un window.confirm() natif.
+  // Pourquoi confirm() plutôt qu'un dialog custom : sur mobile c'est la
+  // popup système OS (iOS/Android), zéro photo, zéro friction, zéro chance
+  // que l'user reste bloqué sur une image.
   const handleDashboardScan = (result: ScanResult) => {
     const looksLikeSku = /[a-zA-Z]/.test(result.code) && result.code.length < 20
     const defaults: Record<string, unknown> = looksLikeSku
@@ -142,6 +144,22 @@ export function Dashboard() {
       if (link.sizeEU) defaults.size_eu = link.sizeEU
       if (link.releaseDate) defaults.release_date = link.releaseDate
       if (link.retailPrice !== null) defaults.release_price = link.retailPrice
+    }
+
+    // Détection de doublons — match par stockx_product_id, sku ou barcode.
+    // Si au moins 1 match, on demande au user de confirmer avant de naviguer.
+    const matches = findDuplicates(allSneakers, result, defaults)
+    if (matches.length > 0) {
+      const message =
+        matches.length === 1
+          ? t('dashboard.scan.duplicate.confirmOne')
+          : t('dashboard.scan.duplicate.confirmMany', {
+              count: String(matches.length),
+            })
+      if (!window.confirm(message)) {
+        // User cancelled → reste sur le dashboard, scan est ignoré.
+        return
+      }
     }
 
     navigate('/sneakers/new', {
@@ -419,6 +437,49 @@ function normalizeBrandFromScan(raw: string): string {
   if (b === 'asics') return 'ASICS'
   if (b === 'yeezy') return 'Yeezy'
   return raw
+}
+
+/**
+ * Find existing sneakers in the user's collection that match a scan result.
+ * Three-tier matching, most reliable first:
+ *
+ *   1. `stockx_product_id` — same model (catches different sizes too)
+ *   2. `sku`              — case-insensitive, trimmed
+ *   3. `barcode`          — exact match of the scanned code
+ *
+ * Returns all matches (deduped by sneaker id). Used to surface a native
+ * window.confirm() before adding a paire the user might already own. Kept
+ * simple on purpose — no fancy UI dialog because the previous one blocked
+ * mobile users on a photo overlay.
+ */
+function findDuplicates(
+  all: Sneaker[],
+  scan: ScanResult,
+  defaults: Record<string, unknown>,
+): Sneaker[] {
+  const productId = scan.stockxLink?.productId ?? null
+  const code = scan.code?.trim().toUpperCase() ?? null
+  // The SKU we deduced into `defaults` is sometimes different from the raw
+  // scan code (UPC → SKU lookup adds it as defaults.sku), so we check both.
+  const sku =
+    typeof defaults.sku === 'string' ? defaults.sku.trim().toUpperCase() : null
+
+  const seen = new Set<string>()
+  const out: Sneaker[] = []
+  for (const s of all) {
+    let matched = false
+    if (productId && s.stockx_product_id === productId) matched = true
+    if (!matched && code) {
+      if (s.sku?.trim().toUpperCase() === code) matched = true
+      else if (s.barcode?.trim().toUpperCase() === code) matched = true
+    }
+    if (!matched && sku && s.sku?.trim().toUpperCase() === sku) matched = true
+    if (matched && !seen.has(s.id)) {
+      seen.add(s.id)
+      out.push(s)
+    }
+  }
+  return out
 }
 
 const mainStyle: CSSProperties = {
