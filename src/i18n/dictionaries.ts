@@ -156,6 +156,12 @@ const fr = {
   'share.defaultLabel': 'Lien sans nom',
   'share.createdOn': 'Créé le {date}',
 
+  // === Dashboard scan — duplicate detection (native confirm) ===
+  'dashboard.scan.duplicate.confirmOne':
+    "Cette paire est déjà dans ta collection. L'ajouter quand même ?",
+  'dashboard.scan.duplicate.confirmMany':
+    "Tu as déjà {count} paires de ce modèle. L'ajouter quand même ?",
+
   // === Card / Table ===
   'card.forSale': 'À VENDRE',
 
@@ -467,6 +473,12 @@ const en: typeof fr = {
   'share.loading': 'Loading…',
   'share.defaultLabel': 'Unnamed link',
   'share.createdOn': 'Created on {date}',
+
+  // === Dashboard scan — duplicate detection (native confirm) ===
+  'dashboard.scan.duplicate.confirmOne':
+    'This pair is already in your collection. Add it anyway?',
+  'dashboard.scan.duplicate.confirmMany':
+    'You already have {count} pairs of this model. Add it anyway?',
 
   // === Card / Table ===
   'card.forSale': 'FOR SALE',
