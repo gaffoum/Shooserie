@@ -1,9 +1,11 @@
 import { useState, type CSSProperties, type FormEvent } from 'react'
+import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
+import { ADMIN_EMAIL } from '@/lib/queries'
 import type { DictKey } from '@/i18n/dictionaries'
 
 /**
@@ -28,6 +30,7 @@ export function Account() {
         <h1 style={titleStyle}>{t('account.title')}</h1>
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
+        {currentEmail === ADMIN_EMAIL && <AdminSection />}
         <DangerSection onSignOut={signOut} />
       </main>
     </div>
@@ -271,6 +274,34 @@ function PasswordSection({ email }: { email: string }) {
 }
 
 /* =====================================================
+ * Admin section — visible only to the admin user. Provides a discoverable
+ * entry to /admin from this page so mobile users (where the header badge
+ * might be tight) always have a clear way in.
+ * ===================================================== */
+
+function AdminSection() {
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>Admin</h2>
+      <Link to="/admin" style={adminLinkStyle}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={adminIconStyle} aria-hidden>
+            📊
+          </div>
+          <div>
+            <div style={adminTitleStyle}>Monitoring</div>
+            <div style={adminDescStyle}>
+              Inscriptions, paires, top marques, top collectionneurs.
+            </div>
+          </div>
+        </div>
+        <span style={adminChevronStyle}>›</span>
+      </Link>
+    </section>
+  )
+}
+
+/* =====================================================
  * Danger / sign-out section
  * ===================================================== */
 
@@ -414,4 +445,45 @@ const signOutBtnStyle: CSSProperties = {
   borderRadius: 'var(--radius-md)',
   fontFamily: 'var(--font-display)',
   cursor: 'pointer',
+}
+
+// === Admin section ===
+const adminLinkStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '14px 16px',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  textDecoration: 'none',
+  color: 'inherit',
+  transition: 'border-color var(--transition-fast)',
+}
+const adminIconStyle: CSSProperties = {
+  width: 36,
+  height: 36,
+  borderRadius: 'var(--radius-sm)',
+  background: 'var(--color-bg)',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 18,
+  flexShrink: 0,
+}
+const adminTitleStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 600,
+  color: 'var(--color-text)',
+  marginBottom: 2,
+}
+const adminDescStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.4,
+}
+const adminChevronStyle: CSSProperties = {
+  fontSize: 22,
+  color: 'var(--color-text-faint)',
+  fontWeight: 300,
 }

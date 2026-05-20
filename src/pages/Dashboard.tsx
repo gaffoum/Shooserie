@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers, useRefreshAllMarketPrices } from '@/lib/queries'
+import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -12,6 +12,8 @@ import { ViewToggle, type ViewMode } from '@/components/ViewToggle'
 import { SneakerCard } from '@/components/SneakerCard'
 import { SneakerTable } from '@/components/SneakerTable'
 import { ScanButton } from '@/components/ScanButton'
+import { TopOwnedModels } from '@/components/TopOwnedModels'
+import { ShareDialog } from '@/components/ShareDialog'
 import type { ScanResult } from '@/components/BarcodeScanner'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
@@ -87,6 +89,19 @@ export function Dashboard() {
   const brands = useMemo(() => listBrands(allSneakers), [allSneakers])
   const tags = useMemo(() => listTags(allSneakers), [allSneakers])
 
+  // Community: batch-fetch how many distinct users across the whole app own
+  // each model the current user has. One round-trip for the whole grid.
+  // Cards without a stockx_product_id (manually-added pairs) silently get
+  // no badge — the hook ignores them.
+  const productIds = useMemo(
+    () => allSneakers.map((s) => s.stockx_product_id),
+    [allSneakers],
+  )
+  const { data: ownerCounts } = useModelOwnerCounts(productIds)
+
+  // Share-link management dialog (public URL sharing).
+  const [shareDialogOpen, setShareDialogOpen] = useState(false)
+
   // Bulk refresh of every linked sneaker.
   const bulkRefresh = useRefreshAllMarketPrices()
   const refreshableCount = useMemo(
@@ -97,7 +112,10 @@ export function Dashboard() {
     [allSneakers],
   )
 
-  // Scan depuis le dashboard → vers SneakerNew avec les valeurs pré-remplies
+  // Scan depuis le dashboard → vers SneakerNew avec les valeurs pré-remplies.
+  // Pas de détection de doublon ici : l'utilisateur voit la fiche immédiatement
+  // après le scan, qui sert d'aperçu naturel — pas besoin d'un dialog mobile
+  // qui bloque sur la photo.
   const handleDashboardScan = (result: ScanResult) => {
     const looksLikeSku = /[a-zA-Z]/.test(result.code) && result.code.length < 20
     const defaults: Record<string, unknown> = looksLikeSku
@@ -198,6 +216,11 @@ export function Dashboard() {
             sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
           />
         </section>
+
+        {/* Community: top-owned models across all users. The component
+            auto-hides if there's nothing in the leaderboard, so this slot
+            stays clean on a fresh app. */}
+        <TopOwnedModels limit={5} />
 
         {/* Loading */}
         {isLoading && (
@@ -318,6 +341,24 @@ export function Dashboard() {
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <button
+                  type="button"
+                  onClick={() => setShareDialogOpen(true)}
+                  style={shareBtnStyle}
+                  title={t('dashboard.share.tooltip')}
+                  aria-label={t('dashboard.share.tooltip')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="18" cy="5" r="3" />
+                    <circle cx="6" cy="12" r="3" />
+                    <circle cx="18" cy="19" r="3" />
+                    <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
+                    <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                  </svg>
+                  <span className="app-header-action-text">
+                    {t('dashboard.share.button')}
+                  </span>
+                </button>
                 <select
                   value={sortKey}
                   onChange={(e) => setSortKey(e.target.value as SortKey)}
@@ -341,7 +382,15 @@ export function Dashboard() {
             ) : view === 'grid' ? (
               <div style={gridStyle}>
                 {sorted.map((s) => (
-                  <SneakerCard key={s.id} sneaker={s} />
+                  <SneakerCard
+                    key={s.id}
+                    sneaker={s}
+                    ownerCount={
+                      s.stockx_product_id
+                        ? ownerCounts?.[s.stockx_product_id]
+                        : undefined
+                    }
+                  />
                 ))}
               </div>
             ) : (
@@ -350,6 +399,11 @@ export function Dashboard() {
           </>
         )}
       </main>
+
+      <ShareDialog
+        open={shareDialogOpen}
+        onClose={() => setShareDialogOpen(false)}
+      />
     </div>
   )
 }
@@ -589,4 +643,23 @@ const addBtnLargeStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',
   textDecoration: 'none',
   display: 'inline-block',
+}
+
+// === Share / HTML export button (toolbar) ===
+const shareBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '8px 12px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'var(--color-surface)',
+  color: 'var(--color-text)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  cursor: 'pointer',
+  fontFamily: 'var(--font-display)',
+  whiteSpace: 'nowrap',
 }

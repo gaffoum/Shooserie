@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import { getStockXPricing, lookupBarcodeOnStockX, usdToEur } from './stockx'
@@ -272,6 +272,283 @@ export function useUserCount(currentEmail: string | null | undefined) {
     enabled: currentEmail === ADMIN_EMAIL,
     staleTime: 5 * 60 * 1000, // 5 min
     refetchOnWindowFocus: false,
+  })
+}
+
+/**
+ * Rich admin dashboard stats — aggregate JSON of users, sneakers, time-series,
+ * and top-N rankings. Calls the SQL function `admin_dashboard_stats()` which
+ * is gated server-side by `auth.email() = ADMIN_EMAIL`. Safe to expose: a
+ * non-admin caller gets a 'Forbidden' error from Postgres.
+ */
+export interface AdminStats {
+  totalUsers: number
+  newUsers24h: number
+  newUsers7d: number
+  activeUsers7d: number
+  totalSneakers: number
+  newSneakers24h: number
+  newSneakers7d: number
+  forSaleCount: number
+  totalMarketValue: number
+  totalInvested: number
+  signupsByDay: Array<{ d: string; c: number }>
+  pairsByDay: Array<{ d: string; c: number }>
+  recentUsers: Array<{
+    email: string
+    created_at: string
+    last_sign_in_at: string | null
+    pair_count: number
+  }>
+  topBrands: Array<{ brand: string; count: number }>
+  topCollectors: Array<{
+    email: string
+    pair_count: number
+    collec_value: number
+  }>
+  generatedAt: string
+}
+
+export function useAdminDashboardStats(currentEmail: string | null | undefined) {
+  return useQuery({
+    queryKey: ['admin', 'dashboard'],
+    queryFn: async (): Promise<AdminStats> => {
+      const { data, error } = await supabase.rpc('admin_dashboard_stats')
+      if (error) throw new Error(error.message)
+      return data as AdminStats
+    },
+    enabled: currentEmail === ADMIN_EMAIL,
+    // Auto-refresh every 60s so the admin dashboard feels live without manual
+    // refresh. Reasonable for an internal-only page.
+    refetchInterval: 60 * 1000,
+    staleTime: 30 * 1000,
+  })
+}
+
+/* =====================================================
+ * COMMUNITY — how many users own each model.
+ *
+ * Two read-only RPCs that aggregate ownership counts across the whole user
+ * base, exposing only counts (never identities). Both run as SECURITY DEFINER
+ * server-side, so RLS on `sneakers` stays scoped to the current user.
+ * ===================================================== */
+
+/**
+ * Batch lookup: for a given list of stockx_product_ids, returns a map of
+ * `productId → ownerCount`. Used by the Dashboard to enrich every card in a
+ * single round-trip instead of N+1 fetches.
+ *
+ * Empty / invalid IDs are filtered out and the query is short-circuited when
+ * the list is empty, so cards without a StockX link cost nothing.
+ */
+export function useModelOwnerCounts(productIds: Array<string | null | undefined>) {
+  // Deduplicate + sort for a stable cache key. The hook is called from the
+  // Dashboard with an array that can change order on each render, so we
+  // canonicalise before letting React Query see it.
+  const uniqueIds = useMemo(
+    () =>
+      Array.from(
+        new Set(productIds.filter((id): id is string => Boolean(id))),
+      ).sort(),
+    [productIds],
+  )
+
+  return useQuery({
+    queryKey: ['model-owner-counts', uniqueIds.join(',')],
+    queryFn: async (): Promise<Record<string, number>> => {
+      if (uniqueIds.length === 0) return {}
+      const { data, error } = await supabase.rpc('get_model_owner_counts', {
+        product_ids: uniqueIds,
+      })
+      if (error) throw new Error(error.message)
+      const out: Record<string, number> = {}
+      for (const row of (data ?? []) as Array<{
+        stockx_product_id: string
+        owner_count: number
+      }>) {
+        out[row.stockx_product_id] = Number(row.owner_count)
+      }
+      return out
+    },
+    enabled: uniqueIds.length > 0,
+    // Counts barely move minute-to-minute; 5 min keeps things fresh enough
+    // without spamming the DB on every dashboard mount.
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+export interface TopOwnedModel {
+  stockx_product_id: string
+  owner_count: number
+  name: string
+  brand: string | null
+  stockx_image_url: string | null
+}
+
+/**
+ * Leaderboard of the N most-owned models across the user base. Returns an
+ * array sorted by descending owner_count. Empty when no sneaker has been
+ * linked to the catalog yet (a fresh app), so callers should hide the
+ * section in that case.
+ */
+export function useTopOwnedModels(limit: number = 5) {
+  return useQuery({
+    queryKey: ['top-owned-models', limit],
+    queryFn: async (): Promise<TopOwnedModel[]> => {
+      const { data, error } = await supabase.rpc('get_top_owned_models', {
+        limit_count: limit,
+      })
+      if (error) throw new Error(error.message)
+      return (data ?? []).map((row: TopOwnedModel) => ({
+        ...row,
+        owner_count: Number(row.owner_count),
+      }))
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/* =====================================================
+ * SHARE LINKS — public read-only collection sharing.
+ *
+ * Users can mint an unguessable token, send the URL `/share/<token>` to a
+ * friend, and revoke at any time. The recipient does NOT need an account.
+ * Server-side, `get_shared_collection(token)` returns only the public fields
+ * (no purchase price, notes, etc.) — see the SQL migration for the exact
+ * field allowlist.
+ * ===================================================== */
+
+export interface ShareLink {
+  token: string
+  user_id: string
+  created_at: string
+  is_active: boolean
+  label: string | null
+}
+
+export interface SharedSneaker {
+  id: string
+  name: string
+  brand: string | null
+  colorway: string | null
+  sku: string | null
+  size_eu: string | null
+  size_us: string | null
+  release_price: number | null
+  market_price: number | null
+  stockx_image_url: string | null
+  is_for_sale: boolean
+  created_at: string
+}
+
+export interface SharedCollectionResult {
+  ok: boolean
+  error?: 'NotFound' | 'Revoked'
+  token?: string
+  label?: string | null
+  ownerEmail?: string
+  createdAt?: string
+  sneakers?: SharedSneaker[]
+}
+
+/** Lists the current user's share links (active + inactive). */
+export function useMyShareLinks() {
+  return useQuery({
+    queryKey: ['share-links'],
+    queryFn: async (): Promise<ShareLink[]> => {
+      const { data, error } = await supabase
+        .from('shared_collections')
+        .select('token, user_id, created_at, is_active, label')
+        .order('created_at', { ascending: false })
+      if (error) throw new Error(error.message)
+      return data ?? []
+    },
+  })
+}
+
+/**
+ * Mint a new share token. Returns the inserted row including the token.
+ * Token is generated client-side using crypto.randomUUID() (128-bit entropy,
+ * cryptographically random) — collisions are astronomically unlikely.
+ */
+export function useCreateShareLink() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ label }: { label?: string } = {}): Promise<ShareLink> => {
+      const { data: { session } } = await supabase.auth.getSession()
+      if (!session?.user) throw new Error('Non authentifié')
+      const token = crypto.randomUUID()
+      const { data, error } = await supabase
+        .from('shared_collections')
+        .insert({
+          token,
+          user_id: session.user.id,
+          label: label ?? null,
+        })
+        .select()
+        .single()
+      if (error) throw new Error(error.message)
+      return data as ShareLink
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['share-links'] })
+    },
+  })
+}
+
+/** Soft-revoke a share link (set is_active=false). Recipients get a friendly
+ *  "lien désactivé" error on the public page after this. */
+export function useRevokeShareLink() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const { error } = await supabase
+        .from('shared_collections')
+        .update({ is_active: false })
+        .eq('token', token)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['share-links'] })
+    },
+  })
+}
+
+/** Hard-delete a share link (no recovery). Used when the user wants to clean
+ *  up their list. The recipient gets the same NotFound error as for an
+ *  unknown token — indistinguishable from "the token never existed". */
+export function useDeleteShareLink() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (token: string) => {
+      const { error } = await supabase
+        .from('shared_collections')
+        .delete()
+        .eq('token', token)
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['share-links'] })
+    },
+  })
+}
+
+/** Public RPC — resolve a share token to the owner's sneakers. Anonymous
+ *  callers are allowed (the token IS the access). Returns a structured
+ *  result so the page can show clear NotFound / Revoked messages. */
+export function useSharedCollection(token: string | undefined) {
+  return useQuery({
+    queryKey: ['shared-collection', token],
+    queryFn: async (): Promise<SharedCollectionResult> => {
+      if (!token) return { ok: false, error: 'NotFound' }
+      const { data, error } = await supabase.rpc('get_shared_collection', {
+        p_token: token,
+      })
+      if (error) throw new Error(error.message)
+      return data as SharedCollectionResult
+    },
+    enabled: !!token,
+    staleTime: 60 * 1000,
   })
 }
 

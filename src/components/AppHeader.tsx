@@ -30,14 +30,15 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
 
       <div className="app-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
         {rightActions}
-        {isAdmin && userCount !== undefined && (
-          <span
+        {isAdmin && (
+          <Link
+            to="/admin"
             className="app-header-badge"
             style={userCountBadgeStyle}
-            title={`${userCount} utilisateur${userCount > 1 ? 's' : ''} inscrit${userCount > 1 ? 's' : ''} au total`}
+            title="Monitoring · cliquer pour ouvrir"
           >
-            👥 {userCount}
-          </span>
+            👥 {userCount ?? '—'}
+          </Link>
         )}
         {/* Email = lien vers la page compte sur desktop ; icône user en mobile */}
         <Link
@@ -142,8 +143,9 @@ const userCountBadgeStyle: CSSProperties = {
   color: 'var(--color-royal)',
   background: 'rgba(29, 66, 138, 0.08)',
   border: '1px solid rgba(29, 66, 138, 0.2)',
+  textDecoration: 'none',
+  cursor: 'pointer',
   borderRadius: 'var(--radius-pill)',
   fontFamily: 'var(--font-display)',
   whiteSpace: 'nowrap',
-  cursor: 'default',
 }

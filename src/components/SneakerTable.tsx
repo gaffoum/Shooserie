@@ -3,6 +3,7 @@ import type { Sneaker } from '@/lib/types'
 import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from './SneakerPhoto'
+import { RefreshCoteButton } from './RefreshCoteButton'
 import type { CSSProperties } from 'react'
 
 interface SneakerTableProps {
@@ -21,6 +22,7 @@ export function SneakerTable({ sneakers }: SneakerTableProps) {
           <col style={{ width: '20%' }} />
           <col style={{ width: 90 }} />
           <col style={{ width: 78 }} />
+          <col style={{ width: 40 }} />
         </colgroup>
         <thead>
           <tr>
@@ -29,6 +31,7 @@ export function SneakerTable({ sneakers }: SneakerTableProps) {
             <th style={thStyle}>{t('table.col.size')}</th>
             <th style={{ ...thStyle, textAlign: 'right' }}>{t('table.col.cote')}</th>
             <th style={{ ...thStyle, textAlign: 'right' }}>{t('table.col.delta')}</th>
+            <th style={thStyle}></th>
           </tr>
         </thead>
         <tbody>
@@ -80,6 +83,10 @@ export function SneakerTable({ sneakers }: SneakerTableProps) {
                   ) : (
                     <span style={{ color: 'var(--color-text-faint)' }}>—</span>
                   )}
+                </td>
+                {/* Refresh button — stops propagation so it doesn't navigate */}
+                <td style={{ ...tdStyle, textAlign: 'right', paddingLeft: 0 }}>
+                  <RefreshCoteButton sneaker={s} variant="table" />
                 </td>
               </tr>
             )
@@ -168,4 +175,7 @@ const deltaStyle: CSSProperties = {
   padding: '3px 8px',
   borderRadius: 'var(--radius-sm)',
   display: 'inline-block',
+  // Keep the percentage on a single line — by default, the narrow +/- column
+  // breaks the "%" sign onto its own line which looks broken.
+  whiteSpace: 'nowrap',
 }

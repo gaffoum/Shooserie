@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type CSSProperties } from 'react'
+import { useState, type FormEvent, type CSSProperties, type ReactNode } from 'react'
 import { Navigate } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
@@ -81,42 +81,25 @@ export function Login() {
   }
 
   return (
-    <div
-      style={{
-        minHeight: '100vh',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '24px',
-        background: 'var(--color-bg)',
-        position: 'relative',
-      }}
-    >
-      <div style={{ position: 'absolute', top: 16, right: 16 }}>
+    <div className="login-page">
+      <div style={{ position: 'absolute', top: 16, right: 16, zIndex: 1 }}>
         <LanguageToggle />
       </div>
 
-      <div
-        style={{
-          width: '100%',
-          maxWidth: 420,
-          background: 'var(--color-surface)',
-          border: '1px solid var(--color-border)',
-          borderRadius: 'var(--radius-xl)',
-          padding: '32px 28px',
-        }}
-      >
-        <div style={{ marginBottom: 28, textAlign: 'center' }}>
-          <Logo size="lg" />
+      <div className="login-container">
+        <LoginHero />
+
+        <div className="login-card">
           <p
             style={{
-              marginTop: 8,
+              margin: 0,
+              marginBottom: 22,
               fontSize: 11,
               letterSpacing: 'var(--tracking-wider)',
               textTransform: 'uppercase',
               color: 'var(--color-text-muted)',
               fontWeight: 500,
+              textAlign: 'center',
             }}
           >
             {mode === 'signin'
@@ -125,203 +108,184 @@ export function Login() {
                 ? t('auth.signup.title')
                 : t('auth.forgot.title')}
           </p>
-        </div>
 
-        <form onSubmit={handleSubmit} noValidate>
-          {/* Forgot mode = blurb at the top */}
-          {mode === 'forgot' && status !== 'success' && (
-            <p
-              style={{
-                fontSize: 13,
-                color: 'var(--color-text-muted)',
-                lineHeight: 1.5,
-                marginBottom: 16,
-                textAlign: 'center',
-              }}
-            >
-              {t('auth.forgot.desc')}
-            </p>
-          )}
-
-          {/* Forgot success — full replacement of the form */}
-          {mode === 'forgot' && status === 'success' ? (
-            <>
+          <form onSubmit={handleSubmit} noValidate>
+            {/* Forgot mode — blurb at the top */}
+            {mode === 'forgot' && status !== 'success' && (
               <p
                 style={{
                   fontSize: 13,
-                  color: 'var(--color-up)',
+                  color: 'var(--color-text-muted)',
                   lineHeight: 1.5,
-                  marginBottom: 20,
+                  marginBottom: 16,
                   textAlign: 'center',
+                  marginTop: 0,
                 }}
               >
-                ✓ {t('auth.forgot.success', { email })}
+                {t('auth.forgot.desc')}
               </p>
-              <button
-                type="button"
-                onClick={() => setModeTo('signin')}
-                style={{
-                  color: 'var(--color-royal)',
-                  fontWeight: 500,
-                  textDecoration: 'underline',
-                  fontSize: 12,
-                  display: 'block',
-                  margin: '0 auto',
-                }}
-              >
-                {t('auth.forgot.back')}
-              </button>
-            </>
-          ) : (
-            <>
-              <label htmlFor="email" style={labelStyle}>{t('auth.email')}</label>
-              <input
-                id="email"
-                type="email"
-                autoComplete="email"
-                required
-                placeholder={t('auth.emailPlaceholder')}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                disabled={status === 'submitting'}
-                style={inputStyle}
-                onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-royal)')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-              />
+            )}
 
-              {/* Password field is hidden in forgot mode */}
-              {mode !== 'forgot' && (
-                <>
-                  <label htmlFor="password" style={{ ...labelStyle, marginTop: 16 }}>
-                    {t('auth.password')}
-                  </label>
-                  <input
-                    id="password"
-                    type="password"
-                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-                    required
-                    minLength={6}
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    disabled={status === 'submitting'}
-                    style={inputStyle}
-                    onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-royal)')}
-                    onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
-                  />
-                  {mode === 'signup' && (
-                    <p
-                      style={{
-                        marginTop: 6,
-                        fontSize: 11,
-                        color: 'var(--color-text-faint)',
-                        lineHeight: 1.4,
-                      }}
-                    >
-                      {t('auth.passwordHint')}
-                    </p>
-                  )}
-                  {mode === 'signin' && (
-                    <div style={{ marginTop: 10, textAlign: 'right' }}>
-                      <button
-                        type="button"
-                        onClick={() => setModeTo('forgot')}
-                        style={{
-                          color: 'var(--color-text-muted)',
-                          fontSize: 11,
-                          textDecoration: 'underline',
-                        }}
-                      >
-                        {t('auth.forgot.link')}
-                      </button>
-                    </div>
-                  )}
-                </>
-              )}
-
-              <button
-                type="submit"
-                disabled={
-                  status === 'submitting' ||
-                  !email ||
-                  (mode !== 'forgot' && !password)
-                }
-                style={{
-                  marginTop: 22,
-                  width: '100%',
-                  padding: '13px',
-                  fontSize: 12,
-                  fontWeight: 600,
-                  letterSpacing: 'var(--tracking-wide)',
-                  textTransform: 'uppercase',
-                  background:
-                    status === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-bred)',
-                  color: '#FFFFFF',
-                  border: 'none',
-                  borderRadius: 'var(--radius-md)',
-                  opacity:
-                    !email || (mode !== 'forgot' && !password) ? 0.55 : 1,
-                  cursor: status === 'submitting' ? 'wait' : 'pointer',
-                  transition: 'background var(--transition-fast)',
-                }}
-              >
-                {status === 'submitting'
-                  ? mode === 'signin'
-                    ? t('auth.signin.submitting')
-                    : mode === 'signup'
-                      ? t('auth.signup.submitting')
-                      : t('auth.forgot.submitting')
-                  : mode === 'signin'
-                    ? t('auth.signin.submit')
-                    : mode === 'signup'
-                      ? t('auth.signup.submit')
-                      : t('auth.forgot.submit')}
-              </button>
-
-              {status === 'error' && (
+            {/* Forgot success — full replacement of the form */}
+            {mode === 'forgot' && status === 'success' ? (
+              <>
                 <p
                   style={{
-                    marginTop: 14,
-                    fontSize: 12,
-                    color: 'var(--color-bred)',
+                    fontSize: 13,
+                    color: 'var(--color-up)',
+                    lineHeight: 1.5,
+                    marginBottom: 20,
                     textAlign: 'center',
-                    lineHeight: 1.4,
                   }}
                 >
-                  {errorKey ? t(errorKey) : errorRaw || t('auth.errors.generic')}
+                  ✓ {t('auth.forgot.success', { email })}
                 </p>
-              )}
+                <button
+                  type="button"
+                  onClick={() => setModeTo('signin')}
+                  style={{
+                    color: 'var(--color-royal)',
+                    fontWeight: 500,
+                    textDecoration: 'underline',
+                    fontSize: 12,
+                    display: 'block',
+                    margin: '0 auto',
+                  }}
+                >
+                  {t('auth.forgot.back')}
+                </button>
+              </>
+            ) : (
+              <>
+                <label htmlFor="email" style={labelStyle}>{t('auth.email')}</label>
+                <input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  placeholder={t('auth.emailPlaceholder')}
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  disabled={status === 'submitting'}
+                  style={inputStyle}
+                  onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-royal)')}
+                  onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                />
 
-              {/* Bottom link row */}
-              <div
-                style={{
-                  marginTop: 22,
-                  textAlign: 'center',
-                  fontSize: 12,
-                  color: 'var(--color-text-muted)',
-                }}
-              >
-                {mode === 'forgot' ? (
-                  <button
-                    type="button"
-                    onClick={() => setModeTo('signin')}
+                {mode !== 'forgot' && (
+                  <>
+                    <label htmlFor="password" style={{ ...labelStyle, marginTop: 16 }}>
+                      {t('auth.password')}
+                    </label>
+                    <input
+                      id="password"
+                      type="password"
+                      autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
+                      required
+                      minLength={6}
+                      placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      disabled={status === 'submitting'}
+                      style={inputStyle}
+                      onFocus={(e) => (e.currentTarget.style.borderColor = 'var(--color-royal)')}
+                      onBlur={(e) => (e.currentTarget.style.borderColor = 'var(--color-border)')}
+                    />
+                    {mode === 'signup' && (
+                      <p
+                        style={{
+                          marginTop: 6,
+                          fontSize: 11,
+                          color: 'var(--color-text-faint)',
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {t('auth.passwordHint')}
+                      </p>
+                    )}
+                    {mode === 'signin' && (
+                      <div style={{ marginTop: 10, textAlign: 'right' }}>
+                        <button
+                          type="button"
+                          onClick={() => setModeTo('forgot')}
+                          style={{
+                            color: 'var(--color-text-muted)',
+                            fontSize: 11,
+                            textDecoration: 'underline',
+                          }}
+                        >
+                          {t('auth.forgot.link')}
+                        </button>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <button
+                  type="submit"
+                  disabled={
+                    status === 'submitting' ||
+                    !email ||
+                    (mode !== 'forgot' && !password)
+                  }
+                  style={{
+                    marginTop: 22,
+                    width: '100%',
+                    padding: '13px',
+                    fontSize: 12,
+                    fontWeight: 600,
+                    letterSpacing: 'var(--tracking-wide)',
+                    textTransform: 'uppercase',
+                    background:
+                      status === 'submitting' ? 'var(--color-text-muted)' : 'var(--color-bred)',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: 'var(--radius-md)',
+                    opacity:
+                      !email || (mode !== 'forgot' && !password) ? 0.55 : 1,
+                    cursor: status === 'submitting' ? 'wait' : 'pointer',
+                    transition: 'background var(--transition-fast)',
+                  }}
+                >
+                  {status === 'submitting'
+                    ? mode === 'signin'
+                      ? t('auth.signin.submitting')
+                      : mode === 'signup'
+                        ? t('auth.signup.submitting')
+                        : t('auth.forgot.submitting')
+                    : mode === 'signin'
+                      ? t('auth.signin.submit')
+                      : mode === 'signup'
+                        ? t('auth.signup.submit')
+                        : t('auth.forgot.submit')}
+                </button>
+
+                {status === 'error' && (
+                  <p
                     style={{
-                      color: 'var(--color-royal)',
-                      fontWeight: 500,
-                      textDecoration: 'underline',
+                      marginTop: 14,
                       fontSize: 12,
+                      color: 'var(--color-bred)',
+                      textAlign: 'center',
+                      lineHeight: 1.4,
                     }}
                   >
-                    {t('auth.forgot.back')}
-                  </button>
-                ) : (
-                  <>
-                    {mode === 'signin'
-                      ? t('auth.signin.noAccount')
-                      : t('auth.signup.haveAccount')}{' '}
+                    {errorKey ? t(errorKey) : errorRaw || t('auth.errors.generic')}
+                  </p>
+                )}
+
+                <div
+                  style={{
+                    marginTop: 22,
+                    textAlign: 'center',
+                    fontSize: 12,
+                    color: 'var(--color-text-muted)',
+                  }}
+                >
+                  {mode === 'forgot' ? (
                     <button
                       type="button"
-                      onClick={switchMode}
+                      onClick={() => setModeTo('signin')}
                       style={{
                         color: 'var(--color-royal)',
                         fontWeight: 500,
@@ -329,19 +293,154 @@ export function Login() {
                         fontSize: 12,
                       }}
                     >
-                      {mode === 'signin'
-                        ? t('auth.signin.switchToSignup')
-                        : t('auth.signup.switchToSignin')}
+                      {t('auth.forgot.back')}
                     </button>
-                  </>
-                )}
-              </div>
-            </>
-          )}
-        </form>
+                  ) : (
+                    <>
+                      {mode === 'signin'
+                        ? t('auth.signin.noAccount')
+                        : t('auth.signup.haveAccount')}{' '}
+                      <button
+                        type="button"
+                        onClick={switchMode}
+                        style={{
+                          color: 'var(--color-royal)',
+                          fontWeight: 500,
+                          textDecoration: 'underline',
+                          fontSize: 12,
+                        }}
+                      >
+                        {mode === 'signin'
+                          ? t('auth.signin.switchToSignup')
+                          : t('auth.signup.switchToSignin')}
+                      </button>
+                    </>
+                  )}
+                </div>
+              </>
+            )}
+          </form>
+        </div>
       </div>
     </div>
   )
+}
+
+/**
+ * Hero panel — branding + value proposition. Sits to the left of the auth
+ * card on desktop, stacks above it on mobile. Three features are surfaced
+ * because that's what differentiates Shooserie from a generic notes app:
+ * the scan, the live values, and the P&L tracking.
+ */
+function LoginHero() {
+  const { t } = useT()
+  return (
+    <section className="login-hero" aria-label="Shooserie">
+      <Logo size="lg" />
+      <h1 className="login-hero-tagline">{t('landing.tagline')}</h1>
+      <p className="login-hero-subtitle">{t('landing.subtitle')}</p>
+      <ul className="login-hero-features">
+        <Feature
+          icon={<ScanIcon />}
+          title={t('landing.feature.scan.title')}
+          desc={t('landing.feature.scan.desc')}
+        />
+        <Feature
+          icon={<TrendingUpIcon />}
+          title={t('landing.feature.price.title')}
+          desc={t('landing.feature.price.desc')}
+        />
+        <Feature
+          icon={<WalletIcon />}
+          title={t('landing.feature.track.title')}
+          desc={t('landing.feature.track.desc')}
+        />
+      </ul>
+    </section>
+  )
+}
+
+function Feature({ icon, title, desc }: { icon: ReactNode; title: string; desc: string }) {
+  return (
+    <li style={featureStyle}>
+      <div style={featureIconStyle} aria-hidden>
+        {icon}
+      </div>
+      <div style={{ minWidth: 0 }}>
+        <div style={featureTitleStyle}>{title}</div>
+        <div style={featureDescStyle}>{desc}</div>
+      </div>
+    </li>
+  )
+}
+
+// ----- SVG icons (inline, no external lib) ----- //
+
+function ScanIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 7V5a2 2 0 0 1 2-2h2" />
+      <path d="M17 3h2a2 2 0 0 1 2 2v2" />
+      <path d="M21 17v2a2 2 0 0 1-2 2h-2" />
+      <path d="M7 21H5a2 2 0 0 1-2-2v-2" />
+      <line x1="7" y1="8" x2="7" y2="16" />
+      <line x1="11" y1="8" x2="11" y2="16" />
+      <line x1="15" y1="8" x2="15" y2="16" />
+      <line x1="19" y1="8" x2="19" y2="16" />
+    </svg>
+  )
+}
+
+function TrendingUpIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="3 17 9 11 13 15 21 7" />
+      <polyline points="14 7 21 7 21 14" />
+    </svg>
+  )
+}
+
+function WalletIcon() {
+  return (
+    <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M20 12V8a2 2 0 0 0-2-2H5a1 1 0 0 1 0-2h13" />
+      <path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" />
+      <path d="M18 12a2 2 0 1 0 0 4h4v-4Z" />
+    </svg>
+  )
+}
+
+// ----- Inline styles (the layout-critical ones live in index.css) ----- //
+
+const featureStyle: CSSProperties = {
+  display: 'flex',
+  gap: 14,
+  alignItems: 'flex-start',
+}
+const featureIconStyle: CSSProperties = {
+  flexShrink: 0,
+  width: 38,
+  height: 38,
+  borderRadius: 'var(--radius-md)',
+  background: 'var(--color-text)',
+  color: '#FFFFFF',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+const featureTitleStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 13,
+  fontWeight: 600,
+  color: 'var(--color-text)',
+  textTransform: 'uppercase',
+  letterSpacing: 'var(--tracking-wide)',
+  marginBottom: 2,
+}
+const featureDescStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.5,
 }
 
 const labelStyle: CSSProperties = {

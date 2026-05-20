@@ -7,7 +7,9 @@ import { SneakerNew } from '@/pages/SneakerNew'
 import { SneakerDetail } from '@/pages/SneakerDetail'
 import { SneakerEdit } from '@/pages/SneakerEdit'
 import { Account } from '@/pages/Account'
+import { Admin } from '@/pages/Admin'
 import { ResetPassword } from '@/pages/ResetPassword'
+import { SharedCollection } from '@/pages/SharedCollection'
 
 export default function App() {
   return (
@@ -22,6 +24,9 @@ export default function App() {
             * password without going through normal login. */}
           <Route path="/reset-password" element={<ResetPassword />} />
 
+          {/* Public — anyone with the token can view. No auth required. */}
+          <Route path="/share/:token" element={<SharedCollection />} />
+
           <Route
             path="/dashboard"
             element={
@@ -35,6 +40,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             }
           />

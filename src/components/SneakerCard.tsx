@@ -3,13 +3,20 @@ import type { Sneaker } from '@/lib/types'
 import { calcDelta, deltaBgColor, deltaColor, effectiveCost, formatEur, formatPct } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from './SneakerPhoto'
+import { RefreshCoteButton } from './RefreshCoteButton'
+import { OwnerCountBadge } from './OwnerCountBadge'
 import type { CSSProperties } from 'react'
 
 interface SneakerCardProps {
   sneaker: Sneaker
+  /** Number of distinct users (across the whole user base) who own this same
+   *  model — keyed by stockx_product_id. Undefined when the card isn't
+   *  linked to the catalog OR while the batch lookup is still loading. The
+   *  badge auto-hides if undefined/0. */
+  ownerCount?: number
 }
 
-export function SneakerCard({ sneaker }: SneakerCardProps) {
+export function SneakerCard({ sneaker, ownerCount }: SneakerCardProps) {
   const { t } = useT()
   const delta = calcDelta(effectiveCost(sneaker), sneaker.market_price)
   const sizeLabel = formatSize(sneaker.size_eu, sneaker.size_us)
@@ -27,6 +34,10 @@ export function SneakerCard({ sneaker }: SneakerCardProps) {
           {sneaker.is_for_sale && (
             <span style={forSaleRibbonStyle}>{t('card.forSale')}</span>
           )}
+          {/* Owner count — top-right, opposite of the for-sale ribbon. */}
+          <div style={ownerBadgeWrapStyle}>
+            <OwnerCountBadge count={ownerCount} variant="card" />
+          </div>
         </div>
         <div style={bodyStyle}>
           {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
@@ -34,18 +45,21 @@ export function SneakerCard({ sneaker }: SneakerCardProps) {
           {sizeLabel && <div style={sizeStyle}>{sizeLabel}</div>}
           <div style={rowStyle}>
             <div style={priceStyle}>{formatEur(priceShown)}</div>
-            {delta.pct !== null && (
-              <div
-                style={{
-                  ...deltaStyle,
-                  background:
-                    deltaBgColor(delta.pct) ?? 'var(--color-neutral-chip-bg)',
-                  color: deltaColor(delta.pct),
-                }}
-              >
-                {formatPct(delta.pct, true)}
-              </div>
-            )}
+            <div style={rightGroupStyle}>
+              {delta.pct !== null && (
+                <div
+                  style={{
+                    ...deltaStyle,
+                    background:
+                      deltaBgColor(delta.pct) ?? 'var(--color-neutral-chip-bg)',
+                    color: deltaColor(delta.pct),
+                  }}
+                >
+                  {formatPct(delta.pct, true)}
+                </div>
+              )}
+              <RefreshCoteButton sneaker={sneaker} variant="card" />
+            </div>
           </div>
         </div>
       </div>
@@ -114,6 +128,12 @@ const rowStyle: CSSProperties = {
   borderTop: '1px solid var(--color-border)',
   gap: 8,
 }
+const rightGroupStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  flexShrink: 0,
+}
 const priceStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',
   fontSize: 14,
@@ -141,5 +161,14 @@ const forSaleRibbonStyle: CSSProperties = {
   fontWeight: 700,
   letterSpacing: 'var(--tracking-wider)',
   borderRadius: 'var(--radius-sm)',
+  zIndex: 1,
+}
+// Wrapper to absolutely position the owner-count badge in the top-right
+// corner of the photo, opposite the for-sale ribbon. The badge itself comes
+// from <OwnerCountBadge> which auto-hides when count is undefined/0.
+const ownerBadgeWrapStyle: CSSProperties = {
+  position: 'absolute',
+  top: 8,
+  right: 8,
   zIndex: 1,
 }

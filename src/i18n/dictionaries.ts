@@ -32,6 +32,20 @@ const fr = {
   // === Language switcher ===
   'lang.toggle.label': 'Changer la langue',
 
+  // === Landing / Hero (sur la page Login) ===
+  'landing.tagline': 'Ta collection de sneakers, suivie comme un portefeuille.',
+  'landing.subtitle':
+    "Scan code-barre, cotes en temps réel, plus-values calculées. Tout ce qu'il faut pour gérer ta sneakerthèque sérieusement.",
+  'landing.feature.scan.title': 'Scan code-barre',
+  'landing.feature.scan.desc':
+    'Ajoute une paire en 2 secondes. Photo, modèle, taille, retail — tout est rempli automatiquement.',
+  'landing.feature.price.title': 'Cotes StockX temps réel',
+  'landing.feature.price.desc':
+    'La valeur de chaque paire mise à jour à la demande, avec historique et conversion en euros.',
+  'landing.feature.track.title': 'Plus-values & historique',
+  'landing.feature.track.desc':
+    "Prix d'achat, tags, photos, état. Vois ce que vaut ta collection et combien tu as gagné.",
+
   // === Auth / Login ===
   'auth.title': 'Shooserie',
   'auth.signin.title': 'Connexion',
@@ -117,8 +131,45 @@ const fr = {
   'dashboard.sort.nameAsc': 'A → Z',
   'dashboard.errorLoad': 'Erreur de chargement : {msg}',
 
+  // === Dashboard share — public link sharing ===
+  'dashboard.share.button': 'Partager',
+  'dashboard.share.tooltip': 'Créer un lien pour partager ta collection',
+  'dashboard.share.fileTitle': 'Ma collection',
+  'share.title': 'Partager ta collection',
+  'share.desc':
+    'Crée un lien que tu peux envoyer à qui tu veux (WhatsApp, SMS, mail, Insta). Le destinataire verra ta collection sans avoir besoin d\'un compte.',
+  'share.create': 'Créer un lien',
+  'share.creating': 'Création…',
+  'share.labelPlaceholder': 'Nom (optionnel, ex: "Pour Yanis")',
+  'share.privacy':
+    'Seuls les champs publics sont partagés (photo, modèle, taille, cote, à vendre). Ton prix d\'achat, tes notes et tes tags restent privés.',
+  'share.copy': 'Copier',
+  'share.copied': 'Copié !',
+  'share.copyManual': 'Copie ce lien :',
+  'share.revoke': 'Désactiver',
+  'share.revoked': 'Désactivé',
+  'share.delete': 'Supprimer',
+  'share.confirmDelete':
+    'Supprimer définitivement ce lien ? Cette action est irréversible.',
+  'share.empty': 'Aucun lien actif pour le moment.',
+  'share.loading': 'Chargement…',
+  'share.defaultLabel': 'Lien sans nom',
+  'share.createdOn': 'Créé le {date}',
+
   // === Card / Table ===
   'card.forSale': 'À VENDRE',
+
+  // === Community — owners count + top models ===
+  'community.badge.one': '{count} collectionneur a ce modèle',
+  'community.badge.many': '{count} collectionneurs ont ce modèle',
+  'community.collector.one': 'collectionneur',
+  'community.collector.many': 'collectionneurs',
+  'community.top.title': 'Les plus collectionnées',
+  'community.top.subtitle': 'Sur Shooserie',
+  'card.refresh.aria': 'Actualiser la cote',
+  'card.refresh.notLinked': 'Pas lié au catalogue',
+  'card.refresh.noSize': 'Taille US manquante',
+  'card.refresh.error': 'Échec : {msg}',
   'table.col.model': 'Modèle',
   'table.col.size': 'Taille',
   'table.col.cote': 'Cote',
@@ -294,6 +345,20 @@ const en: typeof fr = {
   // === Language switcher ===
   'lang.toggle.label': 'Change language',
 
+  // === Landing / Hero (on the Login page) ===
+  'landing.tagline': 'Your sneaker collection, tracked like a portfolio.',
+  'landing.subtitle':
+    "Barcode scan, live values, P&L. Everything you need to manage your sneakerheap like a serious collector.",
+  'landing.feature.scan.title': 'Barcode scan',
+  'landing.feature.scan.desc':
+    'Add a pair in 2 seconds. Photo, model, size, retail — all filled in automatically.',
+  'landing.feature.price.title': 'Live StockX values',
+  'landing.feature.price.desc':
+    "Each pair's value refreshed on demand, with history and EUR conversion.",
+  'landing.feature.track.title': 'P&L & history',
+  'landing.feature.track.desc':
+    'Purchase price, tags, photos, condition. See what your collection is worth and how much you’ve made.',
+
   // === Auth / Login ===
   'auth.title': 'Shooserie',
   'auth.signin.title': 'Sign in',
@@ -378,8 +443,45 @@ const en: typeof fr = {
   'dashboard.sort.nameAsc': 'A → Z',
   'dashboard.errorLoad': 'Loading error: {msg}',
 
+  // === Dashboard share — public link sharing ===
+  'dashboard.share.button': 'Share',
+  'dashboard.share.tooltip': 'Create a link to share your collection',
+  'dashboard.share.fileTitle': 'My collection',
+  'share.title': 'Share your collection',
+  'share.desc':
+    'Create a link you can send to anyone (WhatsApp, SMS, email, Insta). They\'ll see your collection without needing an account.',
+  'share.create': 'Create link',
+  'share.creating': 'Creating…',
+  'share.labelPlaceholder': 'Name (optional, e.g. "For Yanis")',
+  'share.privacy':
+    'Only public fields are shared (photo, model, size, value, for-sale flag). Your purchase price, notes and tags stay private.',
+  'share.copy': 'Copy',
+  'share.copied': 'Copied!',
+  'share.copyManual': 'Copy this link:',
+  'share.revoke': 'Disable',
+  'share.revoked': 'Disabled',
+  'share.delete': 'Delete',
+  'share.confirmDelete':
+    'Permanently delete this link? This cannot be undone.',
+  'share.empty': 'No active link yet.',
+  'share.loading': 'Loading…',
+  'share.defaultLabel': 'Unnamed link',
+  'share.createdOn': 'Created on {date}',
+
   // === Card / Table ===
   'card.forSale': 'FOR SALE',
+
+  // === Community — owners count + top models ===
+  'community.badge.one': '{count} collector has this model',
+  'community.badge.many': '{count} collectors have this model',
+  'community.collector.one': 'collector',
+  'community.collector.many': 'collectors',
+  'community.top.title': 'Most collected',
+  'community.top.subtitle': 'On Shooserie',
+  'card.refresh.aria': 'Refresh value',
+  'card.refresh.notLinked': 'Not linked to catalog',
+  'card.refresh.noSize': 'US size missing',
+  'card.refresh.error': 'Failed: {msg}',
   'table.col.model': 'Model',
   'table.col.size': 'Size',
   'table.col.cote': 'Value',

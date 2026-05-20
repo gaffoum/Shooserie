@@ -89,7 +89,8 @@ img {
 }
 @media (max-width: 639px) {
   .app-header-email { display: none !important; }
-  .app-header-badge { display: none !important; }
+  /* Admin badge stays visible on mobile — it's the tap entry point to /admin
+   * for the admin user. Compact enough (~70px) to not bloat the header. */
   .app-header-action-text { display: none !important; }
   .app-header { padding: 10px 12px !important; gap: 8px !important; }
   .app-header-actions { gap: 6px !important; }
@@ -98,4 +99,92 @@ img {
 
 @keyframes shooserie-spin {
   to { transform: rotate(360deg); }
+}
+
+/* Login / Landing — hybrid layout.
+ * Mobile (<900px): hero stacked above the auth card.
+ * Desktop (≥900px): hero on the left, auth card on the right.
+ * The hero owns the branding (Logo + tagline + features); the auth card
+ * focuses on the form so we don't repeat the logo in two places. */
+.login-page {
+  min-height: 100vh;
+  background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  position: relative;
+}
+.login-container {
+  width: 100%;
+  max-width: 1080px;
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+  align-items: center;
+}
+.login-hero {
+  width: 100%;
+  max-width: 540px;
+  text-align: center;
+}
+.login-hero-tagline {
+  font-family: var(--font-display);
+  font-size: 28px;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text);
+  margin: 20px 0 12px;
+}
+.login-hero-subtitle {
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  margin: 0 0 24px;
+}
+.login-hero-features {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+.login-card {
+  width: 100%;
+  max-width: 420px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: 32px 28px;
+}
+
+@media (min-width: 900px) {
+  .login-container {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 56px;
+    padding: 48px 0;
+  }
+  .login-hero {
+    flex: 1;
+    max-width: 560px;
+    text-align: left;
+    padding-top: 24px;
+  }
+  .login-hero-tagline {
+    font-size: 40px;
+    margin-top: 28px;
+  }
+  .login-hero-subtitle {
+    font-size: 16px;
+    margin-bottom: 36px;
+  }
+  .login-card {
+    flex-shrink: 0;
+    width: 420px;
+  }
 }

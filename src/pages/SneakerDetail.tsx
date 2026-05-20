@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
+import { useSneaker, useDeleteSneaker, useRefreshMarketPrice, useModelOwnerCounts } from '@/lib/queries'
 import { calcDelta, deltaColor, effectiveCost, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
 import { useT, formatDateTime } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -8,6 +8,7 @@ import { BackLink } from '@/components/BackLink'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
 import { Sparkline } from '@/components/Sparkline'
 import { ConfirmDialog } from '@/components/ConfirmDialog'
+import { OwnerCountBadge } from '@/components/OwnerCountBadge'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
 
@@ -18,6 +19,16 @@ export function SneakerDetail() {
   const { data: sneaker, isLoading, error } = useSneaker(id)
   const deleteMutation = useDeleteSneaker()
   const refreshMutation = useRefreshMarketPrice()
+
+  // Single-model lookup via the same batch hook (just with a 1-element array).
+  // React Query dedupes across pages so if the user came from the Dashboard,
+  // the lookup is a cache hit and renders instantly.
+  const { data: ownerCounts } = useModelOwnerCounts(
+    sneaker?.stockx_product_id ? [sneaker.stockx_product_id] : [],
+  )
+  const ownerCount = sneaker?.stockx_product_id
+    ? ownerCounts?.[sneaker.stockx_product_id]
+    : undefined
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [refreshError, setRefreshError] = useState<string | null>(null)
 
@@ -63,6 +74,11 @@ export function SneakerDetail() {
                 {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
                 <h1 style={titleStyle}>{sneaker.name}</h1>
                 {sneaker.colorway && <div style={colorwayStyle}>{sneaker.colorway}</div>}
+                {ownerCount !== undefined && ownerCount > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    <OwnerCountBadge count={ownerCount} variant="inline" />
+                  </div>
+                )}
 
                 <div style={metaGridStyle}>
                   <Meta label={t('detail.meta.sku')} value={sneaker.sku || '—'} mono />
