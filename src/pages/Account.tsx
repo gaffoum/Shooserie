@@ -28,6 +28,7 @@ export function Account() {
       <AppHeader leftActions={<BackLink to="/dashboard" />} />
       <main style={mainStyle}>
         <h1 style={titleStyle}>{t('account.title')}</h1>
+        <InviteSection />
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
         {currentEmail === ADMIN_EMAIL && <AdminSection />}
@@ -35,6 +36,118 @@ export function Account() {
       </main>
     </div>
   )
+}
+
+/* =====================================================
+ * Invite section — share the app to grow the user base.
+ *
+ * Uses the Web Share API (navigator.share) on devices that support it —
+ * which is most mobile browsers (iOS Safari, Android Chrome, etc.). That
+ * triggers the OS-native share sheet so the user can pick iMessage,
+ * WhatsApp, Insta DM, AirDrop, whatever they have installed. One tap.
+ *
+ * Fallback for desktop / unsupported browsers: copy the message + URL to
+ * clipboard with visual "copié !" feedback. If even clipboard fails (some
+ * non-HTTPS contexts, etc.), final fallback is window.prompt() so the user
+ * can copy manually.
+ *
+ * Intentionally NOT a referral-tracked URL for v1. Just a plain link to
+ * shooserie.tech. We can add ?ref=<userId> attribution later if the
+ * invite feature gets enough usage to be worth measuring.
+ * ===================================================== */
+
+function InviteSection() {
+  const { t } = useT()
+  const [copied, setCopied] = useState(false)
+
+  const handleShare = async () => {
+    const shareUrl = 'https://shooserie.tech'
+    const shareText = t('invite.message')
+    const shareTitle = 'Shooserie'
+
+    // Path 1 — native OS share sheet (mobile-first).
+    if (typeof navigator !== 'undefined' && typeof navigator.share === 'function') {
+      try {
+        await navigator.share({
+          title: shareTitle,
+          text: shareText,
+          url: shareUrl,
+        })
+        return
+      } catch (err) {
+        // AbortError = user dismissed the share sheet, that's not an error.
+        // Other errors → fall through to clipboard fallback below.
+        if ((err as Error).name === 'AbortError') return
+      }
+    }
+
+    // Path 2 — clipboard fallback (desktop, or share API failed).
+    const fullText = `${shareText}\n${shareUrl}`
+    try {
+      await navigator.clipboard.writeText(fullText)
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    } catch {
+      // Path 3 — last resort: surface the text so user can copy manually.
+      window.prompt(t('invite.copyManual'), fullText)
+    }
+  }
+
+  return (
+    <section style={inviteSectionStyle}>
+      <h2 style={inviteTitleStyle}>{t('invite.title')}</h2>
+      <p style={inviteDescStyle}>{t('invite.desc')}</p>
+      <button
+        type="button"
+        onClick={handleShare}
+        style={copied ? inviteBtnCopiedStyle : inviteBtnStyle}
+      >
+        {copied ? `✓ ${t('invite.copied')}` : t('invite.button')}
+      </button>
+    </section>
+  )
+}
+
+const inviteSectionStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-xl)',
+  padding: '20px 22px',
+  marginBottom: 16,
+}
+const inviteTitleStyle: CSSProperties = {
+  margin: '0 0 6px',
+  fontFamily: 'var(--font-display)',
+  fontSize: 16,
+  fontWeight: 700,
+  color: 'var(--color-text)',
+}
+const inviteDescStyle: CSSProperties = {
+  margin: '0 0 14px',
+  fontSize: 13,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.5,
+}
+const inviteBtnStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  padding: '11px 18px',
+  fontSize: 12,
+  fontWeight: 600,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  background: 'var(--color-bred)',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: 'var(--radius-md)',
+  cursor: 'pointer',
+  fontFamily: 'var(--font-display)',
+  transition: 'background 0.15s ease',
+}
+const inviteBtnCopiedStyle: CSSProperties = {
+  ...inviteBtnStyle,
+  background: 'var(--color-up)',
 }
 
 /* =====================================================
