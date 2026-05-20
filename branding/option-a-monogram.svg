@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <title>Shooserie — Option A — Monogramme S</title>
+  <!-- Carré arrondi noir, point Bred dans le coin supérieur droit -->
+  <rect x="0" y="0" width="200" height="200" rx="36" ry="36" fill="#0A0A0A"/>
+  <!-- Lettre S — tracé personnalisé, look condensé proche de Outfit Bold -->
+  <text
+    x="100"
+    y="100"
+    font-family="'Outfit', 'Inter', -apple-system, sans-serif"
+    font-weight="700"
+    font-size="140"
+    fill="#FFFFFF"
+    text-anchor="middle"
+    dominant-baseline="central"
+    letter-spacing="-4">S</text>
+  <!-- Point Bred signature, top-right -->
+  <circle cx="158" cy="46" r="11" fill="#CE1141"/>
+</svg>
