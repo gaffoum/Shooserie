@@ -1,202 +1,186 @@
-import type { Sneaker } from './types'
-
-export function formatEur(value: number | null | undefined, withSign = false): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—'
-  const formatted = new Intl.NumberFormat('fr-FR', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(Math.abs(value))
-  if (withSign) {
-    if (value > 0) return `+${formatted}`
-    if (value < 0) return `−${formatted}`
-  }
-  return value < 0 ? `−${formatted}` : formatted
-}
-
-export function formatPct(value: number | null | undefined, withSign = false): string {
-  if (value === null || value === undefined || Number.isNaN(value)) return '—'
-  const rounded = Math.round(value * 10) / 10
-  const formatted = new Intl.NumberFormat('fr-FR', {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 1,
-  }).format(Math.abs(rounded))
-  if (withSign) {
-    if (rounded > 0) return `+${formatted} %`
-    if (rounded < 0) return `−${formatted} %`
-  }
-  return `${formatted} %`
-}
-
-export function formatDate(iso: string | null | undefined): string {
-  if (!iso) return '—'
-  try {
-    return new Date(iso).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    })
-  } catch {
-    return '—'
-  }
-}
-
-export interface Delta {
-  eur: number | null
-  pct: number | null
-}
+import { supabase } from './supabase'
 
 /**
- * Coût de référence pour le calcul de la plus-value : prix d'achat saisi par
- * l'utilisateur, et à défaut, prix release. Null si on n'a aucune des deux.
+ * Wrapper for the StockX edge functions. All calls go through Supabase Edge
+ * Functions (which proxy to api.stockx.com with our shared OAuth refresh
+ * token, refreshed automatically server-side).
  */
-export function effectiveCost(s: Sneaker): number | null {
-  if (s.purchase_price !== null && s.purchase_price !== undefined) return s.purchase_price
-  if (s.release_price !== null && s.release_price !== undefined) return s.release_price
-  return null
+
+/* =====================================================
+ * TYPES — shapes returned by our edge functions
+ * ===================================================== */
+
+export interface StockXSearchHit {
+  productId: string
+  urlKey: string
+  title: string
+  brand: string | null
+  productType: string | null
+  styleId: string | null
+  colorway: string | null
+  color: string | null
+  gender: string | null
+  releaseDate: string | null
+  retailPrice: number | null
 }
+
+export interface StockXVariant {
+  variantId: string
+  size: string | null
+  /** Available size conversions (US M, EU, UK, CM, …) */
+  sizes: Array<{ size?: string; type?: string }>
+  /** UPC/EAN/GTIN codes for this size */
+  gtins: string[]
+}
+
+export interface StockXProduct extends StockXSearchHit {
+  imageUrl: string | null
+  stockxUrl: string | null
+  variants: StockXVariant[]
+}
+
+export interface StockXPricing {
+  productId: string
+  variantId: string
+  size: string | null
+  currency: string // "USD"
+  lowestAsk: number | null
+  highestBid: number | null
+  midPrice: number | null
+  fetchedAt: string
+}
+
+/* =====================================================
+ * FX — StockX market-data is USD-locked, so we convert.
+ * Update USD_TO_EUR_RATE if the rate drifts significantly.
+ * ===================================================== */
+
+export const USD_TO_EUR_RATE = 0.92
+
+export function usdToEur(usd: number | null): number | null {
+  if (usd === null || usd === undefined) return null
+  return Math.round(usd * USD_TO_EUR_RATE)
+}
+
+/* =====================================================
+ * CALLS
+ * ===================================================== */
 
 /**
- * Plus-value entre une base (prix d'achat ou release) et la valeur de marché.
- * Si la base est 0 (acheté gratuit), on renvoie le delta € mais pas le %
- * (division par zéro).
+ * Hits an edge function with GET + query params, attaching the user's auth
+ * JWT (needed because verify_jwt=true on these functions).
  */
-export function calcDelta(base: number | null, market: number | null): Delta {
-  if (base === null || market === null) {
-    return { eur: null, pct: null }
-  }
-  return {
-    eur: market - base,
-    pct: base === 0 ? null : ((market - base) / base) * 100,
-  }
-}
+async function fnGet<T>(name: string, params: Record<string, string>): Promise<T> {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+  if (!session) throw new Error('Non authentifié')
 
-/**
- * Convention couleurs +/- value :
- *  - strictement positif → vert (`--color-up`)
- *  - strictement négatif → rouge (`--color-down`)
- *  - 0 ou null → texte par défaut (`--color-text` / muted)
- */
-export function deltaColor(value: number | null | undefined): string {
-  if (value === null || value === undefined) return 'var(--color-text-muted)'
-  if (value > 0) return 'var(--color-up)'
-  if (value < 0) return 'var(--color-down)'
-  return 'var(--color-text)'
-}
-
-/** Pill background for a delta. Returns null for 0/null (no tint). */
-export function deltaBgColor(value: number | null | undefined): string | null {
-  if (value === null || value === undefined) return null
-  if (value > 0) return 'var(--color-up-bg)'
-  if (value < 0) return 'var(--color-down-bg)'
-  return null
-}
-
-export interface KpiSummary {
-  count: number
-  /** Somme des prix d'achat (fallback release si pas de prix saisi). */
-  totalCost: number
-  /** Somme des cotes courantes (fallback cost si pas de cote). */
-  totalMarket: number
-  deltaEur: number
-  deltaPct: number
-}
-
-export function aggregateKpis(sneakers: Sneaker[]): KpiSummary {
-  const count = sneakers.length
-  const totalCost = sneakers.reduce((acc, s) => acc + (effectiveCost(s) ?? 0), 0)
-  // Si pas de cote disponible, on retombe sur le coût d'achat (la paire vaut
-  // au moins ce qu'on l'a payée pour le calcul de portefeuille).
-  const totalMarket = sneakers.reduce(
-    (acc, s) => acc + (s.market_price ?? effectiveCost(s) ?? 0),
-    0,
+  // Reach into the supabase client to get the base URL + anon key.
+  const url = new URL(
+    `${(supabase as unknown as { supabaseUrl: string }).supabaseUrl}/functions/v1/${name}`,
   )
-  const deltaEur = totalMarket - totalCost
-  const deltaPct = totalCost > 0 ? (deltaEur / totalCost) * 100 : 0
-  return { count, totalCost, totalMarket, deltaEur, deltaPct }
-}
+  for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v)
 
-/** Liste des marques uniques présentes dans la collection, triées alpha */
-export function listBrands(sneakers: Sneaker[]): string[] {
-  const set = new Set<string>()
-  for (const s of sneakers) {
-    if (s.brand) set.add(s.brand)
+  const res = await fetch(url.toString(), {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${session.access_token}`,
+      apikey: (supabase as unknown as { supabaseKey: string }).supabaseKey,
+    },
+  })
+
+  const text = await res.text()
+  let json: unknown
+  try {
+    json = JSON.parse(text)
+  } catch {
+    throw new Error(`Edge function ${name} returned non-JSON: ${text.slice(0, 200)}`)
   }
-  return Array.from(set).sort()
-}
-
-/** Liste des tags uniques présents dans la collection, triés alpha */
-export function listTags(sneakers: Sneaker[]): string[] {
-  const set = new Set<string>()
-  for (const s of sneakers) {
-    for (const t of s.tags) set.add(t)
+  if (!res.ok || (json as { error?: string }).error) {
+    const msg = (json as { error?: string }).error ?? `HTTP ${res.status}`
+    throw new Error(msg)
   }
-  return Array.from(set).sort()
-}
-
-export interface TimePoint {
-  date: string
-  value: number
+  return json as T
 }
 
 /**
- * Build a per-sneaker timeline from its price_history. Sorted ascending.
- * Returns empty if there are no entries.
+ * Free-text search of the StockX catalog. Returns up to 10 matching products.
+ * Search hits do NOT include images — call getStockXProduct() to get one.
  */
-export function sneakerTimeline(s: Sneaker): TimePoint[] {
-  return [...(s.price_history ?? [])]
-    .filter((p) => Number.isFinite(p.price))
-    .sort((a, b) => a.date.localeCompare(b.date))
-    .map((p) => ({ date: p.date, value: p.price }))
+export async function searchStockX(query: string): Promise<StockXSearchHit[]> {
+  const q = query.trim()
+  if (q.length < 2) return []
+  const data = await fnGet<{ products: StockXSearchHit[] }>('stockx-search', { q })
+  return data.products ?? []
 }
 
 /**
- * Build the aggregate portfolio value timeline across all sneakers.
- *
- * Approach: walk all price_history events chronologically. After each event,
- * the contributing sneaker's "current cote" is updated. The portfolio total
- * at that moment = sum of every sneaker's known cote (or release_price as a
- * baseline if no event has been seen yet for that sneaker). Sneakers with
- * no history at all still anchor a single point at "now" with their current
- * market_price (or release_price as fallback).
+ * Fetch full product detail by StockX productId. Returns variants (with GTINs)
+ * and a derived image URL.
  */
-export function portfolioTimeline(sneakers: Sneaker[]): TimePoint[] {
-  // Baseline per-sneaker value before any event: release_price, or 0.
-  const baseline = new Map<string, number>()
-  for (const s of sneakers) {
-    baseline.set(s.id, s.release_price ?? 0)
-  }
+export async function getStockXProduct(productId: string): Promise<StockXProduct> {
+  return fnGet<StockXProduct>('stockx-product', { productId })
+}
 
-  // Collect events.
-  type Event = { date: string; sneakerId: string; price: number }
-  const events: Event[] = []
-  for (const s of sneakers) {
-    for (const p of s.price_history ?? []) {
-      if (!Number.isFinite(p.price)) continue
-      events.push({ date: p.date, sneakerId: s.id, price: p.price })
+/**
+ * Fetch current market data for one size of a StockX product.
+ * Pass either { size } (US M as string like "10" or "10.5") OR { variantId }.
+ */
+export async function getStockXPricing(args: {
+  productId: string
+  size?: string
+  variantId?: string
+}): Promise<StockXPricing> {
+  const params: Record<string, string> = { productId: args.productId }
+  if (args.variantId) params.variantId = args.variantId
+  else if (args.size) params.size = args.size
+  else throw new Error('Provide either size or variantId')
+  return fnGet<StockXPricing>('stockx-pricing', params)
+}
+
+/* =====================================================
+ * BARCODE LOOKUP ON STOCKX
+ * ===================================================== */
+
+export interface StockXBarcodeMatch {
+  productId: string
+  variantId: string
+  sizeUS: string | null
+  sizeEU: string | null
+  title: string
+  brand: string | null
+  styleId: string | null
+  urlKey: string | null
+  colorway: string | null
+  releaseDate: string | null
+  retailPrice: number | null
+  imageUrl: string | null
+  stockxUrl: string | null
+}
+
+export interface StockXBarcodeResult {
+  found: boolean
+  source: 'stockx' | null
+  code: string
+  product?: StockXBarcodeMatch
+  error?: string
+}
+
+/**
+ * Look up a barcode (UPC/EAN/GTIN) on StockX. Returns the matching product
+ * + variant if found, including the exact size (since each barcode is for one
+ * size). Caller should fall back to the UPCitemdb lookup if found:false.
+ */
+export async function lookupBarcodeOnStockX(code: string): Promise<StockXBarcodeResult> {
+  try {
+    return await fnGet<StockXBarcodeResult>('stockx-barcode', { code })
+  } catch (e) {
+    return {
+      found: false,
+      source: null,
+      code,
+      error: (e as Error).message,
     }
   }
-  events.sort((a, b) => a.date.localeCompare(b.date))
-
-  // No events: single flat point at "now" with current totals.
-  if (events.length === 0) {
-    const total = sneakers.reduce(
-      (acc, s) => acc + (s.market_price ?? s.release_price ?? 0),
-      0,
-    )
-    return [{ date: new Date().toISOString(), value: total }]
-  }
-
-  // Walk events, recomputing total after each one.
-  const latest = new Map<string, number>(baseline)
-  const points: TimePoint[] = []
-  for (const e of events) {
-    latest.set(e.sneakerId, e.price)
-    const total = sneakers.reduce(
-      (acc, s) => acc + (latest.get(s.id) ?? 0),
-      0,
-    )
-    points.push({ date: e.date, value: Math.round(total) })
-  }
-  return points
 }

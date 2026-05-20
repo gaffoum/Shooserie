@@ -1,719 +1,477 @@
-import { useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useSneaker, useDeleteSneaker, useRefreshMarketPrice } from '@/lib/queries'
-import { calcDelta, deltaColor, effectiveCost, formatDate, formatEur, formatPct, sneakerTimeline } from '@/lib/format'
-import { useT, formatDateTime } from '@/i18n/I18nContext'
+import { useMemo, type CSSProperties } from 'react'
+import { Navigate } from 'react-router-dom'
+import { useAuth } from '@/contexts/AuthContext'
+import { ADMIN_EMAIL, useAdminDashboardStats } from '@/lib/queries'
 import { AppHeader } from '@/components/AppHeader'
-import { BackLink } from '@/components/BackLink'
-import { SneakerPhoto } from '@/components/SneakerPhoto'
+import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
-import { ConfirmDialog } from '@/components/ConfirmDialog'
-import type { Sneaker } from '@/lib/types'
-import type { CSSProperties } from 'react'
+import { formatEur } from '@/lib/format'
 
-export function SneakerDetail() {
-  const { id } = useParams<{ id: string }>()
-  const navigate = useNavigate()
-  const { t } = useT()
-  const { data: sneaker, isLoading, error } = useSneaker(id)
-  const deleteMutation = useDeleteSneaker()
-  const refreshMutation = useRefreshMarketPrice()
-  const [confirmOpen, setConfirmOpen] = useState(false)
-  const [refreshError, setRefreshError] = useState<string | null>(null)
+/**
+ * Internal monitoring dashboard. Shows app growth (users, sneakers, signups
+ * over time) + lists (recent signups, top brands, top collectors).
+ *
+ * Access: only ADMIN_EMAIL. Anyone else is redirected to /dashboard. The
+ * underlying RPC `admin_dashboard_stats()` ALSO checks the caller's email
+ * server-side, so the gate is defence-in-depth.
+ *
+ * Layout is single-column mobile-first — the admin will mostly read this on
+ * their phone. KPIs come first (the "scroll-stop" numbers), then time-series
+ * sparklines, then lists.
+ */
+export function Admin() {
+  const { session } = useAuth()
+  const email = session?.user.email
+  const isAdmin = email === ADMIN_EMAIL
 
-  const handleDelete = async () => {
-    if (!sneaker) return
-    await deleteMutation.mutateAsync({ id: sneaker.id, photoPath: sneaker.photo_url })
-    navigate('/dashboard', { replace: true })
-  }
+  // Hard gate. Non-admins never see the page.
+  if (!isAdmin) return <Navigate to="/dashboard" replace />
 
-  const handleRefresh = async () => {
-    if (!sneaker) return
-    setRefreshError(null)
-    try {
-      await refreshMutation.mutateAsync(sneaker)
-    } catch (e) {
-      setRefreshError((e as Error).message)
-    }
-  }
+  const { data, isLoading, error, refetch, isFetching, dataUpdatedAt } =
+    useAdminDashboardStats(email)
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
-      <AppHeader leftActions={<BackLink to="/dashboard" />} />
+    <div style={pageStyle}>
+      <AppHeader />
       <main style={mainStyle}>
-        {isLoading && <p style={loadingStyle}>{t('common.loading')}</p>}
+        <header style={headerStyle}>
+          <div>
+            <h1 style={titleStyle}>Monitoring</h1>
+            <p style={subTitleStyle}>
+              {dataUpdatedAt
+                ? `Mis à jour ${formatTimeAgo(dataUpdatedAt)}`
+                : 'Chargement…'}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            style={refreshBtnStyle(isFetching)}
+            aria-label="Actualiser"
+          >
+            ↻
+          </button>
+        </header>
 
         {error && (
-          <div style={errorBoxStyle}>
-            {t('common.error')} : {(error as Error).message}
-          </div>
+          <div style={errorStyle}>{(error as Error).message}</div>
         )}
 
-        {sneaker && (
+        {isLoading && !data ? (
+          <div style={loadingStyle}>Chargement des stats…</div>
+        ) : data ? (
           <>
-            <div style={topStyle}>
-              <div style={imageWrapStyle}>
-                <SneakerPhoto
-                  stockxUrl={sneaker.stockx_image_url}
-                  storagePath={sneaker.photo_url}
-                  alt={sneaker.name}
-                />
-              </div>
-              <div style={{ minWidth: 0 }}>
-                {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
-                <h1 style={titleStyle}>{sneaker.name}</h1>
-                {sneaker.colorway && <div style={colorwayStyle}>{sneaker.colorway}</div>}
+            {/* === Primary KPIs === */}
+            <section style={kpiGridStyle}>
+              <KpiCard
+                label="Utilisateurs"
+                value={data.totalUsers}
+                sub={`+${data.newUsers24h} en 24h · +${data.newUsers7d} en 7j`}
+              />
+              <KpiCard
+                label="Actifs 7j"
+                value={data.activeUsers7d}
+                sub={`${pct(data.activeUsers7d, data.totalUsers)} du total`}
+              />
+              <KpiCard
+                label="Paires"
+                value={data.totalSneakers}
+                sub={`+${data.newSneakers24h} en 24h · +${data.newSneakers7d} en 7j`}
+              />
+              <KpiCard
+                label="À vendre"
+                value={data.forSaleCount}
+                sub={`${pct(data.forSaleCount, data.totalSneakers)} du total`}
+              />
+            </section>
 
-                <div style={metaGridStyle}>
-                  <Meta label={t('detail.meta.sku')} value={sneaker.sku || '—'} mono />
-                  <Meta
-                    label={t('detail.meta.size')}
-                    value={formatSizeLabel(sneaker.size_eu, sneaker.size_us)}
-                    mono
-                  />
-                  <Meta label={t('detail.meta.condition')} value={sneaker.condition || '—'} />
-                  <Meta
-                    label={t('detail.meta.release')}
-                    value={
-                      [
-                        formatDate(sneaker.release_date),
-                        sneaker.release_price !== null
-                          ? formatEur(sneaker.release_price)
-                          : null,
-                      ]
-                        .filter(Boolean)
-                        .join(' · ') || '—'
-                    }
-                  />
+            {/* === Time-series sparklines === */}
+            <section style={trendsGridStyle}>
+              <TrendCard
+                title="Inscriptions · 14 jours"
+                series={data.signupsByDay}
+                totalLabel={`${sumSeries(data.signupsByDay)} signups`}
+              />
+              <TrendCard
+                title="Paires ajoutées · 14 jours"
+                series={data.pairsByDay}
+                totalLabel={`${sumSeries(data.pairsByDay)} paires`}
+              />
+            </section>
+
+            {/* === Vanity portfolio total === */}
+            <section style={vanityStyle}>
+              <div style={vanityCardStyle}>
+                <div style={vanityLabelStyle}>VALEUR CUMULÉE (tous users)</div>
+                <div style={vanityValueStyle}>
+                  {formatEur(data.totalMarketValue)}
+                </div>
+                <div style={vanitySubStyle}>
+                  investi {formatEur(data.totalInvested)} ·{' '}
+                  <span style={{ color: 'var(--color-up)' }}>
+                    {data.totalInvested > 0
+                      ? formatPctSigned(
+                          ((data.totalMarketValue - data.totalInvested) /
+                            data.totalInvested) *
+                            100,
+                        )
+                      : '—'}
+                  </span>
                 </div>
               </div>
-            </div>
+            </section>
 
-            {/* Prix grid */}
-            <PriceGrid sneaker={sneaker} />
+            {/* === Recent signups === */}
+            <Section title="Inscriptions récentes">
+              {data.recentUsers.length === 0 ? (
+                <p style={emptyStyle}>Aucun utilisateur encore.</p>
+              ) : (
+                <ul style={listStyle}>
+                  {data.recentUsers.map((u) => (
+                    <li key={u.email} style={listRowStyle}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={listEmailStyle}>{u.email}</div>
+                        <div style={listMetaStyle}>
+                          {formatDateShort(u.created_at)}
+                          {u.last_sign_in_at &&
+                            ` · vu ${formatTimeAgo(
+                              new Date(u.last_sign_in_at).getTime(),
+                            )}`}
+                        </div>
+                      </div>
+                      <div style={listCountStyle}>
+                        {u.pair_count} {u.pair_count <= 1 ? 'paire' : 'paires'}
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
 
-            {/* Historique des cotes — affiché seulement si au moins 2 points */}
-            <CoteHistory sneaker={sneaker} />
+            {/* === Top brands === */}
+            <Section title="Top marques">
+              {data.topBrands.length === 0 ? (
+                <p style={emptyStyle}>Aucune paire encore.</p>
+              ) : (
+                <ul style={listStyle}>
+                  {data.topBrands.map((b) => (
+                    <li key={b.brand} style={listRowStyle}>
+                      <div style={listEmailStyle}>{b.brand}</div>
+                      <div style={listCountStyle}>{b.count}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
 
-            {/* Bloc cote du marché */}
-            <StockXBlock
-              sneaker={sneaker}
-              onRefresh={handleRefresh}
-              refreshing={refreshMutation.isPending}
-              error={refreshError}
-            />
-
-            {/* Achat info */}
-            <div style={purchaseStyle}>
-              <Meta
-                label={t('detail.purchase.purchasedOn')}
-                value={formatDate(sneaker.purchase_date)}
-              />
-              <Meta
-                label={t('detail.purchase.price')}
-                value={formatEur(sneaker.purchase_price)}
-                mono
-              />
-            </div>
-
-            {/* Tags + statut "à vendre" */}
-            {(sneaker.tags.length > 0 || sneaker.is_for_sale) && (
-              <div style={trackingBlockStyle}>
-                {sneaker.is_for_sale && (
-                  <div style={forSaleRowStyle}>
-                    <span style={forSaleBadgeStyle}>{t('card.forSale')}</span>
-                    {sneaker.target_sale_price !== null && (
-                      <span style={forSalePriceStyle}>
-                        {formatEur(sneaker.target_sale_price)}
-                      </span>
-                    )}
-                  </div>
-                )}
-                {sneaker.tags.length > 0 && (
-                  <div style={tagsRowStyle}>
-                    {sneaker.tags.map((tag) => (
-                      <span key={tag} style={tagPillStyle}>{tag}</span>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {/* Notes */}
-            {sneaker.notes && (
-              <div style={notesStyle}>
-                <div style={notesLabelStyle}>{t('form.section.notes')}</div>
-                <p style={notesTextStyle}>{sneaker.notes}</p>
-              </div>
-            )}
-
-            {/* Actions */}
-            <div style={actionsStyle}>
-              <Link to={`/sneakers/${sneaker.id}/edit`} style={editBtnStyle}>
-                {t('common.edit')}
-              </Link>
-              <button
-                type="button"
-                onClick={() => setConfirmOpen(true)}
-                style={deleteBtnStyle}
-              >
-                {t('common.delete')}
-              </button>
-            </div>
-
-            <ConfirmDialog
-              open={confirmOpen}
-              title={t('detail.delete.title')}
-              description={t('detail.delete.desc')}
-              confirmLabel={t('common.delete')}
-              destructive
-              pending={deleteMutation.isPending}
-              onConfirm={handleDelete}
-              onCancel={() => setConfirmOpen(false)}
-            />
+            {/* === Top collectors === */}
+            <Section title="Top collectionneurs">
+              {data.topCollectors.length === 0 ? (
+                <p style={emptyStyle}>Personne encore.</p>
+              ) : (
+                <ul style={listStyle}>
+                  {data.topCollectors.map((c) => (
+                    <li key={c.email} style={listRowStyle}>
+                      <div style={{ minWidth: 0, flex: 1 }}>
+                        <div style={listEmailStyle}>{c.email}</div>
+                        <div style={listMetaStyle}>
+                          {formatEur(c.collec_value)}
+                        </div>
+                      </div>
+                      <div style={listCountStyle}>{c.pair_count}</div>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Section>
           </>
-        )}
+        ) : null}
       </main>
     </div>
   )
 }
 
-function PriceGrid({ sneaker }: { sneaker: Sneaker }) {
-  const { t } = useT()
-  const cost = effectiveCost(sneaker)
-  const market = sneaker.market_price
-  const delta = calcDelta(cost, market)
+// ============================================================================
+// Sub-components
+// ============================================================================
 
-  const costFromRelease =
-    (sneaker.purchase_price === null || sneaker.purchase_price === undefined) &&
-    sneaker.release_price !== null
-
-  return (
-    <div style={priceGridStyle}>
-      <Cell
-        label={t('detail.price.purchase')}
-        value={formatEur(cost)}
-        sublabel={costFromRelease ? t('detail.price.fromRelease') : null}
-      />
-      <Cell label={t('detail.price.cote')} value={formatEur(market)} />
-      <Cell
-        label={t('detail.price.deltaEur')}
-        value={delta.eur !== null ? formatEur(delta.eur, true) : '—'}
-        color={delta.eur !== null ? deltaColor(delta.eur) : undefined}
-      />
-      <Cell
-        label={t('detail.price.deltaPct')}
-        value={delta.pct !== null ? formatPct(delta.pct, true) : '—'}
-        color={delta.pct !== null ? deltaColor(delta.pct) : undefined}
-      />
-    </div>
-  )
-}
-
-function CoteHistory({ sneaker }: { sneaker: Sneaker }) {
-  const { t } = useT()
-  const points = sneakerTimeline(sneaker)
-  if (points.length < 2) return null
-
-  const first = points[0].value
-  const last = points[points.length - 1].value
-  const delta = last - first
-  const pct = first > 0 ? (delta / first) * 100 : null
-
-  return (
-    <div style={historyBlockStyle}>
-      <div style={historyHeaderStyle}>
-        <span style={historyLabelStyle}>{t('detail.history.label')}</span>
-        <span style={historyDeltaStyle}>
-          {formatEur(delta, true)}
-          {pct !== null && (
-            <span style={{ marginLeft: 6, color: 'var(--color-text-muted)' }}>
-              {formatPct(pct, true)}
-            </span>
-          )}
-          <span style={{ marginLeft: 8, color: 'var(--color-text-faint)', fontWeight: 400 }}>
-            {' '}{t('detail.history.count', { n: points.length })}
-          </span>
-        </span>
-      </div>
-      <div style={historyChartStyle}>
-        <Sparkline points={points} height={60} />
-      </div>
-    </div>
-  )
-}
-
-function StockXBlock({
-  sneaker,
-  onRefresh,
-  refreshing,
-  error,
+function Section({
+  title,
+  children,
 }: {
-  sneaker: Sneaker
-  onRefresh: () => void
-  refreshing: boolean
-  error: string | null
+  title: string
+  children: React.ReactNode
 }) {
-  const { t, lang } = useT()
-  const linked = !!sneaker.stockx_product_id
-  const canRefresh = linked && !!sneaker.size_us
-  const lastCheck = sneaker.last_price_check
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{title}</h2>
+      {children}
+    </section>
+  )
+}
+
+/** Time-series card: title + total + sparkline + last 2-day diff. */
+function TrendCard({
+  title,
+  series,
+  totalLabel,
+}: {
+  title: string
+  series: Array<{ d: string; c: number }>
+  totalLabel: string
+}) {
+  const points = useMemo(
+    () => series.map((s) => ({ date: s.d, value: s.c })),
+    [series],
+  )
+  const lastTwo = useMemo(() => {
+    if (series.length < 2) return null
+    const a = series[series.length - 2].c
+    const b = series[series.length - 1].c
+    return { yesterday: a, today: b, diff: b - a }
+  }, [series])
 
   return (
-    <div style={stockxBlockStyle}>
-      <div style={stockxHeaderRowStyle}>
-        <span style={stockxLabelStyle}>{t('detail.market.label')}</span>
-        {linked && lastCheck && (
-          <span style={stockxMetaStyle}>
-            {t('detail.market.lastUpdate', { date: formatDateTime(lastCheck, lang) })}
-          </span>
-        )}
+    <div style={trendCardStyle}>
+      <div style={trendTopStyle}>
+        <div style={trendTitleStyle}>{title}</div>
+        <div style={trendTotalStyle}>{totalLabel}</div>
       </div>
-
-      {!linked && (
-        <div style={stockxHintStyle}>{t('detail.market.notLinked')}</div>
-      )}
-
-      {linked && !sneaker.size_us && (
-        <div style={stockxHintStyle}>{t('detail.market.noSize')}</div>
-      )}
-
-      {linked && lastCheck && sneaker.market_price_usd !== null && (
-        <div style={stockxSubMetaStyle}>
-          {t('detail.market.source', { value: sneaker.market_price_usd })}
-        </div>
-      )}
-
-      {error && <div style={stockxErrorStyle}>{error}</div>}
-
-      {(canRefresh || sneaker.stockx_url) && (
-        <div style={stockxActionsStyle}>
-          {canRefresh && (
-            <button
-              type="button"
-              onClick={onRefresh}
-              disabled={refreshing}
-              style={{
-                ...refreshBtnStyle,
-                opacity: refreshing ? 0.55 : 1,
-                cursor: refreshing ? 'wait' : 'pointer',
-              }}
-            >
-              {refreshing ? t('detail.market.refreshing') : t('detail.market.refresh')}
-            </button>
-          )}
-          {sneaker.stockx_url && (
-            <a
-              href={sneaker.stockx_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              style={stockxLinkStyle}
-            >
-              {t('detail.market.viewExternal')}
-            </a>
-          )}
+      <div style={{ width: '100%', height: 50 }}>
+        <Sparkline points={points} width={300} height={50} />
+      </div>
+      {lastTwo && (
+        <div style={trendBottomStyle}>
+          <span>Hier · {lastTwo.yesterday}</span>
+          <span>Aujourd'hui · {lastTwo.today}</span>
         </div>
       )}
     </div>
   )
 }
 
-function Cell({
-  label,
-  value,
-  color,
-  sublabel,
-}: {
-  label: string
-  value: string
-  color?: string
-  /** Petite annotation sous la valeur, en gris (ex: "= release"). */
-  sublabel?: string | null
-}) {
-  return (
-    <div style={cellStyle}>
-      <div style={cellLabelStyle}>{label}</div>
-      <div style={{ ...cellValueStyle, color: color || 'var(--color-text)' }}>{value}</div>
-      {sublabel && <div style={cellSublabelStyle}>{sublabel}</div>}
-    </div>
-  )
+// ============================================================================
+// Helpers
+// ============================================================================
+
+function pct(n: number, total: number): string {
+  if (total === 0) return '—'
+  return `${Math.round((n / total) * 100)} %`
 }
 
-function Meta({
-  label,
-  value,
-  mono,
-}: {
-  label: string
-  value: string
-  mono?: boolean
-}) {
-  return (
-    <div>
-      <div style={metaLabelStyle}>{label}</div>
-      <div
-        style={{
-          ...metaValueStyle,
-          fontVariantNumeric: mono ? 'tabular-nums' : 'normal',
-        }}
-      >
-        {value}
-      </div>
-    </div>
-  )
+function formatPctSigned(n: number): string {
+  const sign = n >= 0 ? '+' : ''
+  return `${sign}${n.toFixed(1).replace('.', ',')} %`
 }
 
-function formatSizeLabel(eu: string | null, us: string | null): string {
-  const parts: string[] = []
-  if (eu) parts.push(`EU ${eu}`)
-  if (us) parts.push(`US ${us}`)
-  return parts.length ? parts.join(' · ') : '—'
+function sumSeries(series: Array<{ c: number }>): number {
+  return series.reduce((s, p) => s + p.c, 0)
 }
 
-/* =====================================================
- * Styles
- * ===================================================== */
+function formatDateShort(iso: string): string {
+  const d = new Date(iso)
+  return d.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
 
+/** Human-friendly relative time, French. */
+function formatTimeAgo(ts: number): string {
+  const diffMs = Date.now() - ts
+  const sec = Math.floor(diffMs / 1000)
+  if (sec < 60) return `il y a ${sec}s`
+  const min = Math.floor(sec / 60)
+  if (min < 60) return `il y a ${min}min`
+  const h = Math.floor(min / 60)
+  if (h < 24) return `il y a ${h}h`
+  const d = Math.floor(h / 24)
+  return `il y a ${d}j`
+}
+
+// ============================================================================
+// Styles
+// ============================================================================
+
+const pageStyle: CSSProperties = {
+  minHeight: '100vh',
+  background: 'var(--color-bg)',
+}
 const mainStyle: CSSProperties = {
-  padding: '20px',
-  maxWidth: 640,
+  padding: 20,
+  maxWidth: 900,
   margin: '0 auto',
 }
-const topStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'minmax(120px, 180px) 1fr',
-  gap: 18,
-  marginBottom: 22,
-  alignItems: 'start',
-}
-const imageWrapStyle: CSSProperties = {
-  aspectRatio: '1',
-  borderRadius: 'var(--radius-lg)',
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  position: 'relative',
-  overflow: 'hidden',
-}
-const brandStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 11,
-  letterSpacing: 'var(--tracking-wider)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  fontWeight: 500,
+const headerStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'flex-end',
+  marginBottom: 24,
 }
 const titleStyle: CSSProperties = {
+  margin: 0,
   fontFamily: 'var(--font-display)',
+  fontSize: 26,
+  fontWeight: 700,
+  letterSpacing: '-0.02em',
+  color: 'var(--color-text)',
+}
+const subTitleStyle: CSSProperties = {
+  margin: '4px 0 0',
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+}
+const refreshBtnStyle = (busy: boolean): CSSProperties => ({
+  width: 40,
+  height: 40,
+  borderRadius: 'var(--radius-md)',
+  border: '1px solid var(--color-border)',
+  background: 'var(--color-surface)',
+  color: 'var(--color-text)',
   fontSize: 20,
-  fontWeight: 600,
-  lineHeight: 1.25,
-  color: 'var(--color-text)',
-  margin: '4px 0',
-  letterSpacing: '-0.01em',
-}
-const colorwayStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'var(--color-text-muted)',
-  marginBottom: 14,
-  fontStyle: 'italic',
-}
-const metaGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-  gap: '10px 14px',
-}
-const metaLabelStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  letterSpacing: 'var(--tracking-wider)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  fontWeight: 500,
-  marginBottom: 2,
-}
-const metaValueStyle: CSSProperties = {
-  fontSize: 13,
-  color: 'var(--color-text)',
-  fontWeight: 500,
-}
-const priceGridStyle: CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(4, minmax(0, 1fr))',
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: '14px 4px',
-  marginBottom: 18,
-}
-const cellStyle: CSSProperties = {
-  textAlign: 'center',
-  padding: '0 8px',
-  borderLeft: '1px solid var(--color-border)',
-}
-const cellLabelStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  letterSpacing: 'var(--tracking-wide)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  marginBottom: 6,
-  fontWeight: 500,
-}
-const cellValueStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 15,
-  fontWeight: 600,
-  fontVariantNumeric: 'tabular-nums',
-}
-const cellSublabelStyle: CSSProperties = {
-  fontSize: 9,
-  letterSpacing: 'var(--tracking-wide)',
-  color: 'var(--color-text-faint)',
-  marginTop: 2,
-  fontFamily: 'var(--font-display)',
-  textTransform: 'uppercase',
-  fontStyle: 'italic',
-}
-const purchaseStyle: CSSProperties = {
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 14,
-  display: 'grid',
-  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
-  gap: 14,
-  marginBottom: 18,
-}
-const notesStyle: CSSProperties = {
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 14,
-  marginBottom: 18,
-}
-const notesLabelStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  letterSpacing: 'var(--tracking-wider)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  marginBottom: 6,
-  fontWeight: 500,
-}
-const notesTextStyle: CSSProperties = {
-  fontSize: 14,
-  color: 'var(--color-text)',
-  lineHeight: 1.55,
-  whiteSpace: 'pre-wrap',
-}
-const actionsStyle: CSSProperties = {
+  cursor: busy ? 'wait' : 'pointer',
   display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  animation: busy ? 'shooserie-spin 0.9s linear infinite' : 'none',
+})
+const kpiGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
   gap: 10,
+  marginBottom: 16,
 }
-const editBtnStyle: CSSProperties = {
-  flex: 1,
-  padding: '12px 16px',
+const trendsGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 10,
+  marginBottom: 16,
+}
+const trendCardStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 14,
+}
+const trendTopStyle: CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'baseline',
+  marginBottom: 8,
+}
+const trendTitleStyle: CSSProperties = {
   fontSize: 11,
-  letterSpacing: 'var(--tracking-wide)',
+  letterSpacing: 'var(--tracking-wider)',
   textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
+}
+const trendTotalStyle: CSSProperties = {
+  fontSize: 12,
   fontWeight: 600,
+  color: 'var(--color-text)',
+}
+const trendBottomStyle: CSSProperties = {
+  marginTop: 8,
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: 11,
+  color: 'var(--color-text-muted)',
+}
+const vanityStyle: CSSProperties = { marginBottom: 24 }
+const vanityCardStyle: CSSProperties = {
   background: 'var(--color-text)',
   color: '#FFFFFF',
-  border: 'none',
-  borderRadius: 'var(--radius-md)',
-  fontFamily: 'var(--font-display)',
-  textDecoration: 'none',
+  borderRadius: 'var(--radius-lg)',
+  padding: '18px 18px 16px',
   textAlign: 'center',
 }
-const deleteBtnStyle: CSSProperties = {
-  padding: '12px 16px',
-  fontSize: 11,
-  letterSpacing: 'var(--tracking-wide)',
+const vanityLabelStyle: CSSProperties = {
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
   textTransform: 'uppercase',
-  fontWeight: 600,
-  background: 'transparent',
-  color: 'var(--color-bred)',
-  border: '1px solid var(--color-bred)',
-  borderRadius: 'var(--radius-md)',
+  opacity: 0.6,
+  fontWeight: 500,
+  marginBottom: 8,
+}
+const vanityValueStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',
-  cursor: 'pointer',
+  fontSize: 36,
+  fontWeight: 700,
+  letterSpacing: '-0.02em',
+  marginBottom: 6,
+}
+const vanitySubStyle: CSSProperties = {
+  fontSize: 12,
+  opacity: 0.75,
+}
+const sectionStyle: CSSProperties = { marginBottom: 24 }
+const sectionTitleStyle: CSSProperties = {
+  margin: '0 0 10px',
+  fontFamily: 'var(--font-display)',
+  fontSize: 12,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
+}
+const listStyle: CSSProperties = {
+  listStyle: 'none',
+  padding: 0,
+  margin: 0,
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  overflow: 'hidden',
+}
+const listRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 12,
+  padding: '11px 14px',
+  borderBottom: '1px solid var(--color-border)',
+}
+const listEmailStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 500,
+  color: 'var(--color-text)',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+const listMetaStyle: CSSProperties = {
+  fontSize: 11,
+  color: 'var(--color-text-muted)',
+  marginTop: 2,
+}
+const listCountStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: 'var(--color-text)',
+  fontVariantNumeric: 'tabular-nums',
+  flexShrink: 0,
+}
+const emptyStyle: CSSProperties = {
+  margin: 0,
+  fontSize: 13,
+  color: 'var(--color-text-faint)',
+  padding: '14px 0',
 }
 const loadingStyle: CSSProperties = {
+  padding: 24,
   textAlign: 'center',
   color: 'var(--color-text-muted)',
   fontSize: 13,
-  padding: '40px 20px',
 }
-const errorBoxStyle: CSSProperties = {
-  background: 'var(--color-bred-bg)',
-  border: '1px solid var(--color-bred)',
-  color: 'var(--color-bred)',
+const errorStyle: CSSProperties = {
+  marginBottom: 16,
   padding: '12px 14px',
+  background: 'var(--color-down-bg, rgba(220, 38, 38, 0.08))',
+  color: 'var(--color-down)',
   borderRadius: 'var(--radius-md)',
   fontSize: 13,
-}
-const stockxBlockStyle: CSSProperties = {
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 14,
-  marginBottom: 18,
-  display: 'grid',
-  gap: 8,
-}
-const stockxHeaderRowStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-}
-const stockxLabelStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  letterSpacing: 'var(--tracking-wider)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  fontWeight: 600,
-}
-const stockxMetaStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'var(--color-text-muted)',
-  fontVariantNumeric: 'tabular-nums',
-}
-const stockxSubMetaStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'var(--color-text-faint)',
-  fontVariantNumeric: 'tabular-nums',
-}
-const stockxHintStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'var(--color-text-muted)',
-  lineHeight: 1.4,
-  fontStyle: 'italic',
-}
-const stockxErrorStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'var(--color-bred)',
-  lineHeight: 1.4,
-}
-const stockxActionsStyle: CSSProperties = {
-  display: 'flex',
-  gap: 10,
-  alignItems: 'center',
-  flexWrap: 'wrap',
-  marginTop: 4,
-}
-const refreshBtnStyle: CSSProperties = {
-  padding: '10px 16px',
-  fontSize: 11,
-  letterSpacing: 'var(--tracking-wide)',
-  textTransform: 'uppercase',
-  fontWeight: 600,
-  background: 'var(--color-royal)',
-  color: '#FFFFFF',
-  border: 'none',
-  borderRadius: 'var(--radius-md)',
-  fontFamily: 'var(--font-display)',
-  whiteSpace: 'nowrap',
-  flex: '1 1 auto',
-  minWidth: 0,
-}
-const stockxLinkStyle: CSSProperties = {
-  padding: '10px 14px',
-  fontSize: 11,
-  letterSpacing: 'var(--tracking-wide)',
-  color: 'var(--color-text-muted)',
-  textDecoration: 'none',
-  fontFamily: 'var(--font-display)',
-  textTransform: 'uppercase',
-  fontWeight: 500,
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-md)',
-  whiteSpace: 'nowrap',
-}
-
-const trackingBlockStyle: CSSProperties = {
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 14,
-  marginBottom: 18,
-  display: 'grid',
-  gap: 10,
-}
-const historyBlockStyle: CSSProperties = {
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 14,
-  marginBottom: 18,
-  display: 'grid',
-  gap: 10,
-}
-const historyHeaderStyle: CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 10,
-  flexWrap: 'wrap',
-}
-const historyLabelStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  letterSpacing: 'var(--tracking-wider)',
-  textTransform: 'uppercase',
-  color: 'var(--color-text-muted)',
-  fontWeight: 600,
-}
-const historyDeltaStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 11,
-  fontWeight: 600,
-  fontVariantNumeric: 'tabular-nums',
-  color: 'var(--color-text)',
-}
-const historyChartStyle: CSSProperties = {
-  height: 60,
-  width: '100%',
-}
-const forSaleRowStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  flexWrap: 'wrap',
-}
-const forSaleBadgeStyle: CSSProperties = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  padding: '4px 10px',
-  background: 'var(--color-bred)',
-  color: '#FFFFFF',
-  fontFamily: 'var(--font-display)',
-  fontSize: 10,
-  fontWeight: 700,
-  letterSpacing: 'var(--tracking-wider)',
-  borderRadius: 'var(--radius-sm)',
-}
-const forSalePriceStyle: CSSProperties = {
-  fontFamily: 'var(--font-display)',
-  fontSize: 14,
-  fontWeight: 600,
-  fontVariantNumeric: 'tabular-nums',
-  color: 'var(--color-text)',
-}
-const tagsRowStyle: CSSProperties = {
-  display: 'flex',
-  flexWrap: 'wrap',
-  gap: 6,
-}
-const tagPillStyle: CSSProperties = {
-  display: 'inline-flex',
-  padding: '4px 10px',
-  background: 'var(--color-bg)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 999,
-  fontSize: 11,
-  color: 'var(--color-text-muted)',
-  fontWeight: 500,
 }

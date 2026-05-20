@@ -7,6 +7,7 @@ import { SneakerNew } from '@/pages/SneakerNew'
 import { SneakerDetail } from '@/pages/SneakerDetail'
 import { SneakerEdit } from '@/pages/SneakerEdit'
 import { Account } from '@/pages/Account'
+import { Admin } from '@/pages/Admin'
 import { ResetPassword } from '@/pages/ResetPassword'
 
 export default function App() {
@@ -35,6 +36,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute>
+                <Admin />
               </ProtectedRoute>
             }
           />
