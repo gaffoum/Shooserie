@@ -172,6 +172,26 @@ const fr = {
   'invite.copied': 'Lien copié',
   'invite.copyManual': 'Copie ce message :',
 
+  // === My listings — dedicated for-sale page ===
+  'dashboard.listings.button': 'Mes ventes',
+  'dashboard.listings.tooltip': 'Voir toutes les paires que je mets en vente',
+  'listings.breadcrumb': 'Mes ventes',
+  'listings.title': 'Tes paires à vendre',
+  'listings.subtitle':
+    'Toutes tes paires marquées « À vendre » sont regroupées ici. Pour ajouter une paire, ouvre-la et coche « À vendre » dans la fiche.',
+  'listings.kpi.count': 'En vente',
+  'listings.kpi.askValue': 'Prix demandé total',
+  'listings.kpi.cost': 'Investissement',
+  'listings.kpi.potentialProfit': 'Plus-value potentielle',
+  'listings.hintMissingTarget':
+    '💡 {count} paires en vente sans prix cible défini — ouvre-les pour renseigner le champ « Prix de vente cible » et avoir une plus-value précise.',
+  'listings.collectionCount': '{n} paire en vente',
+  'listings.collectionCountPlural': '{n} paires en vente',
+  'listings.empty.title': 'Aucune paire en vente',
+  'listings.empty.desc':
+    'Pour mettre une paire en vente, ouvre-la depuis ta collection et coche « À vendre » dans la fiche. Tu peux aussi indiquer ton prix demandé.',
+  'listings.empty.cta': 'Retour à ma collection',
+
   // === Card / Table ===
   'card.forSale': 'À VENDRE',
 
@@ -499,6 +519,26 @@ const en: typeof fr = {
     'Hey! I track my sneaker collection with Shooserie. Live StockX values, P&L, barcode scan... wanna try?',
   'invite.copied': 'Link copied',
   'invite.copyManual': 'Copy this message:',
+
+  // === My listings — dedicated for-sale page ===
+  'dashboard.listings.button': 'My listings',
+  'dashboard.listings.tooltip': 'See all pairs I have for sale',
+  'listings.breadcrumb': 'My listings',
+  'listings.title': 'Your pairs for sale',
+  'listings.subtitle':
+    'Every pair you flagged as "For sale" is grouped here. To add one, open the pair and tick "For sale".',
+  'listings.kpi.count': 'For sale',
+  'listings.kpi.askValue': 'Total ask',
+  'listings.kpi.cost': 'Cost basis',
+  'listings.kpi.potentialProfit': 'Potential profit',
+  'listings.hintMissingTarget':
+    '💡 {count} pairs are for sale without an ask price — open them and fill the "Target sale price" field for an accurate potential profit.',
+  'listings.collectionCount': '{n} pair for sale',
+  'listings.collectionCountPlural': '{n} pairs for sale',
+  'listings.empty.title': 'No pairs for sale',
+  'listings.empty.desc':
+    'To put a pair up for sale, open it from your collection and tick "For sale". You can also set your asking price.',
+  'listings.empty.cta': 'Back to my collection',
 
   // === Card / Table ===
   'card.forSale': 'FOR SALE',

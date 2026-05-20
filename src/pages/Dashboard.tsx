@@ -112,6 +112,14 @@ export function Dashboard() {
     [allSneakers],
   )
 
+  // Count of paires currently flagged as for-sale — displayed as a small
+  // badge next to the "Mes ventes" toolbar button so the user knows at a
+  // glance how many listings they have without leaving the dashboard.
+  const forSaleCount = useMemo(
+    () => allSneakers.filter((s) => s.is_for_sale).length,
+    [allSneakers],
+  )
+
   // Scan depuis le dashboard → vers SneakerNew avec les valeurs pré-remplies.
   // Si la paire existe déjà dans la collec (via stockx_product_id, sku ou
   // barcode), on demande confirmation au user avec un window.confirm() natif.
@@ -359,6 +367,23 @@ export function Dashboard() {
                 )}
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                <Link
+                  to="/ventes"
+                  style={listingsBtnStyle}
+                  title={t('dashboard.listings.tooltip')}
+                  aria-label={t('dashboard.listings.tooltip')}
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z" />
+                    <line x1="7" y1="7" x2="7.01" y2="7" />
+                  </svg>
+                  <span className="app-header-action-text">
+                    {t('dashboard.listings.button')}
+                  </span>
+                  {forSaleCount > 0 && (
+                    <span style={listingsCountBadgeStyle}>{forSaleCount}</span>
+                  )}
+                </Link>
                 <button
                   type="button"
                   onClick={() => setShareDialogOpen(true)}
@@ -723,4 +748,43 @@ const shareBtnStyle: CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'var(--font-display)',
   whiteSpace: 'nowrap',
+}
+
+// === Mes ventes (toolbar) ===
+const listingsBtnStyle: CSSProperties = {
+  position: 'relative',
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '8px 12px',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  fontWeight: 600,
+  background: 'var(--color-surface)',
+  color: 'var(--color-text)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  cursor: 'pointer',
+  fontFamily: 'var(--font-display)',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+}
+const listingsCountBadgeStyle: CSSProperties = {
+  position: 'absolute',
+  top: -6,
+  right: -6,
+  minWidth: 18,
+  height: 18,
+  padding: '0 5px',
+  background: 'var(--color-bred)',
+  color: '#FFFFFF',
+  fontSize: 10,
+  fontWeight: 700,
+  borderRadius: 9,
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontVariantNumeric: 'tabular-nums',
+  border: '2px solid var(--color-surface)',
 }
