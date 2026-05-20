@@ -1,16 +1,4 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import { fileURLToPath, URL } from 'node:url'
-
-export default defineConfig({
-  plugins: [react()],
-  resolve: {
-    alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url)),
-    },
-  },
-  server: {
-    port: 5174,
-    strictPort: true,
-  },
-})
+# Optionnel — les valeurs par défaut sont hardcodées dans src/lib/supabase.ts
+# (les clés publishable Supabase sont publiques, c'est la RLS qui sécurise)
+VITE_SUPABASE_URL=https://eykhnpnmpcrvcpajirst.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_dol4fM30Onbzo0sbZS_zjA_PfqRgxBX

@@ -1,28 +1,417 @@
-{
-  "name": "shooserie",
-  "private": true,
-  "version": "0.1.0",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "build": "tsc -b && vite build",
-    "preview": "vite preview",
-    "typecheck": "tsc --noEmit"
-  },
-  "dependencies": {
-    "@supabase/supabase-js": "^2.45.4",
-    "@tanstack/react-query": "^5.100.10",
-    "html5-qrcode": "^2.3.8",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^6.26.2"
-  },
-  "devDependencies": {
-    "@types/node": "^25.8.0",
-    "@types/react": "^18.3.11",
-    "@types/react-dom": "^18.3.0",
-    "@vitejs/plugin-react": "^4.3.2",
-    "typescript": "^5.6.2",
-    "vite": "^5.4.8"
+import { useState, type CSSProperties, type FormEvent } from 'react'
+import { supabase } from '@/lib/supabase'
+import { useAuth } from '@/contexts/AuthContext'
+import { useT } from '@/i18n/I18nContext'
+import { AppHeader } from '@/components/AppHeader'
+import { BackLink } from '@/components/BackLink'
+import type { DictKey } from '@/i18n/dictionaries'
+
+/**
+ * Account management page.
+ *
+ * Two independent sections — email change and password change — each with
+ * its own state and submit. Email change goes through Supabase's confirmation
+ * flow (a verification link is sent to the new address; the change only
+ * applies once the user clicks it). Password change re-verifies the current
+ * password by calling `signInWithPassword` before issuing `updateUser`, so a
+ * stolen session can't silently change the password.
+ */
+export function Account() {
+  const { t } = useT()
+  const { user, signOut } = useAuth()
+  const currentEmail = user?.email ?? ''
+
+  return (
+    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <AppHeader leftActions={<BackLink to="/dashboard" />} />
+      <main style={mainStyle}>
+        <h1 style={titleStyle}>{t('account.title')}</h1>
+        <EmailSection currentEmail={currentEmail} />
+        <PasswordSection email={currentEmail} />
+        <DangerSection onSignOut={signOut} />
+      </main>
+    </div>
+  )
+}
+
+/* =====================================================
+ * Email section
+ * ===================================================== */
+
+function EmailSection({ currentEmail }: { currentEmail: string }) {
+  const { t } = useT()
+  const [newEmail, setNewEmail] = useState('')
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errorText, setErrorText] = useState('')
+  const [confirmTo, setConfirmTo] = useState('')
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+    const target = newEmail.trim().toLowerCase()
+    if (!target) return
+    if (target === currentEmail.toLowerCase()) {
+      setStatus('error')
+      setErrorText(t('account.email.sameError'))
+      return
+    }
+    setStatus('submitting')
+    setErrorText('')
+
+    const { error } = await supabase.auth.updateUser({ email: target })
+
+    if (error) {
+      setStatus('error')
+      setErrorText(error.message)
+      return
+    }
+    setStatus('success')
+    setConfirmTo(target)
+    setNewEmail('')
   }
+
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{t('account.email.section')}</h2>
+
+      <div style={readonlyRowStyle}>
+        <span style={readonlyLabelStyle}>{t('account.email.current')}</span>
+        <span style={readonlyValueStyle}>{currentEmail || '—'}</span>
+      </div>
+
+      <form onSubmit={handleSubmit} noValidate>
+        <label htmlFor="new-email" style={labelStyle}>
+          {t('account.email.new')}
+        </label>
+        <input
+          id="new-email"
+          type="email"
+          autoComplete="email"
+          required
+          placeholder={t('account.email.newPlaceholder')}
+          value={newEmail}
+          onChange={(e) => {
+            setNewEmail(e.target.value)
+            if (status === 'success' || status === 'error') setStatus('idle')
+          }}
+          disabled={status === 'submitting'}
+          style={inputStyle}
+        />
+        <p style={helpStyle}>{t('account.email.help')}</p>
+
+        <button
+          type="submit"
+          disabled={status === 'submitting' || !newEmail.trim()}
+          style={primaryBtnStyle(status === 'submitting' || !newEmail.trim())}
+        >
+          {status === 'submitting' ? t('account.email.submitting') : t('account.email.submit')}
+        </button>
+
+        {status === 'success' && (
+          <p style={successStyle}>
+            ✓ {t('account.email.success', { email: confirmTo })}
+          </p>
+        )}
+        {status === 'error' && errorText && (
+          <p style={errorStyle}>{errorText}</p>
+        )}
+      </form>
+    </section>
+  )
+}
+
+/* =====================================================
+ * Password section
+ * ===================================================== */
+
+function PasswordSection({ email }: { email: string }) {
+  const { t } = useT()
+  const [current, setCurrent] = useState('')
+  const [next, setNext] = useState('')
+  const [confirm, setConfirm] = useState('')
+  const [status, setStatus] = useState<'idle' | 'submitting' | 'success' | 'error'>('idle')
+  const [errorKey, setErrorKey] = useState<DictKey | null>(null)
+  const [errorRaw, setErrorRaw] = useState('')
+
+  const reset = () => {
+    setCurrent('')
+    setNext('')
+    setConfirm('')
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault()
+
+    // Local validation
+    if (next.length < 6) {
+      setStatus('error')
+      setErrorKey('account.password.tooShort')
+      setErrorRaw('')
+      return
+    }
+    if (next !== confirm) {
+      setStatus('error')
+      setErrorKey('account.password.mismatch')
+      setErrorRaw('')
+      return
+    }
+    if (next === current) {
+      setStatus('error')
+      setErrorKey('account.password.sameAsOld')
+      setErrorRaw('')
+      return
+    }
+
+    setStatus('submitting')
+    setErrorKey(null)
+    setErrorRaw('')
+
+    // Re-verify identity: ensure the current password is correct before allowing
+    // the change. Without this, a stolen session could rotate the password
+    // silently. signInWithPassword refreshes the session on success — that's fine.
+    const { error: signinError } = await supabase.auth.signInWithPassword({
+      email,
+      password: current,
+    })
+    if (signinError) {
+      setStatus('error')
+      setErrorKey('account.password.invalidCurrent')
+      return
+    }
+
+    const { error: updateError } = await supabase.auth.updateUser({ password: next })
+    if (updateError) {
+      setStatus('error')
+      setErrorRaw(updateError.message)
+      return
+    }
+
+    setStatus('success')
+    reset()
+  }
+
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{t('account.password.section')}</h2>
+      <form onSubmit={handleSubmit} noValidate>
+        <label htmlFor="pwd-current" style={labelStyle}>
+          {t('account.password.current')}
+        </label>
+        <input
+          id="pwd-current"
+          type="password"
+          autoComplete="current-password"
+          required
+          value={current}
+          onChange={(e) => {
+            setCurrent(e.target.value)
+            if (status === 'success' || status === 'error') setStatus('idle')
+          }}
+          disabled={status === 'submitting'}
+          style={inputStyle}
+        />
+
+        <label htmlFor="pwd-new" style={{ ...labelStyle, marginTop: 16 }}>
+          {t('account.password.new')}
+        </label>
+        <input
+          id="pwd-new"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={6}
+          value={next}
+          onChange={(e) => {
+            setNext(e.target.value)
+            if (status === 'success' || status === 'error') setStatus('idle')
+          }}
+          disabled={status === 'submitting'}
+          style={inputStyle}
+        />
+
+        <label htmlFor="pwd-confirm" style={{ ...labelStyle, marginTop: 16 }}>
+          {t('account.password.confirm')}
+        </label>
+        <input
+          id="pwd-confirm"
+          type="password"
+          autoComplete="new-password"
+          required
+          minLength={6}
+          value={confirm}
+          onChange={(e) => {
+            setConfirm(e.target.value)
+            if (status === 'success' || status === 'error') setStatus('idle')
+          }}
+          disabled={status === 'submitting'}
+          style={inputStyle}
+        />
+        <p style={helpStyle}>{t('account.password.help')}</p>
+
+        <button
+          type="submit"
+          disabled={status === 'submitting' || !current || !next || !confirm}
+          style={primaryBtnStyle(
+            status === 'submitting' || !current || !next || !confirm,
+          )}
+        >
+          {status === 'submitting'
+            ? t('account.password.submitting')
+            : t('account.password.submit')}
+        </button>
+
+        {status === 'success' && (
+          <p style={successStyle}>✓ {t('account.password.success')}</p>
+        )}
+        {status === 'error' && (
+          <p style={errorStyle}>{errorKey ? t(errorKey) : errorRaw}</p>
+        )}
+      </form>
+    </section>
+  )
+}
+
+/* =====================================================
+ * Danger / sign-out section
+ * ===================================================== */
+
+function DangerSection({ onSignOut }: { onSignOut: () => void }) {
+  const { t } = useT()
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{t('account.danger.section')}</h2>
+      <p style={dangerDescStyle}>{t('account.signOut.desc')}</p>
+      <button type="button" onClick={onSignOut} style={signOutBtnStyle}>
+        {t('common.logout')}
+      </button>
+    </section>
+  )
+}
+
+/* =====================================================
+ * Styles — match the rest of the app (Login + form pages).
+ * ===================================================== */
+
+const mainStyle: CSSProperties = {
+  padding: '20px',
+  maxWidth: 520,
+  margin: '0 auto',
+}
+const titleStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 22,
+  fontWeight: 600,
+  letterSpacing: '-0.01em',
+  marginBottom: 18,
+}
+const sectionStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-xl)',
+  padding: '20px 18px',
+  marginBottom: 16,
+}
+const sectionTitleStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 13,
+  fontWeight: 600,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  marginBottom: 14,
+}
+const readonlyRowStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+  padding: '10px 12px',
+  background: 'var(--color-bg)',
+  border: '1px dashed var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  marginBottom: 16,
+}
+const readonlyLabelStyle: CSSProperties = {
+  fontSize: 10,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontFamily: 'var(--font-display)',
+  fontWeight: 500,
+}
+const readonlyValueStyle: CSSProperties = {
+  fontSize: 14,
+  color: 'var(--color-text)',
+  fontVariantNumeric: 'tabular-nums',
+  wordBreak: 'break-all',
+}
+const labelStyle: CSSProperties = {
+  display: 'block',
+  fontSize: 11,
+  letterSpacing: 'var(--tracking-wider)',
+  textTransform: 'uppercase',
+  color: 'var(--color-text-muted)',
+  fontWeight: 500,
+  marginBottom: 6,
+}
+const inputStyle: CSSProperties = {
+  width: '100%',
+  padding: '11px 13px',
+  fontSize: 14,
+  background: 'var(--color-bg)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  color: 'var(--color-text)',
+  outline: 'none',
+}
+const helpStyle: CSSProperties = {
+  marginTop: 6,
+  fontSize: 11,
+  color: 'var(--color-text-faint)',
+  lineHeight: 1.4,
+}
+const primaryBtnStyle = (disabled: boolean): CSSProperties => ({
+  marginTop: 16,
+  width: '100%',
+  padding: '12px',
+  fontSize: 12,
+  fontWeight: 600,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  background: disabled ? 'var(--color-text-muted)' : 'var(--color-bred)',
+  color: '#FFFFFF',
+  border: 'none',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  opacity: disabled ? 0.65 : 1,
+})
+const successStyle: CSSProperties = {
+  marginTop: 12,
+  fontSize: 12,
+  color: 'var(--color-up)',
+  lineHeight: 1.4,
+}
+const errorStyle: CSSProperties = {
+  marginTop: 12,
+  fontSize: 12,
+  color: 'var(--color-bred)',
+  lineHeight: 1.4,
+}
+const dangerDescStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.5,
+  marginBottom: 14,
+}
+const signOutBtnStyle: CSSProperties = {
+  padding: '10px 16px',
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: 'var(--tracking-wide)',
+  textTransform: 'uppercase',
+  background: 'transparent',
+  color: 'var(--color-bred)',
+  border: '1px solid var(--color-bred)',
+  borderRadius: 'var(--radius-md)',
+  fontFamily: 'var(--font-display)',
+  cursor: 'pointer',
 }
