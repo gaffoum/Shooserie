@@ -8,6 +8,7 @@ import { SneakerDetail } from '@/pages/SneakerDetail'
 import { SneakerEdit } from '@/pages/SneakerEdit'
 import { Account } from '@/pages/Account'
 import { Admin } from '@/pages/Admin'
+import { MyListings } from '@/pages/MyListings'
 import { ResetPassword } from '@/pages/ResetPassword'
 import { SharedCollection } from '@/pages/SharedCollection'
 
@@ -40,6 +41,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Account />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/ventes"
+            element={
+              <ProtectedRoute>
+                <MyListings />
               </ProtectedRoute>
             }
           />
