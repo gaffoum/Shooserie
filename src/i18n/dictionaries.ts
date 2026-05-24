@@ -173,8 +173,8 @@ const fr = {
   'invite.copyManual': 'Copie ce message :',
 
   // === My listings — dedicated for-sale page ===
-  'dashboard.listings.button': 'Mes ventes',
-  'dashboard.listings.tooltip': 'Voir toutes les paires que je mets en vente',
+  'dashboard.listings.button': 'Paires a vendre',
+  'dashboard.listings.tooltip': 'Voir mes paires en vente',
   'listings.breadcrumb': 'Mes ventes',
   'listings.title': 'Tes paires à vendre',
   'listings.subtitle':
@@ -566,7 +566,7 @@ const en: typeof fr = {
 
   // === My listings — dedicated for-sale page ===
   'dashboard.listings.button': 'My listings',
-  'dashboard.listings.tooltip': 'See all pairs I have for sale',
+  'dashboard.listings.tooltip': 'View my pairs for sale',
   'listings.breadcrumb': 'My listings',
   'listings.title': 'Your pairs for sale',
   'listings.subtitle':

@@ -15,9 +15,12 @@ export function useSneakers() {
   return useQuery({
     queryKey: KEY_ALL,
     queryFn: async (): Promise<Sneaker[]> => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return []
       const { data, error } = await supabase
         .from('sneakers')
         .select('*')
+        .eq('user_id', userData.user.id) // ← FIX : filtrer explicitement par owner
         .order('created_at', { ascending: false })
       if (error) throw error
       return (data as Sneaker[]) ?? []
@@ -30,10 +33,13 @@ export function useSneaker(id: string | undefined) {
     queryKey: keyOne(id ?? ''),
     queryFn: async (): Promise<Sneaker> => {
       if (!id) throw new Error('id required')
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
       const { data, error } = await supabase
         .from('sneakers')
         .select('*')
         .eq('id', id)
+        .eq('user_id', userData.user.id) // ← FIX : seulement MA sneaker
         .single()
       if (error) throw error
       return data as Sneaker
