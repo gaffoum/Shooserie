@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts } from '@/lib/queries'
+import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -75,6 +75,12 @@ function comparator(key: SortKey): (a: Sneaker, b: Sneaker) => number {
 export function Dashboard() {
   const { data: sneakers, isLoading, error } = useSneakers()
   const navigate = useNavigate()
+  const { data: conversations } = useMyConversations()
+  const unreadTotal = (conversations ?? []).reduce(
+  (sum, c) => sum + (c.unread_count ?? 0),
+  0,
+)
+
   const { t } = useT()
   const [view, setView] = useState<ViewMode>('grid')
 
@@ -384,6 +390,38 @@ export function Dashboard() {
                     <span style={listingsCountBadgeStyle}>{forSaleCount}</span>
                   )}
                 </Link>
+				<Link
+				  to="/marketplace"
+				  style={listingsBtnStyle}
+				  aria-label={t('dashboard.marketplace.tooltip')}
+				  title={t('dashboard.marketplace.tooltip')}
+				>
+				  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+					<circle cx="9" cy="21" r="1" />
+					<circle cx="20" cy="21" r="1" />
+					<path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+				  </svg>
+				  <span className="app-header-action-text">
+					{t('dashboard.marketplace.button')}
+				  </span>
+				</Link>
+
+				<Link
+				  to="/messages"
+				  style={listingsBtnStyle}
+				  aria-label={t('dashboard.messages.tooltip')}
+				  title={t('dashboard.messages.tooltip')}
+				>
+				  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+					<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+				  </svg>
+				  <span className="app-header-action-text">
+					{t('dashboard.messages.button')}
+				  </span>
+				  {unreadTotal > 0 && (
+					<span style={listingsCountBadgeStyle}>{unreadTotal}</span>
+				  )}
+				</Link>
                 <button
                   type="button"
                   onClick={() => setShareDialogOpen(true)}

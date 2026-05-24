@@ -5,7 +5,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
-import { ADMIN_EMAIL } from '@/lib/queries'
+import { ADMIN_EMAIL, useMyProfile, useUpdateMyProfile } from '@/lib/queries'
 import type { DictKey } from '@/i18n/dictionaries'
 
 /**
@@ -29,6 +29,7 @@ export function Account() {
       <main style={mainStyle}>
         <h1 style={titleStyle}>{t('account.title')}</h1>
         <InviteSection />
+		<CollectionVisibilitySection />
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
         {currentEmail === ADMIN_EMAIL && <AdminSection />}
@@ -430,6 +431,115 @@ function DangerSection({ onSignOut }: { onSignOut: () => void }) {
     </section>
   )
 }
+function CollectionVisibilitySection() {
+  const { t } = useT()
+  const { data: profile, isLoading } = useMyProfile()
+  const updateMutation = useUpdateMyProfile()
+  const [isUpdating, setIsUpdating] = useState(false)
+
+  const isPublic = profile?.collection_public ?? false
+
+  const handleToggle = async () => {
+    setIsUpdating(true)
+    try {
+      await updateMutation.mutateAsync({ collection_public: !isPublic })
+    } catch (err) {
+      console.error('Failed to update visibility', err)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{t('account.visibility.section')}</h2>
+      <p style={visibilityDescStyle}>
+        {t('account.visibility.desc')}
+      </p>
+
+      <div style={visibilityRowStyle}>
+        <div style={{ flex: 1 }}>
+          <div style={visibilityLabelStyle}>
+            {isPublic
+              ? t('account.visibility.public')
+              : t('account.visibility.private')}
+          </div>
+          <div style={visibilityHintStyle}>
+            {isPublic
+              ? t('account.visibility.publicHint')
+              : t('account.visibility.privateHint')}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggle}
+          disabled={isLoading || isUpdating}
+          style={toggleBtnStyle(isPublic, isLoading || isUpdating)}
+          aria-label={t('account.visibility.toggle')}
+        >
+          <span style={toggleKnobStyle(isPublic)} />
+        </button>
+      </div>
+    </section>
+  )
+}
+
+/* ====== STYLES À AJOUTER ======
+ * Ajoute ces styles à la fin du fichier, à côté des autres styles
+ * (sectionStyle, sectionTitleStyle, etc. existent déjà) :
+ */
+
+const visibilityDescStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.5,
+  marginTop: 6,
+  marginBottom: 16,
+}
+
+const visibilityRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  padding: '12px 0',
+}
+
+const visibilityLabelStyle: CSSProperties = {
+  fontSize: 14,
+  fontWeight: 600,
+  color: 'var(--color-text)',
+}
+
+const visibilityHintStyle: CSSProperties = {
+  fontSize: 12,
+  color: 'var(--color-text-muted)',
+  marginTop: 4,
+}
+
+const toggleBtnStyle = (isOn: boolean, disabled: boolean): CSSProperties => ({
+  width: 50,
+  height: 28,
+  borderRadius: 999,
+  background: isOn ? 'var(--color-bred)' : 'var(--color-border)',
+  border: 'none',
+  cursor: disabled ? 'not-allowed' : 'pointer',
+  position: 'relative',
+  transition: 'background var(--transition-fast)',
+  opacity: disabled ? 0.6 : 1,
+  flexShrink: 0,
+})
+
+const toggleKnobStyle = (isOn: boolean): CSSProperties => ({
+  position: 'absolute',
+  top: 2,
+  left: isOn ? 24 : 2,
+  width: 24,
+  height: 24,
+  borderRadius: '50%',
+  background: '#fff',
+  boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+  transition: 'left var(--transition-fast)',
+})
 
 /* =====================================================
  * Styles — match the rest of the app (Login + form pages).

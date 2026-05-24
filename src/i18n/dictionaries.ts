@@ -356,6 +356,50 @@ const fr = {
   'account.password.invalidCurrent': 'Mot de passe actuel incorrect.',
   'account.danger.section': 'Zone sensible',
   'account.signOut.desc': 'Te déconnecter de ce navigateur. Tu pourras revenir avec ton email et mot de passe.',
+  
+  // === Marketplace ===
+  'marketplace.title': 'Marché',
+  'marketplace.subtitle': 'Toutes les paires en vente par la communauté',
+  'marketplace.searchPlaceholder': 'Chercher un modèle, marque, colorway…',
+  'marketplace.allBrands': 'Toutes les marques',
+  'marketplace.empty': 'Aucune paire en vente pour le moment',
+  'marketplace.notFound': 'Paire introuvable',
+  'marketplace.seller': 'Vendeur',
+  'marketplace.askingPrice': 'Prix demandé',
+  'marketplace.contactSeller': 'Contacter le vendeur',
+  'marketplace.contactingSeller': 'Création de la conversation…',
+  'marketplace.ownPair': 'C\'est ta paire — tu ne peux pas te contacter toi-même',
+  'marketplace.notes': 'Notes du vendeur',
+  'marketplace.meta.size': 'Pointure',
+  'marketplace.meta.sku': 'SKU',
+  'marketplace.meta.condition': 'État',
+  'marketplace.meta.marketValue': 'Cote actuelle',
+ 
+  // === Messaging ===
+  'messaging.title': 'Messages',
+  'messaging.noConversations': 'Aucune conversation pour le moment',
+  'messaging.selectConversation': 'Sélectionne une conversation pour voir les messages',
+  'messaging.typeMessage': 'Écris ton message…',
+  'messaging.send': 'Envoyer',
+  'messaging.unknownUser': 'Utilisateur inconnu',
+ 
+  // === Account — Visibility ===
+  'account.visibility.section': 'Visibilité de la collection',
+  'account.visibility.desc':
+    'Rends ta collection visible aux autres utilisateurs. Les paires en vente sont toujours visibles dans le Marché, peu importe ce réglage.',
+  'account.visibility.public': 'Collection publique',
+  'account.visibility.private': 'Collection privée',
+  'account.visibility.publicHint':
+    'Les autres utilisateurs peuvent voir toute ta collection.',
+  'account.visibility.privateHint':
+    'Seules tes paires en vente sont visibles dans le Marché.',
+  'account.visibility.toggle': 'Basculer la visibilité',
+ 
+  // === Dashboard — toolbar buttons ===
+  'dashboard.marketplace.button': 'Marché',
+  'dashboard.marketplace.tooltip': 'Voir toutes les paires en vente',
+  'dashboard.messages.button': 'Messages',
+  'dashboard.messages.tooltip': 'Voir tes conversations',
 }
 
 const en: typeof fr = {
@@ -705,6 +749,49 @@ const en: typeof fr = {
   'account.danger.section': 'Sensitive zone',
   'account.signOut.desc':
     'Sign out from this browser. You can come back with your email and password.',
+	// === Marketplace ===
+  'marketplace.title': 'Marketplace',
+  'marketplace.subtitle': 'All pairs listed by the community',
+  'marketplace.searchPlaceholder': 'Search a model, brand, colorway…',
+  'marketplace.allBrands': 'All brands',
+  'marketplace.empty': 'No pairs for sale at the moment',
+  'marketplace.notFound': 'Sneaker not found',
+  'marketplace.seller': 'Seller',
+  'marketplace.askingPrice': 'Asking price',
+  'marketplace.contactSeller': 'Contact seller',
+  'marketplace.contactingSeller': 'Creating conversation…',
+  'marketplace.ownPair': "It's your pair — you can't contact yourself",
+  'marketplace.notes': 'Seller notes',
+  'marketplace.meta.size': 'Size',
+  'marketplace.meta.sku': 'SKU',
+  'marketplace.meta.condition': 'Condition',
+  'marketplace.meta.marketValue': 'Current value',
+ 
+  // === Messaging ===
+  'messaging.title': 'Messages',
+  'messaging.noConversations': 'No conversations yet',
+  'messaging.selectConversation': 'Select a conversation to see the messages',
+  'messaging.typeMessage': 'Type your message…',
+  'messaging.send': 'Send',
+  'messaging.unknownUser': 'Unknown user',
+ 
+  // === Account — Visibility ===
+  'account.visibility.section': 'Collection visibility',
+  'account.visibility.desc':
+    'Make your collection visible to other users. Pairs for sale are always visible in the Marketplace, regardless of this setting.',
+  'account.visibility.public': 'Public collection',
+  'account.visibility.private': 'Private collection',
+  'account.visibility.publicHint':
+    'Other users can see your entire collection.',
+  'account.visibility.privateHint':
+    'Only your pairs for sale are visible in the Marketplace.',
+  'account.visibility.toggle': 'Toggle visibility',
+ 
+  // === Dashboard — toolbar buttons ===
+  'dashboard.marketplace.button': 'Marketplace',
+  'dashboard.marketplace.tooltip': 'See all pairs for sale',
+  'dashboard.messages.button': 'Messages',
+  'dashboard.messages.tooltip': 'See your conversations',
 }
 
 export type DictKey = keyof typeof fr

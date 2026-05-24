@@ -11,6 +11,10 @@ import { Admin } from '@/pages/Admin'
 import { MyListings } from '@/pages/MyListings'
 import { ResetPassword } from '@/pages/ResetPassword'
 import { SharedCollection } from '@/pages/SharedCollection'
+import { Marketplace } from '@/pages/Marketplace'
+import { MarketplaceDetail } from '@/pages/MarketplaceDetail'
+import { Messaging } from '@/pages/Messaging'
+
 
 export default function App() {
   return (
@@ -84,6 +88,30 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+			<Route
+			  path="/marketplace"
+			  element={
+				<ProtectedRoute>
+				  <Marketplace />
+				</ProtectedRoute>
+			  }
+			/>
+			<Route
+			  path="/marketplace/:id"
+			  element={
+				<ProtectedRoute>
+				  <MarketplaceDetail />
+				</ProtectedRoute>
+			  }
+			/>
+			<Route
+			  path="/messages"
+			  element={
+				<ProtectedRoute>
+				  <Messaging />
+				</ProtectedRoute>
+			  }
+			/>
 
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>

@@ -735,3 +735,353 @@ export async function lookupBarcode(code: string): Promise<BarcodeLookupResult> 
     }
   }
 }
+
+/* =====================================================
+ * AJOUTER CE CONTENU À LA FIN DE src/lib/queries.ts
+ * (juste avant la dernière accolade fermante du fichier
+ * si elle existe, sinon à la toute fin)
+ * ===================================================== */
+
+/* =====================================================
+ * MARKETPLACE — Profile (visibilité collection)
+ * ===================================================== */
+
+export interface Profile {
+  id: string
+  username: string | null
+  display_name: string | null
+  avatar_url: string | null
+  collection_public: boolean
+  created_at: string
+  updated_at: string
+}
+
+const PROFILE_KEY = ['profile'] as const
+
+export function useMyProfile() {
+  return useQuery({
+    queryKey: PROFILE_KEY,
+    queryFn: async (): Promise<Profile | null> => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return null
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('id', userData.user.id)
+        .maybeSingle()
+      if (error) throw error
+      return data as Profile | null
+    },
+  })
+}
+
+export function useUpdateMyProfile() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (patch: Partial<Profile>) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
+      const { data, error } = await supabase
+        .from('profiles')
+        .update({ ...patch, updated_at: new Date().toISOString() })
+        .eq('id', userData.user.id)
+        .select()
+        .single()
+      if (error) throw error
+      return data as Profile
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PROFILE_KEY })
+    },
+  })
+}
+
+/* =====================================================
+ * MARKETPLACE — Sneakers à vendre (tous users)
+ * ===================================================== */
+
+export interface MarketplaceSneaker extends Sneaker {
+  seller_name: string | null
+}
+
+export function useMarketplaceSneakers() {
+  return useQuery({
+    queryKey: ['marketplace', 'sneakers'],
+    queryFn: async (): Promise<MarketplaceSneaker[]> => {
+      // 1) Récupérer les sneakers en vente
+      const { data: sneakers, error } = await supabase
+        .from('sneakers')
+        .select('*')
+        .eq('is_for_sale', true)
+        .order('created_at', { ascending: false })
+
+      if (error) throw error
+      if (!sneakers || sneakers.length === 0) return []
+
+      // 2) Récupérer les profiles des vendeurs
+      const userIds = Array.from(new Set(sneakers.map((s: any) => s.user_id)))
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, display_name')
+        .in('id', userIds)
+
+      const profileMap = new Map<string, string | null>()
+      ;(profiles ?? []).forEach((p: any) => profileMap.set(p.id, p.display_name))
+
+      return sneakers.map((s: any) => ({
+        ...s,
+        seller_name: profileMap.get(s.user_id) ?? null,
+      })) as MarketplaceSneaker[]
+    },
+  })
+}
+
+export function useMarketplaceSneaker(id: string | undefined) {
+  return useQuery({
+    queryKey: ['marketplace', 'sneaker', id],
+    enabled: !!id,
+    queryFn: async (): Promise<MarketplaceSneaker | null> => {
+      if (!id) return null
+      const { data: sneaker, error } = await supabase
+        .from('sneakers')
+        .select('*')
+        .eq('id', id)
+        .maybeSingle()
+      if (error) throw error
+      if (!sneaker) return null
+
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('display_name')
+        .eq('id', (sneaker as any).user_id)
+        .maybeSingle()
+
+      return {
+        ...(sneaker as any),
+        seller_name: (profile as any)?.display_name ?? null,
+      } as MarketplaceSneaker
+    },
+  })
+}
+
+/* =====================================================
+ * MESSAGING — Conversations
+ * ===================================================== */
+
+export interface Conversation {
+  id: string
+  user1_id: string
+  user2_id: string
+  sneaker_id: string | null
+  last_message_at: string
+  created_at: string
+  // Enriched fields
+  other_user_id: string
+  other_user_name: string | null
+  sneaker_name?: string | null
+  sneaker_photo?: string | null
+  last_message_preview?: string | null
+  unread_count?: number
+}
+
+export function useMyConversations() {
+  return useQuery({
+    queryKey: ['conversations'],
+    refetchInterval: 30_000, // refresh toutes les 30s
+    queryFn: async (): Promise<Conversation[]> => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return []
+      const myId = userData.user.id
+
+      const { data: convos, error } = await supabase
+        .from('conversations')
+        .select('*')
+        .or(`user1_id.eq.${myId},user2_id.eq.${myId}`)
+        .order('last_message_at', { ascending: false })
+
+      if (error) throw error
+      if (!convos || convos.length === 0) return []
+
+      // Récupérer les profiles des autres users
+      const otherIds = convos.map((c: any) =>
+        c.user1_id === myId ? c.user2_id : c.user1_id,
+      )
+      const sneakerIds = convos.map((c: any) => c.sneaker_id).filter(Boolean)
+
+      const [profilesRes, sneakersRes, lastMsgsRes] = await Promise.all([
+        supabase.from('profiles').select('id, display_name').in('id', otherIds),
+        sneakerIds.length > 0
+          ? supabase
+              .from('sneakers')
+              .select('id, name, photo_url, stockx_image_url')
+              .in('id', sneakerIds)
+          : Promise.resolve({ data: [] }),
+        supabase
+          .from('messages')
+          .select('conversation_id, content, sender_id, read_at, created_at')
+          .in('conversation_id', convos.map((c: any) => c.id))
+          .order('created_at', { ascending: false }),
+      ])
+
+      const profileMap = new Map<string, string | null>()
+      ;((profilesRes as any).data ?? []).forEach((p: any) =>
+        profileMap.set(p.id, p.display_name),
+      )
+
+      const sneakerMap = new Map<string, any>()
+      ;((sneakersRes as any).data ?? []).forEach((s: any) =>
+        sneakerMap.set(s.id, s),
+      )
+
+      // last message + unread count par conversation
+      const lastMsgMap = new Map<string, string>()
+      const unreadMap = new Map<string, number>()
+      ;((lastMsgsRes as any).data ?? []).forEach((m: any) => {
+        if (!lastMsgMap.has(m.conversation_id)) {
+          lastMsgMap.set(m.conversation_id, m.content)
+        }
+        if (m.sender_id !== myId && !m.read_at) {
+          unreadMap.set(m.conversation_id, (unreadMap.get(m.conversation_id) ?? 0) + 1)
+        }
+      })
+
+      return convos.map((c: any) => {
+        const otherId = c.user1_id === myId ? c.user2_id : c.user1_id
+        const sneaker = c.sneaker_id ? sneakerMap.get(c.sneaker_id) : null
+        return {
+          ...c,
+          other_user_id: otherId,
+          other_user_name: profileMap.get(otherId) ?? null,
+          sneaker_name: sneaker?.name ?? null,
+          sneaker_photo: sneaker?.photo_url ?? sneaker?.stockx_image_url ?? null,
+          last_message_preview: lastMsgMap.get(c.id) ?? null,
+          unread_count: unreadMap.get(c.id) ?? 0,
+        } as Conversation
+      })
+    },
+  })
+}
+
+export function useCreateOrGetConversation() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (params: {
+      otherUserId: string
+      sneakerId?: string | null
+    }) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
+      const myId = userData.user.id
+
+      // Normaliser : user1 = plus petit ID, user2 = plus grand
+      const [user1_id, user2_id] = [myId, params.otherUserId].sort()
+
+      // Chercher conversation existante
+      const sneakerFilter = params.sneakerId
+        ? `sneaker_id.eq.${params.sneakerId}`
+        : 'sneaker_id.is.null'
+      const { data: existing } = await supabase
+        .from('conversations')
+        .select('*')
+        .eq('user1_id', user1_id)
+        .eq('user2_id', user2_id)
+        .or(sneakerFilter)
+        .maybeSingle()
+
+      if (existing) return existing as Conversation
+
+      // Créer nouvelle conversation
+      const { data: created, error } = await supabase
+        .from('conversations')
+        .insert({
+          user1_id,
+          user2_id,
+          sneaker_id: params.sneakerId ?? null,
+        })
+        .select()
+        .single()
+
+      if (error) throw error
+      return created as Conversation
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['conversations'] })
+    },
+  })
+}
+
+/* =====================================================
+ * MESSAGING — Messages
+ * ===================================================== */
+
+export interface Message {
+  id: string
+  conversation_id: string
+  sender_id: string
+  content: string
+  read_at: string | null
+  created_at: string
+}
+
+export function useConversationMessages(conversationId: string | undefined) {
+  return useQuery({
+    queryKey: ['messages', conversationId],
+    enabled: !!conversationId,
+    refetchInterval: 5_000, // refresh toutes les 5s
+    queryFn: async (): Promise<Message[]> => {
+      if (!conversationId) return []
+      const { data, error } = await supabase
+        .from('messages')
+        .select('*')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true })
+      if (error) throw error
+      return (data as Message[]) ?? []
+    },
+  })
+}
+
+export function useSendMessage() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (params: { conversationId: string; content: string }) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
+      const { data, error } = await supabase
+        .from('messages')
+        .insert({
+          conversation_id: params.conversationId,
+          sender_id: userData.user.id,
+          content: params.content.trim(),
+        })
+        .select()
+        .single()
+      if (error) throw error
+      return data as Message
+    },
+    onSuccess: (_, variables) => {
+      qc.invalidateQueries({ queryKey: ['messages', variables.conversationId] })
+      qc.invalidateQueries({ queryKey: ['conversations'] })
+    },
+  })
+}
+
+export function useMarkMessagesAsRead() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (conversationId: string) => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
+      const { error } = await supabase
+        .from('messages')
+        .update({ read_at: new Date().toISOString() })
+        .eq('conversation_id', conversationId)
+        .neq('sender_id', userData.user.id)
+        .is('read_at', null)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['conversations'] })
+    },
+  })
+}
