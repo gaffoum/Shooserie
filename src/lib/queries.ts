@@ -1116,3 +1116,22 @@ export function useDeleteMessage() {
     },
   })
 }
+
+// =====================================================
+// CONVERSATIONS — Delete
+// =====================================================
+export function useDeleteConversation() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (conversationId: string): Promise<void> => {
+      const { error } = await supabase
+        .from('conversations')
+        .delete()
+        .eq('id', conversationId)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['my-conversations'] })
+    },
+  })
+}

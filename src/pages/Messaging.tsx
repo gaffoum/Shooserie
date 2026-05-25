@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import {
   useMyConversations,
@@ -7,6 +7,7 @@ import {
   useSendMessage,
   useMarkMessagesAsRead,
   useDeleteMessage,
+  useDeleteConversation,
 } from '../lib/queries'
 import { useT } from '@/i18n/I18nContext'
 
@@ -19,7 +20,10 @@ export function Messaging() {
 
   return (
     <div style={pageStyle}>
-      <h1 style={titleStyle}>{t('messaging.title')}</h1>
+      <div style={headerWithBackStyle}>
+        <Link to="/dashboard" style={backLinkStyle}>← Dashboard</Link>
+        <h1 style={titleStyle}>{t('messaging.title')}</h1>
+      </div>
 
       <div style={layoutStyle}>
         {/* Sidebar — list of conversations */}
@@ -76,14 +80,21 @@ export function Messaging() {
 // =====================================================
 function ChatView({ conversationId }: { conversationId: string }) {
   const { t } = useT()
+  const navigate = useNavigate()
   const { user } = useAuth()
   const { data: messages, isLoading } = useConversationMessages(conversationId)
+  const { data: conversations } = useMyConversations()
   const sendMessage = useSendMessage()
   const deleteMessage = useDeleteMessage()
+  const deleteConversation = useDeleteConversation()
   const markAsRead = useMarkMessagesAsRead()
   const [content, setContent] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
+  const [confirmDeleteConv, setConfirmDeleteConv] = useState(false)
+
+  // Get current conversation info for header
+  const currentConv = conversations?.find((c) => c.id === conversationId)
 
   // auto-mark as read when conversation opens
   useEffect(() => {
@@ -111,21 +122,67 @@ function ChatView({ conversationId }: { conversationId: string }) {
 
   const handleDelete = (messageId: string) => {
     if (confirmDelete !== messageId) {
-      // First click — show confirmation
       setConfirmDelete(messageId)
-      // Auto-cancel après 3s
       setTimeout(() => {
         setConfirmDelete((curr) => (curr === messageId ? null : curr))
       }, 3000)
       return
     }
-    // Second click — actually delete
     deleteMessage.mutate({ messageId, conversationId })
     setConfirmDelete(null)
   }
 
+  const handleDeleteConv = () => {
+    if (!confirmDeleteConv) {
+      setConfirmDeleteConv(true)
+      setTimeout(() => setConfirmDeleteConv(false), 3000)
+      return
+    }
+    deleteConversation.mutate(conversationId, {
+      onSuccess: () => {
+        navigate('/messages')
+      },
+    })
+    setConfirmDeleteConv(false)
+  }
+
   return (
     <>
+      {/* Chat header with delete conversation button */}
+      <div style={chatHeaderStyle}>
+        <div style={chatHeaderInfoStyle}>
+          {currentConv && (
+            <>
+              <div style={chatHeaderNameStyle}>
+                {currentConv.other_user_name}
+              </div>
+              {currentConv.sneaker_name && (
+                <div style={chatHeaderSneakerStyle}>
+                  {currentConv.sneaker_name}
+                </div>
+              )}
+            </>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={handleDeleteConv}
+          style={confirmDeleteConv ? deleteConvBtnConfirmStyle : deleteConvBtnStyle}
+          disabled={deleteConversation.isPending}
+          title="Supprimer cette conversation"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" strokeWidth="2"
+               strokeLinecap="round" strokeLinejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+          </svg>
+          {confirmDeleteConv ? 'Confirmer ?' : 'Supprimer'}
+        </button>
+      </div>
+
       <div style={chatMessagesStyle}>
         {isLoading && <p style={emptyStyle}>{t('common.loading')}</p>}
 
@@ -140,7 +197,6 @@ function ChatView({ conversationId }: { conversationId: string }) {
                 justifyContent: isOwn ? 'flex-end' : 'flex-start',
               }}
             >
-              {/* Bouton supprimer — uniquement pour ses propres messages, à gauche de la bulle */}
               {isOwn && (
                 <button
                   type="button"
@@ -154,14 +210,12 @@ function ChatView({ conversationId }: { conversationId: string }) {
                   disabled={deleteMessage.isPending}
                 >
                   {isConfirming ? (
-                    /* check icône pour confirmer */
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" strokeWidth="2.5"
                          strokeLinecap="round" strokeLinejoin="round">
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
                   ) : (
-                    /* poubelle icône */
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" strokeWidth="2"
                          strokeLinecap="round" strokeLinejoin="round">
@@ -214,6 +268,24 @@ function ChatView({ conversationId }: { conversationId: string }) {
 // =====================================================
 // Styles
 // =====================================================
+const headerWithBackStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  marginBottom: 24,
+}
+
+const backLinkStyle: React.CSSProperties = {
+  color: '#6B7280',
+  textDecoration: 'none',
+  fontSize: 14,
+  fontWeight: 500,
+  padding: '8px 14px',
+  background: 'white',
+  border: '1px solid #E5E7EB',
+  borderRadius: 8,
+}
+
 const pageStyle: React.CSSProperties = {
   maxWidth: '1200px',
   margin: '0 auto',
@@ -223,7 +295,7 @@ const pageStyle: React.CSSProperties = {
 const titleStyle: React.CSSProperties = {
   fontSize: 32,
   fontWeight: 700,
-  margin: '0 0 24px',
+  margin: 0,
   fontFamily: "'Outfit', sans-serif",
 }
 
@@ -335,6 +407,54 @@ const chatEmptyStyle: React.CSSProperties = {
   justifyContent: 'center',
   color: '#9CA3AF',
   fontSize: 14,
+}
+
+// === Chat header (avec bouton supprimer conversation) ===
+const chatHeaderStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  padding: '12px 16px',
+  borderBottom: '1px solid #E5E7EB',
+  background: '#FAFAFA',
+}
+
+const chatHeaderInfoStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+}
+
+const chatHeaderNameStyle: React.CSSProperties = {
+  fontSize: 15,
+  fontWeight: 600,
+  color: '#0A0A0A',
+}
+
+const chatHeaderSneakerStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: '#CE1141',
+}
+
+const deleteConvBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '6px 10px',
+  background: 'transparent',
+  border: '1px solid #E5E7EB',
+  borderRadius: 6,
+  color: '#6B7280',
+  fontSize: 12,
+  fontWeight: 500,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+}
+
+const deleteConvBtnConfirmStyle: React.CSSProperties = {
+  ...deleteConvBtnStyle,
+  background: '#CE1141',
+  color: 'white',
+  borderColor: '#CE1141',
 }
 
 const chatMessagesStyle: React.CSSProperties = {

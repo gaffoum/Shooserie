@@ -35,6 +35,8 @@ export function Marketplace() {
 
   return (
     <div style={pageStyle}>
+      <Link to="/dashboard" style={backLinkStyle}>← Dashboard</Link>
+
       <div style={headerStyle}>
         <div>
           <h1 style={titleStyle}>{t('marketplace.title')}</h1>
@@ -70,7 +72,6 @@ export function Marketplace() {
             title={t('marketplace.viewGrid')}
             aria-label={t('marketplace.viewGrid')}
           >
-            {/* icône grille */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                  strokeLinejoin="round">
@@ -86,7 +87,6 @@ export function Marketplace() {
             title={t('marketplace.viewList')}
             aria-label={t('marketplace.viewList')}
           >
-            {/* icône liste */}
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" strokeWidth="2" strokeLinecap="round"
                  strokeLinejoin="round">
@@ -186,6 +186,19 @@ export function Marketplace() {
 }
 
 // ===== Styles =====
+const backLinkStyle: React.CSSProperties = {
+  display: 'inline-block',
+  color: '#6B7280',
+  textDecoration: 'none',
+  fontSize: 14,
+  fontWeight: 500,
+  padding: '8px 14px',
+  background: 'white',
+  border: '1px solid #E5E7EB',
+  borderRadius: 8,
+  marginBottom: 16,
+}
+
 const pageStyle: React.CSSProperties = {
   maxWidth: '1200px',
   margin: '0 auto',
@@ -272,7 +285,6 @@ const emptyStyle: React.CSSProperties = {
   color: '#6B7280',
 }
 
-// === Grille ===
 const gridStyle: React.CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
@@ -349,7 +361,6 @@ const cardSellerStyle: React.CSSProperties = {
   color: '#9CA3AF',
 }
 
-// === Liste ===
 const listStyle: React.CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
