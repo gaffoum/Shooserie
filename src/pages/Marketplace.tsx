@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMarketplaceSneakers } from '../lib/queries'
-import { useDict } from '../i18n/I18nContext'
+import { useT } from '@/i18n/I18nContext'
 
 type ViewMode = 'grid' | 'list'
 
 export function Marketplace() {
-  const t = useDict()
+  const t = useT()
   const { data: sneakers, isLoading } = useMarketplaceSneakers()
   const [search, setSearch] = useState('')
   const [brand, setBrand] = useState<string>('')
