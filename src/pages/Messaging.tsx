@@ -11,7 +11,7 @@ import {
 import { useT } from '@/i18n/I18nContext'
 
 export function Messaging() {
-  const t = useT()
+  const { t } = useT()
   const navigate = useNavigate()
   const [params] = useSearchParams()
   const { data: conversations, isLoading } = useMyConversations()
@@ -75,7 +75,7 @@ export function Messaging() {
 // ChatView
 // =====================================================
 function ChatView({ conversationId }: { conversationId: string }) {
-  const t = useT()
+  const { t } = useT()
   const { user } = useAuth()
   const { data: messages, isLoading } = useConversationMessages(conversationId)
   const sendMessage = useSendMessage()

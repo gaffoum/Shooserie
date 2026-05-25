@@ -6,7 +6,7 @@ import { useT } from '@/i18n/I18nContext'
 type ViewMode = 'grid' | 'list'
 
 export function Marketplace() {
-  const t = useT()
+  const { t } = useT()
   const { data: sneakers, isLoading } = useMarketplaceSneakers()
   const [search, setSearch] = useState('')
   const [brand, setBrand] = useState<string>('')
