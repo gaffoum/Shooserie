@@ -1091,3 +1091,28 @@ export function useMarkMessagesAsRead() {
     },
   })
 }
+
+// =====================================================
+// MESSAGES — Delete
+// =====================================================
+export function useDeleteMessage() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async ({ messageId }: {
+      messageId: string
+      conversationId: string
+    }): Promise<void> => {
+      const { error } = await supabase
+        .from('messages')
+        .delete()
+        .eq('id', messageId)
+      if (error) throw error
+    },
+    onSuccess: (_, { conversationId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ['conversation-messages', conversationId],
+      })
+      queryClient.invalidateQueries({ queryKey: ['my-conversations'] })
+    },
+  })
+}

@@ -400,6 +400,14 @@ const fr = {
   'dashboard.marketplace.tooltip': 'Voir toutes les paires en vente',
   'dashboard.messages.button': 'Messages',
   'dashboard.messages.tooltip': 'Voir tes conversations',
+  
+  // Marketplace — toggle vue
+  'marketplace.viewGrid': 'Vue grille',
+  'marketplace.viewList': 'Vue liste',
+ 
+  // Messaging — delete
+  'messaging.deleteMessage': 'Supprimer ce message',
+  'messaging.confirmDelete': 'Confirmer la suppression',
 }
 
 const en: typeof fr = {
@@ -792,6 +800,13 @@ const en: typeof fr = {
   'dashboard.marketplace.tooltip': 'See all pairs for sale',
   'dashboard.messages.button': 'Messages',
   'dashboard.messages.tooltip': 'See your conversations',
+  
+  // Marketplace — toggle vue
+  'marketplace.viewGrid': 'Grid view',
+  'marketplace.viewList': 'List view',
+ 
+  'messaging.deleteMessage': 'Delete this message',
+  'messaging.confirmDelete': 'Confirm deletion',
 }
 
 export type DictKey = keyof typeof fr

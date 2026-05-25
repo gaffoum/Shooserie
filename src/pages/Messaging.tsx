@@ -1,400 +1,434 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent } from 'react'
-import { useSearchParams, Link } from 'react-router-dom'
-import { useT } from '@/i18n/I18nContext'
-import { useAuth } from '@/contexts/AuthContext'
-import { AppHeader } from '@/components/AppHeader'
-import { BackLink } from '@/components/BackLink'
+import { useEffect, useRef, useState } from 'react'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 import {
   useMyConversations,
   useConversationMessages,
   useSendMessage,
   useMarkMessagesAsRead,
-  type Conversation,
-} from '@/lib/queries'
+  useDeleteMessage,
+} from '../lib/queries'
+import { useDict } from '../i18n/I18nProvider'
 
-/**
- * Messaging page — two-pane layout (conversations list + active chat).
- * On mobile, only one pane is shown at a time.
- * The URL ?c=<conversationId> selects the active conversation.
- */
 export function Messaging() {
-  const { t } = useT()
-  const [searchParams, setSearchParams] = useSearchParams()
-  const activeId = searchParams.get('c')
+  const t = useDict()
+  const navigate = useNavigate()
+  const [params] = useSearchParams()
   const { data: conversations, isLoading } = useMyConversations()
-  const markRead = useMarkMessagesAsRead()
-
-  // Auto-mark active conversation as read
-  useEffect(() => {
-    if (activeId) {
-      markRead.mutate(activeId)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeId])
-
-  const activeConvo = conversations?.find((c) => c.id === activeId)
+  const activeId = params.get('c')
 
   return (
-    <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
-      <AppHeader leftActions={<BackLink to="/dashboard" />} />
-      <main style={mainStyle}>
-        <h1 style={titleStyle}>{t('messaging.title')}</h1>
+    <div style={pageStyle}>
+      <h1 style={titleStyle}>{t('messaging.title')}</h1>
 
-        <div style={layoutStyle}>
-          {/* Sidebar — conversations list */}
-          <aside style={sidebarStyle(!activeId)}>
-            {isLoading && <p style={mutedStyle}>{t('common.loading')}</p>}
-            {!isLoading && (!conversations || conversations.length === 0) && (
-              <p style={mutedStyle}>{t('messaging.noConversations')}</p>
-            )}
-            {conversations?.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => setSearchParams({ c: c.id })}
-                style={convoItemStyle(c.id === activeId)}
-              >
-                {c.sneaker_photo && (
-                  <img
-                    src={c.sneaker_photo}
-                    alt=""
-                    style={convoPhotoStyle}
-                  />
-                )}
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <div style={convoNameStyle}>
-                    {c.other_user_name ?? t('messaging.unknownUser')}
-                  </div>
-                  {c.sneaker_name && (
-                    <div style={convoSneakerStyle}>{c.sneaker_name}</div>
-                  )}
-                  {c.last_message_preview && (
-                    <div style={convoPreviewStyle}>{c.last_message_preview}</div>
-                  )}
-                </div>
-                {(c.unread_count ?? 0) > 0 && (
-                  <span style={badgeStyle}>{c.unread_count}</span>
-                )}
-              </button>
-            ))}
-          </aside>
+      <div style={layoutStyle}>
+        {/* Sidebar — list of conversations */}
+        <aside style={sidebarStyle}>
+          {isLoading && <p style={emptyStyle}>{t('common.loading')}</p>}
 
-          {/* Chat pane */}
-          <section style={chatPaneStyle(!!activeId)}>
-            {activeConvo ? (
-              <ChatView conversation={activeConvo} />
-            ) : (
-              <div style={emptyChatStyle}>
-                <p style={mutedStyle}>{t('messaging.selectConversation')}</p>
+          {!isLoading && (!conversations || conversations.length === 0) && (
+            <p style={emptyStyle}>{t('messaging.noConversations')}</p>
+          )}
+
+          {conversations?.map((c) => (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => navigate(`/messages?c=${c.id}`)}
+              style={c.id === activeId ? convItemActiveStyle : convItemStyle}
+            >
+              {c.sneaker_photo ? (
+                <img src={c.sneaker_photo} alt=""
+                     style={convAvatarStyle} />
+              ) : (
+                <div style={convAvatarPlaceholderStyle}>👟</div>
+              )}
+              <div style={convInfoStyle}>
+                <div style={convNameStyle}>{c.other_user_name}</div>
+                {c.sneaker_name && (
+                  <div style={convSneakerStyle}>{c.sneaker_name}</div>
+                )}
               </div>
-            )}
-          </section>
-        </div>
-      </main>
+              {c.unread_count > 0 && (
+                <span style={unreadBadgeStyle}>{c.unread_count}</span>
+              )}
+            </button>
+          ))}
+        </aside>
+
+        {/* Chat view */}
+        <main style={chatMainStyle}>
+          {activeId ? (
+            <ChatView conversationId={activeId} />
+          ) : (
+            <div style={chatEmptyStyle}>
+              {t('messaging.selectConversation')}
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   )
 }
 
-function ChatView({ conversation }: { conversation: Conversation }) {
-  const { t } = useT()
+// =====================================================
+// ChatView
+// =====================================================
+function ChatView({ conversationId }: { conversationId: string }) {
+  const t = useDict()
   const { user } = useAuth()
-  const { data: messages, isLoading } = useConversationMessages(conversation.id)
-  const sendMutation = useSendMessage()
-  const [draft, setDraft] = useState('')
+  const { data: messages, isLoading } = useConversationMessages(conversationId)
+  const sendMessage = useSendMessage()
+  const deleteMessage = useDeleteMessage()
+  const markAsRead = useMarkMessagesAsRead()
+  const [content, setContent] = useState('')
   const bottomRef = useRef<HTMLDivElement>(null)
+  const [confirmDelete, setConfirmDelete] = useState<string | null>(null)
 
-  // Auto-scroll to bottom on new messages
+  // auto-mark as read when conversation opens
+  useEffect(() => {
+    if (conversationId) {
+      markAsRead.mutate(conversationId)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [conversationId])
+
+  // auto-scroll to bottom on new messages
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }, [messages])
+  }, [messages?.length])
 
-  const handleSend = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!draft.trim()) return
-    try {
-      await sendMutation.mutateAsync({
-        conversationId: conversation.id,
-        content: draft.trim(),
-      })
-      setDraft('')
-    } catch (err) {
-      console.error('Send failed', err)
+  const handleSend = () => {
+    const trimmed = content.trim()
+    if (!trimmed) return
+    sendMessage.mutate(
+      { conversationId, content: trimmed },
+      {
+        onSuccess: () => setContent(''),
+      },
+    )
+  }
+
+  const handleDelete = (messageId: string) => {
+    if (confirmDelete !== messageId) {
+      // First click — show confirmation
+      setConfirmDelete(messageId)
+      // Auto-cancel après 3s
+      setTimeout(() => {
+        setConfirmDelete((curr) => (curr === messageId ? null : curr))
+      }, 3000)
+      return
     }
+    // Second click — actually delete
+    deleteMessage.mutate({ messageId, conversationId })
+    setConfirmDelete(null)
   }
 
   return (
-    <div style={chatContainerStyle}>
-      {/* Header */}
-      <div style={chatHeaderStyle}>
-        {conversation.sneaker_photo && (
-          <img
-            src={conversation.sneaker_photo}
-            alt=""
-            style={chatHeaderPhotoStyle}
-          />
-        )}
-        <div>
-          <div style={chatHeaderNameStyle}>
-            {conversation.other_user_name ?? t('messaging.unknownUser')}
-          </div>
-          {conversation.sneaker_id && conversation.sneaker_name && (
-            <Link
-              to={`/marketplace/${conversation.sneaker_id}`}
-              style={chatHeaderSneakerStyle}
-            >
-              {conversation.sneaker_name}
-            </Link>
-          )}
-        </div>
-      </div>
+    <>
+      <div style={chatMessagesStyle}>
+        {isLoading && <p style={emptyStyle}>{t('common.loading')}</p>}
 
-      {/* Messages */}
-      <div style={messagesListStyle}>
-        {isLoading && <p style={mutedStyle}>{t('common.loading')}</p>}
         {messages?.map((m) => {
-          const isMine = m.sender_id === user?.id
+          const isOwn = m.sender_id === user?.id
+          const isConfirming = confirmDelete === m.id
           return (
             <div
               key={m.id}
-              style={msgRowStyle(isMine)}
+              style={{
+                ...bubbleRowStyle,
+                justifyContent: isOwn ? 'flex-end' : 'flex-start',
+              }}
             >
-              <div style={msgBubbleStyle(isMine)}>{m.content}</div>
+              {/* Bouton supprimer — uniquement pour ses propres messages, à gauche de la bulle */}
+              {isOwn && (
+                <button
+                  type="button"
+                  onClick={() => handleDelete(m.id)}
+                  style={isConfirming ? deleteBtnConfirmStyle : deleteBtnStyle}
+                  title={isConfirming
+                    ? t('messaging.confirmDelete')
+                    : t('messaging.deleteMessage')
+                  }
+                  aria-label={t('messaging.deleteMessage')}
+                  disabled={deleteMessage.isPending}
+                >
+                  {isConfirming ? (
+                    /* check icône pour confirmer */
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" strokeWidth="2.5"
+                         strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12" />
+                    </svg>
+                  ) : (
+                    /* poubelle icône */
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none"
+                         stroke="currentColor" strokeWidth="2"
+                         strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="3 6 5 6 21 6" />
+                      <path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6" />
+                      <path d="M10 11v6" />
+                      <path d="M14 11v6" />
+                    </svg>
+                  )}
+                </button>
+              )}
+
+              <div style={isOwn ? bubbleOwnStyle : bubbleOtherStyle}>
+                {m.content}
+              </div>
             </div>
           )
         })}
+
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <form onSubmit={handleSend} style={inputFormStyle}>
+      <div style={chatInputBarStyle}>
         <input
           type="text"
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={t('messaging.typeMessage')}
-          disabled={sendMutation.isPending}
-          style={inputStyle}
+          value={content}
+          onChange={(e) => setContent(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault()
+              handleSend()
+            }
+          }}
+          placeholder={t('messaging.placeholder')}
+          style={chatInputStyle}
         />
         <button
-          type="submit"
-          disabled={!draft.trim() || sendMutation.isPending}
-          style={sendBtnStyle(!draft.trim() || sendMutation.isPending)}
+          type="button"
+          onClick={handleSend}
+          disabled={!content.trim() || sendMessage.isPending}
+          style={sendButtonStyle}
         >
-          {sendMutation.isPending ? '…' : t('messaging.send')}
+          {t('messaging.send')}
         </button>
-      </form>
-    </div>
+      </div>
+    </>
   )
 }
 
-/* ===== Styles ===== */
-
-const mainStyle: CSSProperties = {
-  maxWidth: 1100,
+// =====================================================
+// Styles
+// =====================================================
+const pageStyle: React.CSSProperties = {
+  maxWidth: '1200px',
   margin: '0 auto',
-  padding: '24px 20px 80px',
+  padding: '24px 16px',
 }
 
-const titleStyle: CSSProperties = {
-  fontSize: 28,
-  fontFamily: 'var(--font-display)',
+const titleStyle: React.CSSProperties = {
+  fontSize: 32,
   fontWeight: 700,
-  letterSpacing: 'var(--tracking-tight)',
-  color: 'var(--color-text)',
-  margin: 0,
-  marginBottom: 20,
+  margin: '0 0 24px',
+  fontFamily: "'Outfit', sans-serif",
 }
 
-const layoutStyle: CSSProperties = {
+const layoutStyle: React.CSSProperties = {
   display: 'grid',
-  gridTemplateColumns: '300px 1fr',
+  gridTemplateColumns: '320px 1fr',
   gap: 16,
   height: 'calc(100vh - 200px)',
   minHeight: 500,
 }
 
-const sidebarStyle = (isVisible: boolean): CSSProperties => ({
-  display: isVisible ? 'flex' : 'flex',
-  flexDirection: 'column',
-  gap: 6,
-  background: 'var(--color-card)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
-  padding: 10,
+const sidebarStyle: React.CSSProperties = {
+  background: 'white',
+  border: '1px solid #E5E7EB',
+  borderRadius: 12,
+  padding: 8,
   overflowY: 'auto',
-})
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 4,
+}
 
-const convoItemStyle = (isActive: boolean): CSSProperties => ({
+const convItemStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
-  gap: 10,
-  padding: 10,
-  background: isActive ? 'var(--color-bg)' : 'transparent',
-  border: '1px solid',
-  borderColor: isActive ? 'var(--color-bred)' : 'transparent',
-  borderRadius: 'var(--radius-md)',
+  gap: 12,
+  padding: 12,
+  borderRadius: 8,
+  background: 'white',
+  border: '1px solid transparent',
   cursor: 'pointer',
   textAlign: 'left',
-  fontFamily: 'inherit',
-  color: 'var(--color-text)',
-  transition: 'background var(--transition-fast)',
   width: '100%',
-})
+  fontFamily: 'inherit',
+}
 
-const convoPhotoStyle: CSSProperties = {
+const convItemActiveStyle: React.CSSProperties = {
+  ...convItemStyle,
+  borderColor: '#CE1141',
+  background: '#FEF2F4',
+}
+
+const convAvatarStyle: React.CSSProperties = {
   width: 40,
   height: 40,
-  borderRadius: 'var(--radius-sm)',
+  borderRadius: 8,
   objectFit: 'cover',
   flexShrink: 0,
 }
 
-const convoNameStyle: CSSProperties = {
-  fontSize: 13,
+const convAvatarPlaceholderStyle: React.CSSProperties = {
+  width: 40,
+  height: 40,
+  borderRadius: 8,
+  background: '#F5F5F5',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 20,
+  flexShrink: 0,
+}
+
+const convInfoStyle: React.CSSProperties = {
+  flex: 1,
+  minWidth: 0,
+}
+
+const convNameStyle: React.CSSProperties = {
+  fontSize: 14,
   fontWeight: 600,
-  color: 'var(--color-text)',
+  color: '#0A0A0A',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 }
 
-const convoSneakerStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'var(--color-text-muted)',
+const convSneakerStyle: React.CSSProperties = {
+  fontSize: 12,
+  color: '#CE1141',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 }
 
-const convoPreviewStyle: CSSProperties = {
-  fontSize: 11,
-  color: 'var(--color-text-faint)',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  marginTop: 2,
-}
-
-const badgeStyle: CSSProperties = {
-  background: 'var(--color-bred)',
-  color: '#fff',
+const unreadBadgeStyle: React.CSSProperties = {
+  background: '#CE1141',
+  color: 'white',
   fontSize: 10,
   fontWeight: 700,
-  padding: '2px 7px',
-  borderRadius: 999,
+  padding: '2px 6px',
+  borderRadius: 10,
   minWidth: 18,
   textAlign: 'center',
 }
 
-const chatPaneStyle = (isVisible: boolean): CSSProperties => ({
-  display: isVisible ? 'flex' : 'flex',
+const chatMainStyle: React.CSSProperties = {
+  background: 'white',
+  border: '1px solid #E5E7EB',
+  borderRadius: 12,
+  display: 'flex',
   flexDirection: 'column',
-  background: 'var(--color-card)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-lg)',
   overflow: 'hidden',
-})
-
-const chatContainerStyle: CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  height: '100%',
 }
 
-const chatHeaderStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 10,
-  padding: 14,
-  borderBottom: '1px solid var(--color-border)',
-}
-
-const chatHeaderPhotoStyle: CSSProperties = {
-  width: 36,
-  height: 36,
-  borderRadius: 'var(--radius-sm)',
-  objectFit: 'cover',
-}
-
-const chatHeaderNameStyle: CSSProperties = {
-  fontSize: 14,
-  fontWeight: 600,
-  color: 'var(--color-text)',
-}
-
-const chatHeaderSneakerStyle: CSSProperties = {
-  fontSize: 12,
-  color: 'var(--color-bred)',
-  textDecoration: 'none',
-}
-
-const messagesListStyle: CSSProperties = {
+const chatEmptyStyle: React.CSSProperties = {
   flex: 1,
-  overflowY: 'auto',
-  padding: 14,
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-}
-
-const msgRowStyle = (isMine: boolean): CSSProperties => ({
-  display: 'flex',
-  justifyContent: isMine ? 'flex-end' : 'flex-start',
-})
-
-const msgBubbleStyle = (isMine: boolean): CSSProperties => ({
-  maxWidth: '70%',
-  padding: '8px 12px',
-  background: isMine ? 'var(--color-bred)' : 'var(--color-bg)',
-  color: isMine ? '#fff' : 'var(--color-text)',
-  borderRadius: 'var(--radius-md)',
-  fontSize: 13,
-  lineHeight: 1.4,
-  wordBreak: 'break-word',
-})
-
-const inputFormStyle: CSSProperties = {
-  display: 'flex',
-  gap: 8,
-  padding: 10,
-  borderTop: '1px solid var(--color-border)',
-}
-
-const inputStyle: CSSProperties = {
-  flex: 1,
-  padding: '10px 13px',
-  fontSize: 14,
-  background: 'var(--color-bg)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 'var(--radius-md)',
-  color: 'var(--color-text)',
-  fontFamily: 'inherit',
-  outline: 'none',
-}
-
-const sendBtnStyle = (disabled: boolean): CSSProperties => ({
-  padding: '10px 16px',
-  fontSize: 12,
-  fontWeight: 600,
-  letterSpacing: 'var(--tracking-wide)',
-  textTransform: 'uppercase',
-  background: disabled ? 'var(--color-text-muted)' : 'var(--color-bred)',
-  color: '#fff',
-  border: 'none',
-  borderRadius: 'var(--radius-md)',
-  cursor: disabled ? 'not-allowed' : 'pointer',
-  fontFamily: 'var(--font-display)',
-})
-
-const emptyChatStyle: CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  height: '100%',
+  color: '#9CA3AF',
+  fontSize: 14,
 }
 
-const mutedStyle: CSSProperties = {
-  color: 'var(--color-text-muted)',
+const chatMessagesStyle: React.CSSProperties = {
+  flex: 1,
+  overflowY: 'auto',
+  padding: 16,
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+}
+
+const bubbleRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  width: '100%',
+}
+
+const bubbleOwnStyle: React.CSSProperties = {
+  maxWidth: '70%',
+  background: '#CE1141',
+  color: 'white',
+  padding: '10px 14px',
+  borderRadius: 18,
+  borderBottomRightRadius: 4,
   fontSize: 14,
+  wordBreak: 'break-word',
+}
+
+const bubbleOtherStyle: React.CSSProperties = {
+  maxWidth: '70%',
+  background: '#F3F4F6',
+  color: '#0A0A0A',
+  padding: '10px 14px',
+  borderRadius: 18,
+  borderBottomLeftRadius: 4,
+  fontSize: 14,
+  wordBreak: 'break-word',
+}
+
+const deleteBtnStyle: React.CSSProperties = {
+  background: 'transparent',
+  border: 'none',
+  borderRadius: '50%',
+  width: 28,
+  height: 28,
+  cursor: 'pointer',
+  color: '#9CA3AF',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  opacity: 0.4,
+  transition: 'opacity 0.15s, color 0.15s, background 0.15s',
+  flexShrink: 0,
+}
+
+const deleteBtnConfirmStyle: React.CSSProperties = {
+  ...deleteBtnStyle,
+  background: '#CE1141',
+  color: 'white',
+  opacity: 1,
+}
+
+const chatInputBarStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: 8,
   padding: 12,
+  borderTop: '1px solid #E5E7EB',
+}
+
+const chatInputStyle: React.CSSProperties = {
+  flex: 1,
+  padding: '10px 14px',
+  border: '1px solid #E5E7EB',
+  borderRadius: 8,
+  fontSize: 14,
+  fontFamily: 'inherit',
+}
+
+const sendButtonStyle: React.CSSProperties = {
+  padding: '10px 20px',
+  background: '#CE1141',
+  color: 'white',
+  border: 'none',
+  borderRadius: 8,
+  fontWeight: 600,
+  cursor: 'pointer',
+  fontSize: 14,
+  fontFamily: 'inherit',
+}
+
+const emptyStyle: React.CSSProperties = {
+  textAlign: 'center',
+  padding: '24px 0',
+  color: '#9CA3AF',
+  fontSize: 13,
 }
