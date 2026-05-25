@@ -195,7 +195,7 @@ function ChatView({ conversationId }: { conversationId: string }) {
               handleSend()
             }
           }}
-          placeholder={t('messaging.placeholder')}
+          placeholder={t('messaging.typeMessage')}
           style={chatInputStyle}
         />
         <button
