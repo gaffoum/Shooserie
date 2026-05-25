@@ -8,7 +8,7 @@ import {
   useMarkMessagesAsRead,
   useDeleteMessage,
 } from '../lib/queries'
-import { useDict } from '../i18n/I18nProvider'
+import { useDict } from '../i18n/I18nContext'
 
 export function Messaging() {
   const t = useDict()
@@ -49,7 +49,7 @@ export function Messaging() {
                   <div style={convSneakerStyle}>{c.sneaker_name}</div>
                 )}
               </div>
-              {c.unread_count > 0 && (
+              {(c.unread_count ?? 0) > 0 && (
                 <span style={unreadBadgeStyle}>{c.unread_count}</span>
               )}
             </button>
