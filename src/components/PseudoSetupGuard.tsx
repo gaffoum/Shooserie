@@ -56,7 +56,7 @@ export function PseudoSetupGuard() {
   if (!shouldShow) return null
 
   const canSubmit =
-    formatValid && isAvailable === true && !setPseudo.isPending
+    formatValid && isAvailable !== false && !setPseudo.isPending
 
   const handleSubmit = () => {
     if (!canSubmit) return
