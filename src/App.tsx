@@ -14,12 +14,14 @@ import { SharedCollection } from '@/pages/SharedCollection'
 import { Marketplace } from '@/pages/Marketplace'
 import { MarketplaceDetail } from '@/pages/MarketplaceDetail'
 import { Messaging } from '@/pages/Messaging'
+import { PseudoSetupGuard } from './components/PseudoSetupGuard'
 
 
 export default function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+	<PseudoSetupGuard />
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
