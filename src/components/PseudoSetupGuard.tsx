@@ -1,12 +1,5 @@
 /**
- * PseudoSetupGuard — modal bloquant si pseudo non configuré
- *
- * À monter UNE FOIS au top niveau de l'app (dans App.tsx).
- * Tant que `profile.pseudo_configured === false`, le user voit un modal
- * fullscreen qu'il ne peut pas fermer. Il doit choisir un pseudo unique
- * (validé en temps réel via le RPC `is_pseudo_available`) pour continuer.
- *
- * Drop-in : place dans src/components/PseudoSetupGuard.tsx
+ * PseudoSetupGuard — modal bloquant si pseudo non configure
  */
 import { useEffect, useState } from 'react'
 import { useAuth } from '../contexts/AuthContext'
@@ -16,7 +9,6 @@ import {
   useSetMyPseudo,
 } from '../lib/queries'
 
-// Format autorisé : 3-20 caractères, alphanum + . _ -
 const PSEUDO_REGEX = /^[a-zA-Z0-9._-]{3,20}$/
 
 export function PseudoSetupGuard() {
@@ -28,7 +20,6 @@ export function PseudoSetupGuard() {
   const [debouncedValue, setDebouncedValue] = useState('')
   const [serverError, setServerError] = useState<string | null>(null)
 
-  // Debounce 500ms avant de check la dispo cote serveur
   useEffect(() => {
     const t = setTimeout(() => setDebouncedValue(value), 500)
     return () => clearTimeout(t)
@@ -43,7 +34,6 @@ export function PseudoSetupGuard() {
   const shouldShow =
     !!user && !isLoading && !!profile && profile.pseudo_configured === false
 
-  // Bloque le scroll de la page derriere le modal
   useEffect(() => {
     if (shouldShow) {
       document.body.style.overflow = 'hidden'
@@ -59,20 +49,19 @@ export function PseudoSetupGuard() {
     formatValid && isAvailable !== false && !setPseudo.isPending
 
   const handleSubmit = () => {
-    alert('DEBUG 1: click detecte, canSubmit=' + canSubmit + ', trimmed=' + trimmed)
     if (!canSubmit) return
-    alert('DEBUG 2: passage validation, lancement mutation')
     setServerError(null)
     setPseudo.mutate(trimmed, {
-      onSuccess: () => alert('DEBUG 3: SUCCESS, pseudo enregistre'),
+      onSuccess: () => {
+        // Force reload pour rafraichir le state du profile
+        window.location.reload()
+      },
       onError: (err: any) => {
-        alert('DEBUG 4: ERREUR: ' + (err?.message ?? 'inconnue'))
         setServerError(err?.message ?? 'Erreur inconnue')
       },
     })
   }
 
-  // Determine l'etat visuel sous l'input
   let statusNode: React.ReactNode = null
   if (trimmed.length === 0) {
     statusNode = (
@@ -150,7 +139,6 @@ export function PseudoSetupGuard() {
   )
 }
 
-// Styles
 const overlayStyle: React.CSSProperties = {
   position: 'fixed',
   inset: 0,
@@ -260,4 +248,3 @@ const footerNoteStyle: React.CSSProperties = {
   color: '#9CA3AF',
   textAlign: 'center',
 }
-
