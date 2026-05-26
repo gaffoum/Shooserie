@@ -758,7 +758,6 @@ export interface Profile {
   display_name: string | null
   avatar_url: string | null
   collection_public: boolean
-  pseudo_configured: boolean
   created_at: string
   updated_at: string
 }
@@ -1135,9 +1134,10 @@ export function useDeleteConversation() {
       queryClient.invalidateQueries({ queryKey: ['my-conversations'] })
     },
   })
-  
-  // =====================================================
-// PSEUDO — Check disponibilité (RPC)
+}
+
+// =====================================================
+// PSEUDO � Check disponibilit� (RPC)
 // =====================================================
 export function useCheckPseudoAvailability(pseudo: string, enabled: boolean) {
   return useQuery({
@@ -1152,13 +1152,14 @@ export function useCheckPseudoAvailability(pseudo: string, enabled: boolean) {
       return data as boolean
     },
     enabled: enabled && pseudo.trim().length >= 3,
-    staleTime: 5_000,
+    staleTime: 5000,
     refetchOnWindowFocus: false,
   })
 }
 
+
 // =====================================================
-// PSEUDO — Sauvegarder + marquer configuré
+// PSEUDO � Sauvegarder + marquer configur�
 // =====================================================
 export function useSetMyPseudo() {
   const queryClient = useQueryClient()
@@ -1166,17 +1167,16 @@ export function useSetMyPseudo() {
     mutationFn: async (pseudo: string): Promise<void> => {
       const trimmed = pseudo.trim()
       if (trimmed.length < 3 || trimmed.length > 20) {
-        throw new Error('Le pseudo doit faire entre 3 et 20 caractères.')
+        throw new Error('Le pseudo doit faire entre 3 et 20 caracteres.')
       }
-      // Re-check côté serveur juste avant d'écrire
       const { data: available, error: checkErr } = await supabase
         .rpc('is_pseudo_available', { p_pseudo: trimmed })
       if (checkErr) throw checkErr
-      if (!available) throw new Error('Ce pseudo est déjà pris.')
- 
+      if (!available) throw new Error('Ce pseudo est deja pris.')
+
       const { data: userData } = await supabase.auth.getUser()
-      if (!userData.user) throw new Error('Pas authentifié.')
- 
+      if (!userData.user) throw new Error('Pas authentifie.')
+
       const { error } = await supabase
         .from('profiles')
         .update({
@@ -1192,5 +1192,4 @@ export function useSetMyPseudo() {
       queryClient.invalidateQueries({ queryKey: ['my-conversations'] })
     },
   })
-}
 }
