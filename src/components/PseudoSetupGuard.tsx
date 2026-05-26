@@ -59,10 +59,14 @@ export function PseudoSetupGuard() {
     formatValid && isAvailable !== false && !setPseudo.isPending
 
   const handleSubmit = () => {
+    alert('DEBUG 1: click detecte, canSubmit=' + canSubmit + ', trimmed=' + trimmed)
     if (!canSubmit) return
+    alert('DEBUG 2: passage validation, lancement mutation')
     setServerError(null)
     setPseudo.mutate(trimmed, {
+      onSuccess: () => alert('DEBUG 3: SUCCESS, pseudo enregistre'),
       onError: (err: any) => {
+        alert('DEBUG 4: ERREUR: ' + (err?.message ?? 'inconnue'))
         setServerError(err?.message ?? 'Erreur inconnue')
       },
     })
@@ -256,3 +260,4 @@ const footerNoteStyle: React.CSSProperties = {
   color: '#9CA3AF',
   textAlign: 'center',
 }
+
