@@ -15,7 +15,7 @@ import { Marketplace } from '@/pages/Marketplace'
 import { MarketplaceDetail } from '@/pages/MarketplaceDetail'
 import { Messaging } from '@/pages/Messaging'
 import { PseudoSetupGuard } from './components/PseudoSetupGuard'
-import UserProfile from '@/pages/UserProfile';
+import UserProfile from './pages/UserProfile';
 
 
 export default function App() {
@@ -26,13 +26,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
-          {/* Public â€” reached via the email link Supabase sends after a
+          {/* Public Ã¢â‚¬â€ reached via the email link Supabase sends after a
             * password reset request. The recovery token in the URL hash
             * creates a temporary session that lets the user set a new
             * password without going through normal login. */}
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Public â€” anyone with the token can view. No auth required. */}
+          {/* Public Ã¢â‚¬â€ anyone with the token can view. No auth required. */}
           <Route path="/share/:token" element={<SharedCollection />} />
 
           <Route

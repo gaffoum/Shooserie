@@ -1,374 +1,672 @@
-import { useMemo, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+/**
+ * UserProfile — page publique d'un utilisateur (/u/:pseudo).
+ * Pas de dépendance UI externe : styles inline, fonte Outfit, accent #CE1141.
+ * Cohérent avec WelcomeHeader.tsx.
+ */
+import { useMemo, useState } from 'react'
+import { Link, useParams } from 'react-router-dom'
 import {
-  Calendar,
-  LayoutGrid,
-  List,
-  Lock,
-  Package,
-  Tag,
-} from "lucide-react";
+  useUserProfileByPseudo,
+  useUserSneakers,
+  type UserSneaker,
+} from '../lib/publicProfileQueries'
 
-import { useUserProfileByPseudo } from "@/hooks/useUserProfileByPseudo";
-import { useUserSneakers, type UserSneaker } from "@/hooks/useUserSneakers";
-
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-
-// TODO i18n: migrer les chaines en dur vers useT() une fois les cles ajoutees
-//            au catalogue (cf. PseudoSetupGuard pour le pattern).
-
-type ViewMode = "grid" | "list";
-type TabKey = "all" | "for-sale";
+type ViewMode = 'grid' | 'list'
+type TabKey = 'all' | 'for-sale'
 
 export default function UserProfile() {
-  const { pseudo } = useParams<{ pseudo: string }>();
+  const { pseudo } = useParams<{ pseudo: string }>()
+  const profileQ = useUserProfileByPseudo(pseudo)
+  const profile = profileQ.data
 
-  const profileQ = useUserProfileByPseudo(pseudo);
-  const profile = profileQ.data;
+  const [tab, setTab] = useState<TabKey>('all')
+  const [view, setView] = useState<ViewMode>('grid')
+  const [brandFilter, setBrandFilter] = useState<string>('all')
 
-  const [tab, setTab] = useState<TabKey>("all");
-  const [view, setView] = useState<ViewMode>("grid");
-  const [brandFilter, setBrandFilter] = useState<string>("all");
-
-  const sneakersQ = useUserSneakers(profile?.id, tab === "for-sale");
-  const sneakers = sneakersQ.data ?? [];
+  const sneakersQ = useUserSneakers(profile?.id, tab === 'for-sale')
+  const sneakers = sneakersQ.data ?? []
 
   const brands = useMemo(() => {
-    const set = new Set<string>();
-    for (const s of sneakers) if (s.brand) set.add(s.brand);
-    return Array.from(set).sort((a, b) => a.localeCompare(b, "fr"));
-  }, [sneakers]);
+    const set = new Set<string>()
+    for (const s of sneakers) if (s.brand) set.add(s.brand)
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'fr'))
+  }, [sneakers])
 
   const filtered = useMemo(() => {
-    if (brandFilter === "all") return sneakers;
-    return sneakers.filter((s) => s.brand === brandFilter);
-  }, [sneakers, brandFilter]);
+    if (brandFilter === 'all') return sneakers
+    return sneakers.filter((s) => s.brand === brandFilter)
+  }, [sneakers, brandFilter])
 
-  // ---- Loading ---------------------------------------------------
+  // -------- Loading --------
   if (profileQ.isLoading) {
     return (
-      <div className="container mx-auto max-w-6xl px-4 py-8">
-        <Skeleton className="mb-6 h-32 w-full" />
-        <Skeleton className="h-64 w-full" />
+      <div style={pageStyle}>
+        <div style={{ ...skeletonStyle, height: 140, marginBottom: 24 }} />
+        <div style={{ ...skeletonStyle, height: 320 }} />
       </div>
-    );
+    )
   }
 
-  // ---- Not found -------------------------------------------------
+  // -------- 404 --------
   if (!profile) {
     return (
-      <div className="container mx-auto max-w-2xl px-4 py-16 text-center">
-        <h1 className="mb-2 text-2xl font-bold">Utilisateur introuvable</h1>
-        <p className="mb-6 text-muted-foreground">
-          Aucun utilisateur ne porte le pseudo &laquo;&nbsp;{pseudo}&nbsp;&raquo;.
+      <div style={{ ...pageStyle, textAlign: 'center' }}>
+        <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
+        <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
+          Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
         </p>
-        <Button asChild>
-          <Link to="/">Retour a l'accueil</Link>
-        </Button>
+        <Link to="/" style={primaryButtonStyle}>
+          Retour à l'accueil
+        </Link>
       </div>
-    );
+    )
   }
 
-  const isPrivate = profile.is_public === false;
+  const isPrivate = profile.is_public === false
 
-  // ---- Render ----------------------------------------------------
+  // -------- Render --------
   return (
-    <div className="container mx-auto max-w-6xl px-4 py-8">
-      {/* === Header B === */}
-      <Card className="mb-6">
-        <CardContent className="p-6">
-          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="mb-2 flex flex-wrap items-center gap-3">
-                <h1 className="text-3xl font-bold">{profile.display_name}</h1>
-                {isPrivate && (
-                  <Badge variant="secondary" className="gap-1">
-                    <Lock className="h-3 w-3" />
-                    Collection privee
-                  </Badge>
-                )}
-              </div>
-              <p className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Calendar className="h-4 w-4" />
-                Membre depuis le{" "}
-                {new Date(profile.created_at).toLocaleDateString("fr-FR", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}
-              </p>
-            </div>
-
-            <div className="flex gap-6">
-              {profile.sneakers_count !== null && (
-                <Stat
-                  value={profile.sneakers_count}
-                  label="paires"
-                  icon={<Package className="h-3 w-3" />}
-                />
-              )}
-              <Stat
-                value={profile.for_sale_count}
-                label="en vente"
-                icon={<Tag className="h-3 w-3" />}
-              />
-            </div>
+    <div style={pageStyle}>
+      {/* === Header === */}
+      <div style={headerCardStyle}>
+        <div style={headerLeftStyle}>
+          <div style={pseudoRowStyle}>
+            <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
+            {isPrivate && (
+              <span style={privateBadgeStyle}>Collection privée</span>
+            )}
           </div>
-        </CardContent>
-      </Card>
+          <p style={memberSinceStyle}>
+            Membre depuis le{' '}
+            {new Date(profile.created_at).toLocaleDateString('fr-FR', {
+              day: 'numeric',
+              month: 'long',
+              year: 'numeric',
+            })}
+          </p>
+        </div>
+        <div style={statsRowStyle}>
+          {profile.sneakers_count !== null && (
+            <Stat value={profile.sneakers_count} label="paires" />
+          )}
+          <Stat value={profile.for_sale_count} label="en vente" />
+        </div>
+      </div>
 
-      {/* === Onglets A : Tout / En vente === */}
-      <Tabs value={tab} onValueChange={(v) => setTab(v as TabKey)}>
-        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-          <TabsList>
-            <TabsTrigger value="all">Toutes</TabsTrigger>
-            <TabsTrigger value="for-sale">En vente</TabsTrigger>
-          </TabsList>
-
-          <div className="flex items-center gap-2">
-            {/* Filtre marque */}
-            <Select value={brandFilter} onValueChange={setBrandFilter}>
-              <SelectTrigger className="w-44">
-                <SelectValue placeholder="Marque" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Toutes les marques</SelectItem>
-                {brands.map((b) => (
-                  <SelectItem key={b} value={b}>
-                    {b}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-
-            {/* Toggle grille / liste */}
-            <div className="flex overflow-hidden rounded-md border">
-              <Button
-                variant={view === "grid" ? "default" : "ghost"}
-                size="icon"
-                onClick={() => setView("grid")}
-                className="rounded-none"
-                aria-label="Vue grille"
-              >
-                <LayoutGrid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={view === "list" ? "default" : "ghost"}
-                size="icon"
-                onClick={() => setView("list")}
-                className="rounded-none"
-                aria-label="Vue liste"
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
+      {/* === Contrôles : onglets + filtres === */}
+      <div style={controlsRowStyle}>
+        <div style={tabBarStyle}>
+          <button
+            type="button"
+            onClick={() => setTab('all')}
+            style={tab === 'all' ? activeTabStyle : inactiveTabStyle}
+          >
+            Toutes
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('for-sale')}
+            style={tab === 'for-sale' ? activeTabStyle : inactiveTabStyle}
+          >
+            En vente
+          </button>
         </div>
 
-        {/* === Onglet : Toutes === */}
-        <TabsContent value="all" className="mt-0">
-          {isPrivate ? (
-            <PrivateCollection />
-          ) : sneakersQ.isLoading ? (
-            <LoadingGrid view={view} />
-          ) : filtered.length === 0 ? (
-            <EmptyState message="Aucune paire a afficher" />
-          ) : (
-            <SneakerListing sneakers={filtered} view={view} />
-          )}
-        </TabsContent>
+        <div style={filtersStyle}>
+          <select
+            value={brandFilter}
+            onChange={(e) => setBrandFilter(e.target.value)}
+            style={selectStyle}
+            aria-label="Filtrer par marque"
+          >
+            <option value="all">Toutes les marques</option>
+            {brands.map((b) => (
+              <option key={b} value={b}>
+                {b}
+              </option>
+            ))}
+          </select>
 
-        {/* === Onglet : En vente === */}
-        <TabsContent value="for-sale" className="mt-0">
-          {sneakersQ.isLoading ? (
-            <LoadingGrid view={view} />
-          ) : filtered.length === 0 ? (
-            <EmptyState message="Aucune paire en vente actuellement" />
-          ) : (
-            <SneakerListing sneakers={filtered} view={view} />
-          )}
-        </TabsContent>
-      </Tabs>
+          <div style={viewToggleStyle}>
+            <button
+              type="button"
+              onClick={() => setView('grid')}
+              style={view === 'grid' ? activeViewBtnStyle : viewBtnStyle}
+              aria-label="Vue grille"
+            >
+              Grille
+            </button>
+            <button
+              type="button"
+              onClick={() => setView('list')}
+              style={view === 'list' ? activeViewBtnStyle : viewBtnStyle}
+              aria-label="Vue liste"
+            >
+              Liste
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* === Contenu === */}
+      {tab === 'all' && isPrivate ? (
+        <PrivateCollection />
+      ) : sneakersQ.isLoading ? (
+        <LoadingGrid view={view} />
+      ) : filtered.length === 0 ? (
+        <EmptyState
+          message={
+            tab === 'for-sale'
+              ? 'Aucune paire en vente actuellement.'
+              : 'Aucune paire à afficher.'
+          }
+        />
+      ) : (
+        <SneakerListing sneakers={filtered} view={view} />
+      )}
     </div>
-  );
+  )
 }
 
 // =================================================================
 // Sub-components
 // =================================================================
 
-function Stat({
-  value,
-  label,
-  icon,
-}: {
-  value: number;
-  label: string;
-  icon: React.ReactNode;
-}) {
+function Stat({ value, label }: { value: number; label: string }) {
   return (
-    <div className="text-center">
-      <div className="text-2xl font-bold tabular-nums">{value}</div>
-      <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground">
-        {icon}
-        {label}
-      </div>
+    <div style={statBoxStyle}>
+      <div style={statValueStyle}>{value}</div>
+      <div style={statLabelStyle}>{label}</div>
     </div>
-  );
+  )
 }
 
 function PrivateCollection() {
   return (
-    <Card>
-      <CardContent className="py-16 text-center">
-        <Lock className="mx-auto mb-4 h-12 w-12 text-muted-foreground" />
-        <h2 className="mb-2 text-xl font-semibold">Collection privee</h2>
-        <p className="text-muted-foreground">
-          Cet utilisateur a choisi de garder sa collection privee.
-        </p>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Vous pouvez tout de meme consulter ses paires en vente via l'onglet
-          &laquo;&nbsp;En vente&nbsp;&raquo;.
-        </p>
-      </CardContent>
-    </Card>
-  );
+    <div style={emptyCardStyle}>
+      <h2 style={emptyTitleStyle}>Collection privée</h2>
+      <p style={emptyTextStyle}>
+        Cet utilisateur a choisi de garder sa collection privée.
+      </p>
+      <p style={{ ...emptyTextStyle, marginTop: 8, fontSize: 13 }}>
+        Vous pouvez tout de même consulter ses paires en vente via l'onglet
+        «&nbsp;En vente&nbsp;».
+      </p>
+    </div>
+  )
 }
 
 function EmptyState({ message }: { message: string }) {
   return (
-    <div className="py-16 text-center text-muted-foreground">{message}</div>
-  );
+    <div style={emptyCardStyle}>
+      <p style={emptyTextStyle}>{message}</p>
+    </div>
+  )
 }
 
 function LoadingGrid({ view }: { view: ViewMode }) {
-  if (view === "grid") {
+  if (view === 'grid') {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div style={sneakerGridStyle}>
         {Array.from({ length: 8 }).map((_, i) => (
-          <Skeleton key={i} className="aspect-square w-full" />
+          <div key={i} style={{ ...skeletonStyle, aspectRatio: '1 / 1' }} />
         ))}
       </div>
-    );
+    )
   }
   return (
-    <div className="space-y-2">
+    <div style={sneakerListStyle}>
       {Array.from({ length: 5 }).map((_, i) => (
-        <Skeleton key={i} className="h-20 w-full" />
+        <div key={i} style={{ ...skeletonStyle, height: 80 }} />
       ))}
     </div>
-  );
+  )
 }
 
 function SneakerListing({
   sneakers,
   view,
 }: {
-  sneakers: UserSneaker[];
-  view: ViewMode;
+  sneakers: UserSneaker[]
+  view: ViewMode
 }) {
-  if (view === "grid") {
+  if (view === 'grid') {
     return (
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
+      <div style={sneakerGridStyle}>
         {sneakers.map((s) => (
-          <Card
-            key={s.id}
-            className="overflow-hidden transition-shadow hover:shadow-md"
-          >
-            <div className="aspect-square bg-muted">
-              {s.image_url ? (
-                <img
-                  src={s.image_url}
-                  alt={[s.brand, s.model].filter(Boolean).join(" ")}
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <Package className="h-8 w-8" />
-                </div>
-              )}
-            </div>
-            <CardContent className="p-3">
-              <div className="truncate font-medium">{s.brand ?? "â€”"}</div>
-              <div className="truncate text-sm text-muted-foreground">
-                {s.model ?? ""}
-              </div>
-              {s.is_for_sale && (
-                <div className="mt-2 flex items-center justify-between">
-                  <Badge variant="default" className="text-xs">
-                    A vendre
-                  </Badge>
-                  {s.price != null && (
-                    <span className="text-sm font-semibold tabular-nums">
-                      {s.price}&nbsp;â‚¬
-                    </span>
-                  )}
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          <SneakerCardGrid key={s.id} sneaker={s} />
         ))}
       </div>
-    );
+    )
   }
-
-  // view === "list"
   return (
-    <div className="space-y-2">
+    <div style={sneakerListStyle}>
       {sneakers.map((s) => (
-        <Card key={s.id} className="overflow-hidden">
-          <div className="flex items-center gap-4 p-3">
-            <div className="h-16 w-16 shrink-0 overflow-hidden rounded bg-muted">
-              {s.image_url ? (
-                <img
-                  src={s.image_url}
-                  alt=""
-                  className="h-full w-full object-cover"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                  <Package className="h-5 w-5" />
-                </div>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="truncate font-medium">
-                {[s.brand, s.model].filter(Boolean).join(" \u00b7 ") || "â€”"}
-              </div>
-              {s.size && (
-                <div className="text-sm text-muted-foreground">
-                  Taille {s.size}
-                </div>
-              )}
-            </div>
-            {s.is_for_sale && (
-              <div className="shrink-0 text-right">
-                <Badge variant="default" className="text-xs">
-                  A vendre
-                </Badge>
-                {s.price != null && (
-                  <div className="mt-1 text-sm font-semibold tabular-nums">
-                    {s.price}&nbsp;â‚¬
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-        </Card>
+        <SneakerCardList key={s.id} sneaker={s} />
       ))}
     </div>
-  );
+  )
+}
+
+function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
+  return (
+    <div style={cardStyle}>
+      <div style={cardImageWrapStyle}>
+        {s.image_url ? (
+          <img
+            src={s.image_url}
+            alt={[s.brand, s.model].filter(Boolean).join(' ')}
+            style={cardImageStyle}
+            loading="lazy"
+          />
+        ) : (
+          <div style={cardImagePlaceholderStyle}>—</div>
+        )}
+      </div>
+      <div style={cardBodyStyle}>
+        <div style={cardBrandStyle}>{s.brand ?? '—'}</div>
+        <div style={cardModelStyle}>{s.model ?? ''}</div>
+        {s.is_for_sale && (
+          <div style={cardSaleRowStyle}>
+            <span style={saleBadgeStyle}>À vendre</span>
+            {s.price != null && (
+              <span style={cardPriceStyle}>{s.price}&nbsp;€</span>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
+  return (
+    <div style={listCardStyle}>
+      <div style={listImageWrapStyle}>
+        {s.image_url ? (
+          <img src={s.image_url} alt="" style={cardImageStyle} loading="lazy" />
+        ) : (
+          <div style={cardImagePlaceholderStyle}>—</div>
+        )}
+      </div>
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={listTitleStyle}>
+          {[s.brand, s.model].filter(Boolean).join(' · ') || '—'}
+        </div>
+        {s.size && <div style={listSubtitleStyle}>Taille {s.size}</div>}
+      </div>
+      {s.is_for_sale && (
+        <div style={{ textAlign: 'right' }}>
+          <span style={saleBadgeStyle}>À vendre</span>
+          {s.price != null && (
+            <div style={{ ...cardPriceStyle, marginTop: 4 }}>
+              {s.price}&nbsp;€
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  )
+}
+
+// =================================================================
+// Styles — cohérent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
+// =================================================================
+
+const FONT = "'Outfit', sans-serif"
+const COLOR_TEXT = '#0A0A0A'
+const COLOR_MUTED = '#6B7280'
+const COLOR_RED = '#CE1141'
+const COLOR_BORDER = '#E5E7EB'
+const COLOR_BG_SOFT = '#F9FAFB'
+const COLOR_CARD = '#FFFFFF'
+
+const pageStyle: React.CSSProperties = {
+  maxWidth: 1200,
+  margin: '0 auto',
+  padding: '32px 24px',
+  fontFamily: FONT,
+  color: COLOR_TEXT,
+}
+
+const pageTitleStyle: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 700,
+  letterSpacing: '-0.02em',
+  margin: '0 0 8px',
+}
+
+const headerCardStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: 24,
+  flexWrap: 'wrap',
+  background: COLOR_CARD,
+  border: `1px solid ${COLOR_BORDER}`,
+  borderRadius: 12,
+  padding: 24,
+  marginBottom: 24,
+}
+
+const headerLeftStyle: React.CSSProperties = {
+  flex: '1 1 auto',
+  minWidth: 0,
+}
+
+const pseudoRowStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
+  flexWrap: 'wrap',
+  marginBottom: 8,
+}
+
+const pseudoTitleStyle: React.CSSProperties = {
+  fontSize: 32,
+  fontWeight: 700,
+  letterSpacing: '-0.02em',
+  margin: 0,
+  color: COLOR_TEXT,
+}
+
+const privateBadgeStyle: React.CSSProperties = {
+  fontSize: 11,
+  fontWeight: 600,
+  letterSpacing: '0.04em',
+  textTransform: 'uppercase',
+  background: COLOR_BG_SOFT,
+  color: COLOR_MUTED,
+  padding: '4px 10px',
+  borderRadius: 999,
+  border: `1px solid ${COLOR_BORDER}`,
+}
+
+const memberSinceStyle: React.CSSProperties = {
+  fontSize: 14,
+  color: COLOR_MUTED,
+  margin: 0,
+}
+
+const statsRowStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: 24,
+}
+
+const statBoxStyle: React.CSSProperties = {
+  textAlign: 'center',
+  minWidth: 60,
+}
+
+const statValueStyle: React.CSSProperties = {
+  fontSize: 28,
+  fontWeight: 700,
+  color: COLOR_TEXT,
+  fontVariantNumeric: 'tabular-nums',
+  lineHeight: 1.1,
+}
+
+const statLabelStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: COLOR_MUTED,
+  textTransform: 'uppercase',
+  letterSpacing: '0.05em',
+  marginTop: 2,
+}
+
+const mutedTextStyle: React.CSSProperties = {
+  fontSize: 14,
+  color: COLOR_MUTED,
+}
+
+const controlsRowStyle: React.CSSProperties = {
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  gap: 16,
+  flexWrap: 'wrap',
+  marginBottom: 16,
+  borderBottom: `1px solid ${COLOR_BORDER}`,
+  paddingBottom: 12,
+}
+
+const tabBarStyle: React.CSSProperties = {
+  display: 'flex',
+  gap: 4,
+}
+
+const baseTabStyle: React.CSSProperties = {
+  background: 'transparent',
+  border: 'none',
+  padding: '8px 16px',
+  fontSize: 15,
+  cursor: 'pointer',
+  fontFamily: FONT,
+  borderRadius: 6,
+  transition: 'background 120ms ease',
+}
+
+const inactiveTabStyle: React.CSSProperties = {
+  ...baseTabStyle,
+  color: COLOR_MUTED,
+  fontWeight: 500,
+}
+
+const activeTabStyle: React.CSSProperties = {
+  ...baseTabStyle,
+  color: COLOR_TEXT,
+  background: COLOR_BG_SOFT,
+  fontWeight: 600,
+  boxShadow: `inset 0 -2px 0 ${COLOR_RED}`,
+}
+
+const filtersStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 8,
+  flexWrap: 'wrap',
+}
+
+const selectStyle: React.CSSProperties = {
+  height: 36,
+  padding: '0 12px',
+  borderRadius: 8,
+  border: `1px solid ${COLOR_BORDER}`,
+  background: COLOR_CARD,
+  fontFamily: FONT,
+  fontSize: 14,
+  color: COLOR_TEXT,
+  cursor: 'pointer',
+}
+
+const viewToggleStyle: React.CSSProperties = {
+  display: 'flex',
+  border: `1px solid ${COLOR_BORDER}`,
+  borderRadius: 8,
+  overflow: 'hidden',
+}
+
+const baseViewBtnStyle: React.CSSProperties = {
+  border: 'none',
+  background: 'transparent',
+  padding: '8px 14px',
+  fontSize: 13,
+  fontFamily: FONT,
+  cursor: 'pointer',
+  fontWeight: 500,
+}
+
+const viewBtnStyle: React.CSSProperties = {
+  ...baseViewBtnStyle,
+  color: COLOR_MUTED,
+}
+
+const activeViewBtnStyle: React.CSSProperties = {
+  ...baseViewBtnStyle,
+  background: COLOR_TEXT,
+  color: '#FFFFFF',
+}
+
+const primaryButtonStyle: React.CSSProperties = {
+  display: 'inline-block',
+  background: COLOR_RED,
+  color: '#FFFFFF',
+  padding: '10px 20px',
+  borderRadius: 8,
+  textDecoration: 'none',
+  fontWeight: 600,
+  fontSize: 14,
+  fontFamily: FONT,
+}
+
+const sneakerGridStyle: React.CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+  gap: 16,
+}
+
+const sneakerListStyle: React.CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+}
+
+const cardStyle: React.CSSProperties = {
+  background: COLOR_CARD,
+  border: `1px solid ${COLOR_BORDER}`,
+  borderRadius: 10,
+  overflow: 'hidden',
+  display: 'flex',
+  flexDirection: 'column',
+}
+
+const cardImageWrapStyle: React.CSSProperties = {
+  aspectRatio: '1 / 1',
+  background: COLOR_BG_SOFT,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+const cardImageStyle: React.CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+}
+
+const cardImagePlaceholderStyle: React.CSSProperties = {
+  color: COLOR_MUTED,
+  fontSize: 24,
+}
+
+const cardBodyStyle: React.CSSProperties = {
+  padding: 12,
+}
+
+const cardBrandStyle: React.CSSProperties = {
+  fontWeight: 600,
+  fontSize: 14,
+  color: COLOR_TEXT,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+
+const cardModelStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: COLOR_MUTED,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  marginTop: 2,
+}
+
+const cardSaleRowStyle: React.CSSProperties = {
+  marginTop: 8,
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+}
+
+const saleBadgeStyle: React.CSSProperties = {
+  background: COLOR_RED,
+  color: '#FFFFFF',
+  fontSize: 11,
+  fontWeight: 600,
+  padding: '3px 8px',
+  borderRadius: 999,
+  letterSpacing: '0.02em',
+}
+
+const cardPriceStyle: React.CSSProperties = {
+  fontWeight: 700,
+  fontSize: 14,
+  color: COLOR_TEXT,
+  fontVariantNumeric: 'tabular-nums',
+}
+
+const listCardStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 16,
+  background: COLOR_CARD,
+  border: `1px solid ${COLOR_BORDER}`,
+  borderRadius: 10,
+  padding: 12,
+}
+
+const listImageWrapStyle: React.CSSProperties = {
+  width: 64,
+  height: 64,
+  flexShrink: 0,
+  background: COLOR_BG_SOFT,
+  borderRadius: 8,
+  overflow: 'hidden',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+}
+
+const listTitleStyle: React.CSSProperties = {
+  fontWeight: 600,
+  fontSize: 15,
+  color: COLOR_TEXT,
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+
+const listSubtitleStyle: React.CSSProperties = {
+  fontSize: 13,
+  color: COLOR_MUTED,
+  marginTop: 2,
+}
+
+const emptyCardStyle: React.CSSProperties = {
+  background: COLOR_CARD,
+  border: `1px solid ${COLOR_BORDER}`,
+  borderRadius: 12,
+  padding: '48px 24px',
+  textAlign: 'center',
+}
+
+const emptyTitleStyle: React.CSSProperties = {
+  fontSize: 20,
+  fontWeight: 700,
+  letterSpacing: '-0.01em',
+  margin: '0 0 8px',
+  color: COLOR_TEXT,
+}
+
+const emptyTextStyle: React.CSSProperties = {
+  fontSize: 14,
+  color: COLOR_MUTED,
+  margin: 0,
+}
+
+const skeletonStyle: React.CSSProperties = {
+  background:
+    'linear-gradient(90deg, #F3F4F6 0%, #E5E7EB 50%, #F3F4F6 100%)',
+  borderRadius: 10,
+  width: '100%',
 }
