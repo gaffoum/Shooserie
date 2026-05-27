@@ -18,6 +18,7 @@ import type { ScanResult } from '@/components/BarcodeScanner'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
 import type { DictKey } from '@/i18n/dictionaries'
+import { WelcomeHeader } from '../components/WelcomeHeader'
 
 /* =====================================================
  * Sort keys — labels are dictionary keys, comparators below.
@@ -214,6 +215,7 @@ export function Dashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
+      <WelcomeHeader />
       <AppHeader
         rightActions={
           allSneakers.length > 0 ? (
