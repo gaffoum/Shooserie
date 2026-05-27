@@ -2,6 +2,17 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { fileURLToPath, URL } from 'node:url';
 export default defineConfig({
+    build: {
+        rollupOptions: {
+            output: {
+                manualChunks: {
+                    'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+                    'supabase': ['@supabase/supabase-js'],
+                    'tanstack': ['@tanstack/react-query'],
+                },
+            },
+        },
+    },
     plugins: [react()],
     resolve: {
         alias: {

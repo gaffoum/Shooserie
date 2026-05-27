@@ -1,3 +1,4 @@
+import { useQueryClient } from '@tanstack/react-query'
 import { useState, type CSSProperties, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '@/lib/supabase'
@@ -437,12 +438,14 @@ function CollectionVisibilitySection() {
   const updateMutation = useUpdateMyProfile()
   const [isUpdating, setIsUpdating] = useState(false)
 
+  const queryClient = useQueryClient()
   const isPublic = profile?.collection_public ?? false
 
   const handleToggle = async () => {
     setIsUpdating(true)
     try {
       await updateMutation.mutateAsync({ collection_public: !isPublic })
+      await queryClient.invalidateQueries({ queryKey: ['my-collection-public'] })
     } catch (err) {
       console.error('Failed to update visibility', err)
     } finally {
