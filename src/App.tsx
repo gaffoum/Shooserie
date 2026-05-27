@@ -26,13 +26,13 @@ export default function App() {
         <Routes>
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           <Route path="/login" element={<Login />} />
-          {/* Public Ã¢â‚¬â€ reached via the email link Supabase sends after a
+          {/* Public ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â reached via the email link Supabase sends after a
             * password reset request. The recovery token in the URL hash
             * creates a temporary session that lets the user set a new
             * password without going through normal login. */}
           <Route path="/reset-password" element={<ResetPassword />} />
 
-          {/* Public Ã¢â‚¬â€ anyone with the token can view. No auth required. */}
+          {/* Public ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â anyone with the token can view. No auth required. */}
           <Route path="/share/:token" element={<SharedCollection />} />
 
           <Route
@@ -116,8 +116,8 @@ export default function App() {
 			  }
 			/>
 
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
           <Route path="/u/:pseudo" element={<UserProfile />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
