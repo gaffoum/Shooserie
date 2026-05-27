@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { ADMIN_EMAIL, useUserCount } from '@/lib/queries'
+import { ADMIN_EMAIL, useUserCount , useMyProfile} from '@/lib/queries'
 import { useT } from '@/i18n/I18nContext'
 import { Logo } from './Logo'
 import { LanguageToggle } from './LanguageToggle'
@@ -17,6 +17,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
   const { user } = useAuth()
   const { t } = useT()
   const isAdmin = user?.email === ADMIN_EMAIL
+  const { data: profile } = useMyProfile()
   const { data: userCount } = useUserCount(user?.email)
 
   return (
@@ -48,7 +49,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
           title={user?.email ?? ''}
           aria-label={t('account.aria')}
         >
-          {user?.email}
+          {profile?.display_name ?? user?.email}
         </Link>
         <Link
           to="/account"
