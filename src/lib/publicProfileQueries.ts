@@ -107,3 +107,66 @@ export function useUserSneakers(
     staleTime: 30_000,
   })
 }
+
+export type CommunityMember = {
+  id: string
+  display_name: string
+  created_at: string
+  sneakers_count: number
+  for_sale_count: number
+}
+
+/**
+ * Liste les profils publics (collection_public = true).
+ * Pour chaque profil, agrege les compteurs total + for_sale via Promise.all
+ * (N+1 queries, OK pour < 100 users ; au-dela passer en vue SQL).
+ *
+ * Tri alphabetique case-insensitive cote client (Postgres .order ne gere
+ * pas lower() via PostgREST sans RPC).
+ */
+export function usePublicProfiles() {
+  return useQuery({
+    queryKey: ['community-profiles'],
+    queryFn: async (): Promise<CommunityMember[]> => {
+      const { data: profiles, error } = await supabase
+        .from('profiles')
+        .select('id, display_name, created_at')
+        .eq('collection_public', true)
+
+      if (error) throw error
+      if (!profiles || profiles.length === 0) return []
+
+      const enriched = await Promise.all(
+        profiles
+          .filter((p): p is { id: string; display_name: string; created_at: string } => !!p.display_name)
+          .map(async (p) => {
+            const [totalRes, forSaleRes] = await Promise.all([
+              supabase
+                .from('sneakers')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', p.id),
+              supabase
+                .from('sneakers')
+                .select('id', { count: 'exact', head: true })
+                .eq('user_id', p.id)
+                .eq('is_for_sale', true),
+            ])
+            return {
+              id: p.id,
+              display_name: p.display_name,
+              created_at: p.created_at,
+              sneakers_count: totalRes.count ?? 0,
+              for_sale_count: forSaleRes.count ?? 0,
+            } as CommunityMember
+          }),
+      )
+
+      return enriched.sort((a, b) =>
+        a.display_name.localeCompare(b.display_name, 'fr', {
+          sensitivity: 'base',
+        }),
+      )
+    },
+    staleTime: 60_000,
+  })
+}

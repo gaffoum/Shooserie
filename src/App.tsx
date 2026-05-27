@@ -16,6 +16,7 @@ import { MarketplaceDetail } from '@/pages/MarketplaceDetail'
 import { Messaging } from '@/pages/Messaging'
 import { PseudoSetupGuard } from './components/PseudoSetupGuard'
 import UserProfile from './pages/UserProfile';
+import Community from './pages/Community';
 
 
 export default function App() {
@@ -116,6 +117,14 @@ export default function App() {
 			  }
 			/>
 
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <Community />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/u/:pseudo" element={<UserProfile />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         </Routes>
