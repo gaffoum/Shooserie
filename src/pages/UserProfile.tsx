@@ -1,7 +1,7 @@
 /**
- * UserProfile — page publique d'un utilisateur (/u/:pseudo).
- * Pas de dépendance UI externe : styles inline, fonte Outfit, accent #CE1141.
- * Cohérent avec WelcomeHeader.tsx.
+ * UserProfile â€” page publique d'un utilisateur (/u/:pseudo).
+ * Pas de dÃ©pendance UI externe : styles inline, fonte Outfit, accent #CE1141.
+ * CohÃ©rent avec WelcomeHeader.tsx.
  */
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -53,16 +53,16 @@ export default function UserProfile() {
       <div style={{ ...pageStyle, textAlign: 'center' }}>
         <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
         <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
-          Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
+          Aucun utilisateur ne porte le pseudo Â«&nbsp;{pseudo}&nbsp;Â».
         </p>
         <Link to="/" style={primaryButtonStyle}>
-          Retour à l'accueil
+          Retour Ã  l'accueil
         </Link>
       </div>
     )
   }
 
-  const isPrivate = profile.is_public === false
+  const isPrivate = profile.collection_public === false
 
   // -------- Render --------
   return (
@@ -73,7 +73,7 @@ export default function UserProfile() {
           <div style={pseudoRowStyle}>
             <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
             {isPrivate && (
-              <span style={privateBadgeStyle}>Collection privée</span>
+              <span style={privateBadgeStyle}>Collection privÃ©e</span>
             )}
           </div>
           <p style={memberSinceStyle}>
@@ -93,7 +93,7 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* === Contrôles : onglets + filtres === */}
+      {/* === ContrÃ´les : onglets + filtres === */}
       <div style={controlsRowStyle}>
         <div style={tabBarStyle}>
           <button
@@ -158,7 +158,7 @@ export default function UserProfile() {
           message={
             tab === 'for-sale'
               ? 'Aucune paire en vente actuellement.'
-              : 'Aucune paire à afficher.'
+              : 'Aucune paire Ã  afficher.'
           }
         />
       ) : (
@@ -184,13 +184,13 @@ function Stat({ value, label }: { value: number; label: string }) {
 function PrivateCollection() {
   return (
     <div style={emptyCardStyle}>
-      <h2 style={emptyTitleStyle}>Collection privée</h2>
+      <h2 style={emptyTitleStyle}>Collection privÃ©e</h2>
       <p style={emptyTextStyle}>
-        Cet utilisateur a choisi de garder sa collection privée.
+        Cet utilisateur a choisi de garder sa collection privÃ©e.
       </p>
       <p style={{ ...emptyTextStyle, marginTop: 8, fontSize: 13 }}>
-        Vous pouvez tout de même consulter ses paires en vente via l'onglet
-        «&nbsp;En vente&nbsp;».
+        Vous pouvez tout de mÃªme consulter ses paires en vente via l'onglet
+        Â«&nbsp;En vente&nbsp;Â».
       </p>
     </div>
   )
@@ -260,17 +260,17 @@ function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
             loading="lazy"
           />
         ) : (
-          <div style={cardImagePlaceholderStyle}>—</div>
+          <div style={cardImagePlaceholderStyle}>â€”</div>
         )}
       </div>
       <div style={cardBodyStyle}>
-        <div style={cardBrandStyle}>{s.brand ?? '—'}</div>
+        <div style={cardBrandStyle}>{s.brand ?? 'â€”'}</div>
         <div style={cardModelStyle}>{s.model ?? ''}</div>
         {s.is_for_sale && (
           <div style={cardSaleRowStyle}>
-            <span style={saleBadgeStyle}>À vendre</span>
+            <span style={saleBadgeStyle}>Ã€ vendre</span>
             {s.price != null && (
-              <span style={cardPriceStyle}>{s.price}&nbsp;€</span>
+              <span style={cardPriceStyle}>{s.price}&nbsp;â‚¬</span>
             )}
           </div>
         )}
@@ -286,21 +286,21 @@ function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
         {s.image_url ? (
           <img src={s.image_url} alt="" style={cardImageStyle} loading="lazy" />
         ) : (
-          <div style={cardImagePlaceholderStyle}>—</div>
+          <div style={cardImagePlaceholderStyle}>â€”</div>
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={listTitleStyle}>
-          {[s.brand, s.model].filter(Boolean).join(' · ') || '—'}
+          {[s.brand, s.model].filter(Boolean).join(' Â· ') || 'â€”'}
         </div>
         {s.size && <div style={listSubtitleStyle}>Taille {s.size}</div>}
       </div>
       {s.is_for_sale && (
         <div style={{ textAlign: 'right' }}>
-          <span style={saleBadgeStyle}>À vendre</span>
+          <span style={saleBadgeStyle}>Ã€ vendre</span>
           {s.price != null && (
             <div style={{ ...cardPriceStyle, marginTop: 4 }}>
-              {s.price}&nbsp;€
+              {s.price}&nbsp;â‚¬
             </div>
           )}
         </div>
@@ -310,7 +310,7 @@ function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
 }
 
 // =================================================================
-// Styles — cohérent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
+// Styles â€” cohÃ©rent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
 // =================================================================
 
 const FONT = "'Outfit', sans-serif"

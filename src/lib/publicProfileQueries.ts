@@ -5,8 +5,8 @@ export type PublicProfile = {
   id: string
   display_name: string
   created_at: string
-  is_public: boolean | null
-  /** null si la collection est privée (compteur réel non accessible via RLS). */
+  collection_public: boolean | null
+  /** null si la collection est privÃ©e (compteur rÃ©el non accessible via RLS). */
   sneakers_count: number | null
   for_sale_count: number
 }
@@ -24,17 +24,17 @@ export type UserSneaker = {
 }
 
 /**
- * Récupère un profil public à partir du pseudo (display_name, case-insensitive).
+ * RÃ©cupÃ¨re un profil public Ã  partir du pseudo (display_name, case-insensitive).
  * Retourne null si aucun utilisateur ne porte ce pseudo.
  *
  * Note RLS :
- *   - is_public = true  -> count('sneakers') renvoie le total réel
- *   - is_public = false -> count ne renverrait que les paires visibles
+ *   - collection_public = true  -> count('sneakers') renvoie le total rÃ©el
+ *   - collection_public = false -> count ne renverrait que les paires visibles
  *     (is_for_sale=true), ce qui serait trompeur => on force null.
  *
- * Pré-requis schema : la colonne `is_public` doit exister sur `profiles`.
+ * PrÃ©-requis schema : la colonne `collection_public` doit exister sur `profiles`.
  * Si elle n'existe pas encore :
- *   ALTER TABLE profiles ADD COLUMN is_public boolean NOT NULL DEFAULT true;
+ *   ALTER TABLE profiles ADD COLUMN collection_public boolean NOT NULL DEFAULT true;
  */
 export function useUserProfileByPseudo(pseudo: string | undefined) {
   return useQuery({
@@ -43,7 +43,7 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
     queryFn: async (): Promise<PublicProfile | null> => {
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('id, display_name, created_at, is_public')
+        .select('id, display_name, created_at, collection_public')
         .ilike('display_name', pseudo!)
         .maybeSingle()
 
@@ -62,13 +62,13 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
           .eq('is_for_sale', true),
       ])
 
-      const isPrivate = profile.is_public === false
+      const isPrivate = profile.collection_public === false
 
       return {
         id: profile.id,
         display_name: profile.display_name,
         created_at: profile.created_at,
-        is_public: profile.is_public ?? null,
+        collection_public: profile.collection_public ?? null,
         sneakers_count: isPrivate ? null : (totalRes.count ?? 0),
         for_sale_count: forSaleRes.count ?? 0,
       }
@@ -81,7 +81,7 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
  * Liste les sneakers d'un utilisateur cible.
  * La RLS filtre automatiquement :
  *   - collection publique  -> toutes les paires
- *   - collection privée    -> uniquement is_for_sale = true
+ *   - collection privÃ©e    -> uniquement is_for_sale = true
  */
 export function useUserSneakers(
   userId: string | undefined,
