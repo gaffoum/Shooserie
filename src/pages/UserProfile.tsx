@@ -1,7 +1,6 @@
 /**
- * UserProfile â€” page publique d'un utilisateur (/u/:pseudo).
- * Pas de dÃ©pendance UI externe : styles inline, fonte Outfit, accent #CE1141.
- * CohÃ©rent avec WelcomeHeader.tsx.
+ * UserProfile — page publique d'un utilisateur (/u/:pseudo).
+ * Styles inline cohérents avec WelcomeHeader (Outfit, #0A0A0A, accent #CE1141).
  */
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
@@ -47,16 +46,31 @@ export default function UserProfile() {
     )
   }
 
+  // -------- Erreur réseau / schéma --------
+  if (profileQ.isError) {
+    return (
+      <div style={{ ...pageStyle, textAlign: 'center' }}>
+        <h1 style={pageTitleStyle}>Erreur de chargement</h1>
+        <p style={{ ...mutedTextStyle, marginBottom: 16 }}>
+          Impossible de récupérer le profil. Réessaie dans un instant.
+        </p>
+        <p style={{ ...mutedTextStyle, fontSize: 12, fontFamily: 'monospace' }}>
+          {(profileQ.error as Error)?.message ?? 'Erreur inconnue'}
+        </p>
+      </div>
+    )
+  }
+
   // -------- 404 --------
   if (!profile) {
     return (
       <div style={{ ...pageStyle, textAlign: 'center' }}>
         <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
         <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
-          Aucun utilisateur ne porte le pseudo Â«&nbsp;{pseudo}&nbsp;Â».
+          Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
         </p>
         <Link to="/" style={primaryButtonStyle}>
-          Retour Ã  l'accueil
+          Retour à l'accueil
         </Link>
       </div>
     )
@@ -73,7 +87,7 @@ export default function UserProfile() {
           <div style={pseudoRowStyle}>
             <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
             {isPrivate && (
-              <span style={privateBadgeStyle}>Collection privÃ©e</span>
+              <span style={privateBadgeStyle}>Collection privée</span>
             )}
           </div>
           <p style={memberSinceStyle}>
@@ -93,7 +107,7 @@ export default function UserProfile() {
         </div>
       </div>
 
-      {/* === ContrÃ´les : onglets + filtres === */}
+      {/* === Contrôles : onglets + filtres === */}
       <div style={controlsRowStyle}>
         <div style={tabBarStyle}>
           <button
@@ -153,12 +167,14 @@ export default function UserProfile() {
         <PrivateCollection />
       ) : sneakersQ.isLoading ? (
         <LoadingGrid view={view} />
+      ) : sneakersQ.isError ? (
+        <ErrorBlock error={sneakersQ.error as Error} />
       ) : filtered.length === 0 ? (
         <EmptyState
           message={
             tab === 'for-sale'
               ? 'Aucune paire en vente actuellement.'
-              : 'Aucune paire Ã  afficher.'
+              : 'Aucune paire à afficher.'
           }
         />
       ) : (
@@ -184,13 +200,13 @@ function Stat({ value, label }: { value: number; label: string }) {
 function PrivateCollection() {
   return (
     <div style={emptyCardStyle}>
-      <h2 style={emptyTitleStyle}>Collection privÃ©e</h2>
+      <h2 style={emptyTitleStyle}>Collection privée</h2>
       <p style={emptyTextStyle}>
-        Cet utilisateur a choisi de garder sa collection privÃ©e.
+        Cet utilisateur a choisi de garder sa collection privée.
       </p>
       <p style={{ ...emptyTextStyle, marginTop: 8, fontSize: 13 }}>
-        Vous pouvez tout de mÃªme consulter ses paires en vente via l'onglet
-        Â«&nbsp;En vente&nbsp;Â».
+        Vous pouvez tout de même consulter ses paires en vente via l'onglet
+        «&nbsp;En vente&nbsp;».
       </p>
     </div>
   )
@@ -200,6 +216,25 @@ function EmptyState({ message }: { message: string }) {
   return (
     <div style={emptyCardStyle}>
       <p style={emptyTextStyle}>{message}</p>
+    </div>
+  )
+}
+
+function ErrorBlock({ error }: { error: Error }) {
+  return (
+    <div style={emptyCardStyle}>
+      <h2 style={emptyTitleStyle}>Erreur de chargement</h2>
+      <p style={emptyTextStyle}>Impossible de récupérer les sneakers.</p>
+      <p
+        style={{
+          ...emptyTextStyle,
+          marginTop: 8,
+          fontSize: 12,
+          fontFamily: 'monospace',
+        }}
+      >
+        {error?.message ?? 'Erreur inconnue'}
+      </p>
     </div>
   )
 }
@@ -248,29 +283,47 @@ function SneakerListing({
   )
 }
 
+// Helpers de derivation
+function pickImage(s: UserSneaker): string | null {
+  return s.photo_url ?? s.stockx_image_url ?? null
+}
+function pickPrice(s: UserSneaker): number | null {
+  return s.listing_price ?? s.target_sale_price ?? null
+}
+function pickSize(s: UserSneaker): string | null {
+  if (s.size_eu) return `EU ${s.size_eu}`
+  if (s.size_us) return `US ${s.size_us}`
+  return null
+}
+function pickTitle(s: UserSneaker): string {
+  return s.name || s.brand || '—'
+}
+
 function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
+  const img = pickImage(s)
+  const price = pickPrice(s)
   return (
     <div style={cardStyle}>
       <div style={cardImageWrapStyle}>
-        {s.image_url ? (
+        {img ? (
           <img
-            src={s.image_url}
-            alt={[s.brand, s.model].filter(Boolean).join(' ')}
+            src={img}
+            alt={pickTitle(s)}
             style={cardImageStyle}
             loading="lazy"
           />
         ) : (
-          <div style={cardImagePlaceholderStyle}>â€”</div>
+          <div style={cardImagePlaceholderStyle}>—</div>
         )}
       </div>
       <div style={cardBodyStyle}>
-        <div style={cardBrandStyle}>{s.brand ?? 'â€”'}</div>
-        <div style={cardModelStyle}>{s.model ?? ''}</div>
+        <div style={cardBrandStyle}>{s.brand ?? '—'}</div>
+        <div style={cardModelStyle}>{s.name}</div>
         {s.is_for_sale && (
           <div style={cardSaleRowStyle}>
-            <span style={saleBadgeStyle}>Ã€ vendre</span>
-            {s.price != null && (
-              <span style={cardPriceStyle}>{s.price}&nbsp;â‚¬</span>
+            <span style={saleBadgeStyle}>À vendre</span>
+            {price != null && (
+              <span style={cardPriceStyle}>{price}&nbsp;€</span>
             )}
           </div>
         )}
@@ -280,27 +333,30 @@ function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
 }
 
 function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
+  const img = pickImage(s)
+  const price = pickPrice(s)
+  const size = pickSize(s)
   return (
     <div style={listCardStyle}>
       <div style={listImageWrapStyle}>
-        {s.image_url ? (
-          <img src={s.image_url} alt="" style={cardImageStyle} loading="lazy" />
+        {img ? (
+          <img src={img} alt="" style={cardImageStyle} loading="lazy" />
         ) : (
-          <div style={cardImagePlaceholderStyle}>â€”</div>
+          <div style={cardImagePlaceholderStyle}>—</div>
         )}
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={listTitleStyle}>
-          {[s.brand, s.model].filter(Boolean).join(' Â· ') || 'â€”'}
+          {[s.brand, s.name].filter(Boolean).join(' · ') || '—'}
         </div>
-        {s.size && <div style={listSubtitleStyle}>Taille {s.size}</div>}
+        {size && <div style={listSubtitleStyle}>Taille {size}</div>}
       </div>
       {s.is_for_sale && (
         <div style={{ textAlign: 'right' }}>
-          <span style={saleBadgeStyle}>Ã€ vendre</span>
-          {s.price != null && (
+          <span style={saleBadgeStyle}>À vendre</span>
+          {price != null && (
             <div style={{ ...cardPriceStyle, marginTop: 4 }}>
-              {s.price}&nbsp;â‚¬
+              {price}&nbsp;€
             </div>
           )}
         </div>
@@ -310,7 +366,7 @@ function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
 }
 
 // =================================================================
-// Styles â€” cohÃ©rent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
+// Styles — cohérent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
 // =================================================================
 
 const FONT = "'Outfit', sans-serif"

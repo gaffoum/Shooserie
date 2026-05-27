@@ -6,7 +6,7 @@ export type PublicProfile = {
   display_name: string
   created_at: string
   collection_public: boolean | null
-  /** null si la collection est privÃ©e (compteur rÃ©el non accessible via RLS). */
+  /** null si la collection est privée (compteur réel non accessible via RLS). */
   sneakers_count: number | null
   for_sale_count: number
 }
@@ -14,27 +14,26 @@ export type PublicProfile = {
 export type UserSneaker = {
   id: string
   user_id: string
+  name: string
   brand: string | null
-  model: string | null
-  image_url: string | null
+  photo_url: string | null
+  stockx_image_url: string | null
+  size_eu: string | null
+  size_us: string | null
   is_for_sale: boolean | null
-  price: number | null
-  size: string | null
+  listing_price: number | null
+  target_sale_price: number | null
   created_at: string
 }
 
 /**
- * RÃ©cupÃ¨re un profil public Ã  partir du pseudo (display_name, case-insensitive).
+ * Récupère un profil public à partir du pseudo (display_name, case-insensitive).
  * Retourne null si aucun utilisateur ne porte ce pseudo.
  *
- * Note RLS :
- *   - collection_public = true  -> count('sneakers') renvoie le total rÃ©el
- *   - collection_public = false -> count ne renverrait que les paires visibles
- *     (is_for_sale=true), ce qui serait trompeur => on force null.
- *
- * PrÃ©-requis schema : la colonne `collection_public` doit exister sur `profiles`.
- * Si elle n'existe pas encore :
- *   ALTER TABLE profiles ADD COLUMN collection_public boolean NOT NULL DEFAULT true;
+ * RLS sneakers :
+ *   - collection_public = true  -> count renvoie le total réel
+ *   - collection_public = false -> count ne renvoie que is_for_sale=true,
+ *     donc on force sneakers_count à null pour ne pas mentir dans le header.
  */
 export function useUserProfileByPseudo(pseudo: string | undefined) {
   return useQuery({
@@ -79,9 +78,9 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
 
 /**
  * Liste les sneakers d'un utilisateur cible.
- * La RLS filtre automatiquement :
+ * RLS filtre automatiquement :
  *   - collection publique  -> toutes les paires
- *   - collection privÃ©e    -> uniquement is_for_sale = true
+ *   - collection privée    -> uniquement is_for_sale = true
  */
 export function useUserSneakers(
   userId: string | undefined,
@@ -94,7 +93,7 @@ export function useUserSneakers(
       let q = supabase
         .from('sneakers')
         .select(
-          'id, user_id, brand, model, image_url, is_for_sale, price, size, created_at',
+          'id, user_id, name, brand, photo_url, stockx_image_url, size_eu, size_us, is_for_sale, listing_price, target_sale_price, created_at',
         )
         .eq('user_id', userId!)
         .order('created_at', { ascending: false })
