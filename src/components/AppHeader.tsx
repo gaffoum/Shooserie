@@ -44,6 +44,16 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
           </Link>
         )}
         {/* Email = lien vers la page compte sur desktop ; icône user en mobile */}
+        {isCollectionPublic && (
+          <Link
+            to="/community"
+            className="app-header-community"
+            style={communityLinkStyle}
+            title="Voir les collections publiques"
+          >
+            Communauté
+          </Link>
+        )}
         <Link
           to="/account"
           className="app-header-email"
