@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import { useAuth } from '../contexts/AuthContext'
 
 export type PublicProfile = {
   id: string
@@ -166,6 +167,32 @@ export function usePublicProfiles() {
           sensitivity: 'base',
         }),
       )
+    },
+    staleTime: 60_000,
+  })
+}
+
+/**
+ * Retourne true si la collection de l'utilisateur connecte est publique.
+ * Utilise pour conditionner l'affichage du lien /community dans la nav.
+ *
+ * Cache-key indexee sur user.id => invalide a la connexion/deconnexion.
+ * Apres un toggle de visibilite, penser a :
+ *   queryClient.invalidateQueries({ queryKey: ['my-collection-public'] })
+ */
+export function useMyCollectionPublic() {
+  const { user } = useAuth()
+  return useQuery({
+    queryKey: ['my-collection-public', user?.id],
+    enabled: !!user?.id,
+    queryFn: async (): Promise<boolean> => {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('collection_public')
+        .eq('id', user!.id)
+        .maybeSingle()
+      if (error) throw error
+      return data?.collection_public === true
     },
     staleTime: 60_000,
   })

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { ADMIN_EMAIL, useUserCount , useMyProfile} from '@/lib/queries'
+import { useMyCollectionPublic } from '@/lib/publicProfileQueries'
 import { useT } from '@/i18n/I18nContext'
 import { Logo } from './Logo'
 import { LanguageToggle } from './LanguageToggle'
@@ -17,6 +18,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
   const { user } = useAuth()
   const { t } = useT()
   const isAdmin = user?.email === ADMIN_EMAIL
+  const { data: isCollectionPublic } = useMyCollectionPublic()
   const { data: profile } = useMyProfile()
   const { data: userCount } = useUserCount(user?.email)
 
@@ -149,4 +151,21 @@ const userCountBadgeStyle: CSSProperties = {
   borderRadius: 'var(--radius-pill)',
   fontFamily: 'var(--font-display)',
   whiteSpace: 'nowrap',
+}
+
+const communityLinkStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 6,
+  padding: '6px 12px',
+  fontSize: 12,
+  fontWeight: 600,
+  letterSpacing: 'var(--tracking-wide)',
+  color: 'var(--color-text)',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-md)',
+  textDecoration: 'none',
+  whiteSpace: 'nowrap',
+  flexShrink: 0,
 }
