@@ -1,9 +1,11 @@
 /**
  * Community — page accessible aux utilisateurs authentifiés (/community).
- * Liste verticale des collections publiques, triée alpha (case-insensitive).
+ * Liste verticale des collections publiques, triée alpha case-insensitive.
  * Chaque ligne renvoie vers /u/:display_name.
  */
 import { Link } from 'react-router-dom'
+import { AppHeader } from '../components/AppHeader'
+import { BackButton } from '../components/BackButton'
 import {
   usePublicProfiles,
   type CommunityMember,
@@ -11,68 +13,54 @@ import {
 
 export default function Community() {
   const q = usePublicProfiles()
-
-  // -------- Loading --------
-  if (q.isLoading) {
-    return (
-      <div style={pageStyle}>
-        <Header count={null} />
-        <div style={listStyle}>
-          {Array.from({ length: 3 }).map((_, i) => (
-            <div key={i} style={{ ...skeletonStyle, height: 76 }} />
-          ))}
-        </div>
-      </div>
-    )
-  }
-
-  // -------- Error --------
-  if (q.isError) {
-    return (
-      <div style={pageStyle}>
-        <Header count={null} />
-        <div style={emptyCardStyle}>
-          <h2 style={emptyTitleStyle}>Erreur de chargement</h2>
-          <p style={emptyTextStyle}>
-            Impossible de récupérer la communauté. Réessaie dans un instant.
-          </p>
-          <p
-            style={{
-              ...emptyTextStyle,
-              marginTop: 8,
-              fontSize: 12,
-              fontFamily: 'monospace',
-            }}
-          >
-            {(q.error as Error)?.message ?? 'Erreur inconnue'}
-          </p>
-        </div>
-      </div>
-    )
-  }
-
   const members = q.data ?? []
+  const count = q.isLoading || q.isError ? null : members.length
 
   return (
-    <div style={pageStyle}>
-      <Header count={members.length} />
-
-      {members.length === 0 ? (
-        <div style={emptyCardStyle}>
-          <h2 style={emptyTitleStyle}>Aucune collection publique</h2>
-          <p style={emptyTextStyle}>
-            Personne n'a encore rendu sa collection publique. Sois le premier
-            depuis ton profil&nbsp;!
-          </p>
-        </div>
-      ) : (
-        <div style={listStyle}>
-          {members.map((m) => (
-            <CommunityRow key={m.id} member={m} />
-          ))}
-        </div>
-      )}
-    </div>
+    <>
+      <AppHeader leftActions={<BackButton />} />
+      <div style={pageStyle}>
+        <Header count={count} />
+        {q.isLoading ? (
+          <div style={listStyle}>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div key={i} style={{ ...skeletonStyle, height: 76 }} />
+            ))}
+          </div>
+        ) : q.isError ? (
+          <div style={emptyCardStyle}>
+            <h2 style={emptyTitleStyle}>Erreur de chargement</h2>
+            <p style={emptyTextStyle}>
+              Impossible de récupérer la communauté. Réessaie dans un instant.
+            </p>
+            <p
+              style={{
+                ...emptyTextStyle,
+                marginTop: 8,
+                fontSize: 12,
+                fontFamily: 'monospace',
+              }}
+            >
+              {(q.error as Error)?.message ?? 'Erreur inconnue'}
+            </p>
+          </div>
+        ) : members.length === 0 ? (
+          <div style={emptyCardStyle}>
+            <h2 style={emptyTitleStyle}>Aucune collection publique</h2>
+            <p style={emptyTextStyle}>
+              Personne n'a encore rendu sa collection publique. Sois le premier
+              depuis ton profil&nbsp;!
+            </p>
+          </div>
+        ) : (
+          <div style={listStyle}>
+            {members.map((m) => (
+              <CommunityRow key={m.id} member={m} />
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   )
 }
 
@@ -129,15 +117,13 @@ function CommunityRow({ member }: { member: CommunityMember }) {
 }
 
 // =================================================================
-// Styles — cohérent avec UserProfile (Outfit, #0A0A0A, #CE1141)
+// Styles
 // =================================================================
 
 const FONT = "'Outfit', sans-serif"
 const COLOR_TEXT = '#0A0A0A'
 const COLOR_MUTED = '#6B7280'
-const COLOR_RED = '#CE1141'
 const COLOR_BORDER = '#E5E7EB'
-const COLOR_BG_SOFT = '#F9FAFB'
 const COLOR_CARD = '#FFFFFF'
 
 const pageStyle: React.CSSProperties = {
@@ -272,8 +258,3 @@ const skeletonStyle: React.CSSProperties = {
   borderRadius: 12,
   width: '100%',
 }
-
-// Silence l'avertissement "unused" si jamais cette constante n'est pas
-// référencée par le bundler (elle reste utile pour cohérence des palettes).
-void COLOR_RED
-void COLOR_BG_SOFT

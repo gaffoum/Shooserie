@@ -4,6 +4,8 @@
  */
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { AppHeader } from '../components/AppHeader'
+import { BackButton } from '../components/BackButton'
 import {
   useUserProfileByPseudo,
   useUserSneakers,
@@ -39,148 +41,159 @@ export default function UserProfile() {
   // -------- Loading --------
   if (profileQ.isLoading) {
     return (
-      <div style={pageStyle}>
-        <div style={{ ...skeletonStyle, height: 140, marginBottom: 24 }} />
-        <div style={{ ...skeletonStyle, height: 320 }} />
-      </div>
+      <>
+        <AppHeader leftActions={<BackButton />} />
+        <div style={pageStyle}>
+          <div style={{ ...skeletonStyle, height: 140, marginBottom: 24 }} />
+          <div style={{ ...skeletonStyle, height: 320 }} />
+        </div>
+      </>
     )
   }
 
   // -------- Erreur réseau / schéma --------
   if (profileQ.isError) {
     return (
-      <div style={{ ...pageStyle, textAlign: 'center' }}>
-        <h1 style={pageTitleStyle}>Erreur de chargement</h1>
-        <p style={{ ...mutedTextStyle, marginBottom: 16 }}>
-          Impossible de récupérer le profil. Réessaie dans un instant.
-        </p>
-        <p style={{ ...mutedTextStyle, fontSize: 12, fontFamily: 'monospace' }}>
-          {(profileQ.error as Error)?.message ?? 'Erreur inconnue'}
-        </p>
-      </div>
+      <>
+        <AppHeader leftActions={<BackButton />} />
+        <div style={{ ...pageStyle, textAlign: 'center' }}>
+          <h1 style={pageTitleStyle}>Erreur de chargement</h1>
+          <p style={{ ...mutedTextStyle, marginBottom: 16 }}>
+            Impossible de récupérer le profil. Réessaie dans un instant.
+          </p>
+          <p style={{ ...mutedTextStyle, fontSize: 12, fontFamily: 'monospace' }}>
+            {(profileQ.error as Error)?.message ?? 'Erreur inconnue'}
+          </p>
+        </div>
+      </>
     )
   }
 
   // -------- 404 --------
   if (!profile) {
     return (
-      <div style={{ ...pageStyle, textAlign: 'center' }}>
-        <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
-        <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
-          Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
-        </p>
-        <Link to="/" style={primaryButtonStyle}>
-          Retour à l'accueil
-        </Link>
-      </div>
+      <>
+        <AppHeader leftActions={<BackButton />} />
+        <div style={{ ...pageStyle, textAlign: 'center' }}>
+          <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
+          <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
+            Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
+          </p>
+          <Link to="/" style={primaryButtonStyle}>
+            Retour à l'accueil
+          </Link>
+        </div>
+      </>
     )
   }
 
   const isPrivate = profile.collection_public === false
 
-  // -------- Render --------
   return (
-    <div style={pageStyle}>
-      {/* === Header === */}
-      <div style={headerCardStyle}>
-        <div style={headerLeftStyle}>
-          <div style={pseudoRowStyle}>
-            <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
-            {isPrivate && (
-              <span style={privateBadgeStyle}>Collection privée</span>
+    <>
+      <AppHeader leftActions={<BackButton />} />
+      <div style={pageStyle}>
+        {/* === Header === */}
+        <div style={headerCardStyle}>
+          <div style={headerLeftStyle}>
+            <div style={pseudoRowStyle}>
+              <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
+              {isPrivate && (
+                <span style={privateBadgeStyle}>Collection privée</span>
+              )}
+            </div>
+            <p style={memberSinceStyle}>
+              Membre depuis le{' '}
+              {new Date(profile.created_at).toLocaleDateString('fr-FR', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+          </div>
+          <div style={statsRowStyle}>
+            {profile.sneakers_count !== null && (
+              <Stat value={profile.sneakers_count} label="paires" />
             )}
+            <Stat value={profile.for_sale_count} label="en vente" />
           </div>
-          <p style={memberSinceStyle}>
-            Membre depuis le{' '}
-            {new Date(profile.created_at).toLocaleDateString('fr-FR', {
-              day: 'numeric',
-              month: 'long',
-              year: 'numeric',
-            })}
-          </p>
-        </div>
-        <div style={statsRowStyle}>
-          {profile.sneakers_count !== null && (
-            <Stat value={profile.sneakers_count} label="paires" />
-          )}
-          <Stat value={profile.for_sale_count} label="en vente" />
-        </div>
-      </div>
-
-      {/* === Contrôles : onglets + filtres === */}
-      <div style={controlsRowStyle}>
-        <div style={tabBarStyle}>
-          <button
-            type="button"
-            onClick={() => setTab('all')}
-            style={tab === 'all' ? activeTabStyle : inactiveTabStyle}
-          >
-            Toutes
-          </button>
-          <button
-            type="button"
-            onClick={() => setTab('for-sale')}
-            style={tab === 'for-sale' ? activeTabStyle : inactiveTabStyle}
-          >
-            En vente
-          </button>
         </div>
 
-        <div style={filtersStyle}>
-          <select
-            value={brandFilter}
-            onChange={(e) => setBrandFilter(e.target.value)}
-            style={selectStyle}
-            aria-label="Filtrer par marque"
-          >
-            <option value="all">Toutes les marques</option>
-            {brands.map((b) => (
-              <option key={b} value={b}>
-                {b}
-              </option>
-            ))}
-          </select>
-
-          <div style={viewToggleStyle}>
+        {/* === Contrôles : onglets + filtres === */}
+        <div style={controlsRowStyle}>
+          <div style={tabBarStyle}>
             <button
               type="button"
-              onClick={() => setView('grid')}
-              style={view === 'grid' ? activeViewBtnStyle : viewBtnStyle}
-              aria-label="Vue grille"
+              onClick={() => setTab('all')}
+              style={tab === 'all' ? activeTabStyle : inactiveTabStyle}
             >
-              Grille
+              Toutes
             </button>
             <button
               type="button"
-              onClick={() => setView('list')}
-              style={view === 'list' ? activeViewBtnStyle : viewBtnStyle}
-              aria-label="Vue liste"
+              onClick={() => setTab('for-sale')}
+              style={tab === 'for-sale' ? activeTabStyle : inactiveTabStyle}
             >
-              Liste
+              En vente
             </button>
           </div>
-        </div>
-      </div>
 
-      {/* === Contenu === */}
-      {tab === 'all' && isPrivate ? (
-        <PrivateCollection />
-      ) : sneakersQ.isLoading ? (
-        <LoadingGrid view={view} />
-      ) : sneakersQ.isError ? (
-        <ErrorBlock error={sneakersQ.error as Error} />
-      ) : filtered.length === 0 ? (
-        <EmptyState
-          message={
-            tab === 'for-sale'
-              ? 'Aucune paire en vente actuellement.'
-              : 'Aucune paire à afficher.'
-          }
-        />
-      ) : (
-        <SneakerListing sneakers={filtered} view={view} />
-      )}
-    </div>
+          <div style={filtersStyle}>
+            <select
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+              style={selectStyle}
+              aria-label="Filtrer par marque"
+            >
+              <option value="all">Toutes les marques</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>
+                  {b}
+                </option>
+              ))}
+            </select>
+
+            <div style={viewToggleStyle}>
+              <button
+                type="button"
+                onClick={() => setView('grid')}
+                style={view === 'grid' ? activeViewBtnStyle : viewBtnStyle}
+                aria-label="Vue grille"
+              >
+                Grille
+              </button>
+              <button
+                type="button"
+                onClick={() => setView('list')}
+                style={view === 'list' ? activeViewBtnStyle : viewBtnStyle}
+                aria-label="Vue liste"
+              >
+                Liste
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* === Contenu === */}
+        {tab === 'all' && isPrivate ? (
+          <PrivateCollection />
+        ) : sneakersQ.isLoading ? (
+          <LoadingGrid view={view} />
+        ) : sneakersQ.isError ? (
+          <ErrorBlock error={sneakersQ.error as Error} />
+        ) : filtered.length === 0 ? (
+          <EmptyState
+            message={
+              tab === 'for-sale'
+                ? 'Aucune paire en vente actuellement.'
+                : 'Aucune paire à afficher.'
+            }
+          />
+        ) : (
+          <SneakerListing sneakers={filtered} view={view} />
+        )}
+      </div>
+    </>
   )
 }
 
@@ -283,7 +296,6 @@ function SneakerListing({
   )
 }
 
-// Helpers de derivation
 function pickImage(s: UserSneaker): string | null {
   return s.photo_url ?? s.stockx_image_url ?? null
 }
@@ -366,7 +378,7 @@ function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
 }
 
 // =================================================================
-// Styles — cohérent avec WelcomeHeader (Outfit / #0A0A0A / #CE1141)
+// Styles
 // =================================================================
 
 const FONT = "'Outfit', sans-serif"
