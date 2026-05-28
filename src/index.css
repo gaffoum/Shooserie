@@ -95,6 +95,7 @@ img {
   .app-header { padding: 10px 12px !important; gap: 8px !important; }
   .app-header-actions { gap: 6px !important; }
   .app-header-add-text { display: none !important; }
+  .app-header-badge { display: none !important; }
 }
 
 @keyframes shooserie-spin {

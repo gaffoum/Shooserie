@@ -26,7 +26,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
     <header className="app-header" style={headerStyle}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
         {leftActions}
-        <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none' }}>
+        <Link to="/dashboard" style={{ color: 'inherit', textDecoration: 'none', flexShrink: 0 }}>
           <Logo size="md" />
         </Link>
       </div>
@@ -51,7 +51,8 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
             style={communityLinkStyle}
             title="Voir les collections publiques"
           >
-            Communauté
+            <CommunityIcon />
+            <span className="app-header-action-text">Communauté</span>
           </Link>
         )}
         <Link
@@ -75,6 +76,25 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
         <LanguageToggle />
       </div>
     </header>
+  )
+}
+
+function CommunityIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="10" />
+      <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </svg>
   )
 }
 
