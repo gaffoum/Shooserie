@@ -7,6 +7,7 @@ import { Link, useParams } from 'react-router-dom'
 import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
 import {
+import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
   useUserProfileByPseudo,
   useUserSneakers,
   type UserSneaker,
@@ -23,6 +24,7 @@ export default function UserProfile() {
   const [tab, setTab] = useState<TabKey>('all')
   const [view, setView] = useState<ViewMode>('grid')
   const [brandFilter, setBrandFilter] = useState<string>('all')
+  const [statusFilter, setStatusFilter] = useState<string>('all')
 
   const sneakersQ = useUserSneakers(profile?.id, tab === 'for-sale')
   const sneakers = sneakersQ.data ?? []
@@ -34,9 +36,12 @@ export default function UserProfile() {
   }, [sneakers])
 
   const filtered = useMemo(() => {
-    if (brandFilter === 'all') return sneakers
-    return sneakers.filter((s) => s.brand === brandFilter)
-  }, [sneakers, brandFilter])
+    return sneakers.filter((s) => {
+      if (brandFilter !== 'all' && s.brand !== brandFilter) return false
+      if (statusFilter !== 'all' && wearStatus(s.wear_count) !== statusFilter) return false
+      return true
+    })
+  }, [sneakers, brandFilter, statusFilter])
 
   // -------- Loading --------
   if (profileQ.isLoading) {
@@ -149,6 +154,19 @@ export default function UserProfile() {
               {brands.map((b) => (
                 <option key={b} value={b}>
                   {b}
+                </option>
+              ))}
+            </select>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              style={selectStyle}
+              aria-label="Filtrer par état"
+            >
+              <option value="all">Tous les états</option>
+              {WEAR_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
                 </option>
               ))}
             </select>

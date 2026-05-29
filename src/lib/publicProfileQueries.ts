@@ -25,6 +25,8 @@ export type UserSneaker = {
   listing_price: number | null
   target_sale_price: number | null
   created_at: string
+  wear_count: number
+  last_worn_at: string | null
 }
 
 /**
@@ -94,7 +96,7 @@ export function useUserSneakers(
       let q = supabase
         .from('sneakers')
         .select(
-          'id, user_id, name, brand, photo_url, stockx_image_url, size_eu, size_us, is_for_sale, listing_price, target_sale_price, created_at',
+          'id, user_id, name, brand, photo_url, stockx_image_url, size_eu, size_us, is_for_sale, listing_price, target_sale_price, created_at, wear_count, last_worn_at',
         )
         .eq('user_id', userId!)
         .order('created_at', { ascending: false })
