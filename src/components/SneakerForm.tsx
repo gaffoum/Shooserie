@@ -354,18 +354,7 @@ export function SneakerForm({
             />
           </Field>
         </Row>
-        <Field label={t('form.field.condition')}>
-          <select
-            value={state.condition ?? 'DS'}
-            onChange={(e) => set('condition', e.target.value as typeof CONDITIONS[number])}
-            style={inputStyle}
-          >
-            {CONDITIONS.map((c) => (
-              <option key={c} value={c}>{t(CONDITION_LABELS[c] as never)}</option>
-            ))}
-          </select>
-        </Field>
-      </Section>
+          </Section>
 
       {/* Tags + à vendre */}
       <Section title={t('form.section.tracking')}>

@@ -7,6 +7,7 @@ import { BackLink } from '@/components/BackLink'
 import { useMarketplaceSneaker, useCreateOrGetConversation } from '@/lib/queries'
 import { formatEur } from '@/lib/format'
 import { PhotoPlaceholder } from '@/components/PhotoPlaceholder'
+import { wearStatus } from '@/lib/wears'
 
 /**
  * Marketplace detail page — single sneaker for sale.
@@ -107,9 +108,9 @@ export function MarketplaceDetail() {
                   {(sneaker as any).sku}
                 </MetaRow>
               )}
-              {(sneaker as any).condition && (
+              {(sneaker as any).wear_count !== undefined && (
                 <MetaRow label={t('marketplace.meta.condition')}>
-                  {(sneaker as any).condition}
+                  {wearStatus((sneaker as any).wear_count ?? 0)}
                 </MetaRow>
               )}
               {(sneaker as any).market_price && (

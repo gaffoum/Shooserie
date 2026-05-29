@@ -11,6 +11,8 @@ import { ConfirmDialog } from '@/components/ConfirmDialog'
 import { OwnerCountBadge } from '@/components/OwnerCountBadge'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
+import { wearStatus } from '@/lib/wears'
+import { WearTracker } from '@/components/WearTracker'
 
 export function SneakerDetail() {
   const { id } = useParams<{ id: string }>()
@@ -87,7 +89,7 @@ export function SneakerDetail() {
                     value={formatSizeLabel(sneaker.size_eu, sneaker.size_us)}
                     mono
                   />
-                  <Meta label={t('detail.meta.condition')} value={sneaker.condition || '—'} />
+                  <Meta label={t('detail.meta.condition')} value={wearStatus(sneaker.wear_count)} />
                   <Meta
                     label={t('detail.meta.release')}
                     value={
