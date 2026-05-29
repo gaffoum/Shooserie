@@ -20,17 +20,9 @@ interface SneakerFormProps {
 }
 
 // Internal condition codes stored in DB. Labels translated at render time.
-const CONDITIONS = ['DS', 'VNDS', 'Porté', 'Très porté'] as const
 const BRANDS = ['Nike', 'Air Jordan', 'Adidas', 'New Balance', 'Puma', 'ASICS', 'Yeezy', 'Autre']
 
 // Dictionary keys for condition labels (stored values stay French for DB compat).
-const CONDITION_LABELS: Record<(typeof CONDITIONS)[number], string> = {
-  DS: 'form.condition.DS',
-  VNDS: 'form.condition.VNDS',
-  'Porté': 'form.condition.worn',
-  'Très porté': 'form.condition.heavyWorn',
-}
-
 export function SneakerForm({
   initial,
   defaults,

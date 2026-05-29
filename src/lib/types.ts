@@ -31,8 +31,8 @@ export interface Sneaker {
   purchase_date: string | null
   purchase_price: number | null
   condition: SneakerCondition | null
-  wear_count: number
-  last_worn_at: string | null
+  wear_count?: number
+  last_worn_at?: string | null
   photo_url: string | null
   barcode: string | null
   notes: string | null
