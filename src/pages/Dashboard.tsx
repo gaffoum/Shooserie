@@ -345,8 +345,8 @@ export function Dashboard() {
                   selected={brandFilter}
                   onChange={setBrandFilter}
                 />
-              <WearStatusFilter selected={wearStatusFilter} onChange={setWearStatusFilter} />
               )}
+              <WearStatusFilter selected={wearStatusFilter} onChange={setWearStatusFilter} />
               {tags.length > 0 && (
                 <TagFilter
                   tags={tags}
