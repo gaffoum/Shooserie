@@ -7,6 +7,8 @@ import { AppHeader } from '@/components/AppHeader'
 import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
 import { BrandFilter } from '@/components/BrandFilter'
+import { WearStatusFilter } from '@/components/WearStatusFilter'
+import { wearStatus, type WearStatus } from '@/lib/wears'
 import { TagFilter } from '@/components/TagFilter'
 import { ViewToggle, type ViewMode } from '@/components/ViewToggle'
 import { SneakerCard } from '@/components/SneakerCard'
@@ -191,6 +193,7 @@ export function Dashboard() {
     const q = search.trim().toLowerCase()
     const filtered = allSneakers.filter((s) => {
       if (brandFilter && s.brand !== brandFilter) return false
+      if (wearStatusFilter && wearStatus(s.wear_count) !== wearStatusFilter) return false
       if (forSaleOnly && !s.is_for_sale) return false
       if (tagFilter.length > 0 && !tagFilter.some((t) => s.tags.includes(t))) return false
       if (q) {
@@ -208,7 +211,7 @@ export function Dashboard() {
       return true
     })
     return [...filtered].sort(comparator(sortKey))
-  }, [allSneakers, search, brandFilter, tagFilter, forSaleOnly, sortKey])
+  }, [allSneakers, search, brandFilter, wearStatusFilter, tagFilter, forSaleOnly, sortKey])
 
   const kpis = useMemo(() => aggregateKpis(allSneakers), [allSneakers])
   const timeline = useMemo(() => portfolioTimeline(allSneakers), [allSneakers])
@@ -342,6 +345,7 @@ export function Dashboard() {
                   selected={brandFilter}
                   onChange={setBrandFilter}
                 />
+              <WearStatusFilter selected={wearStatusFilter} onChange={setWearStatusFilter} />
               )}
               {tags.length > 0 && (
                 <TagFilter

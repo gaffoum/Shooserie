@@ -1,4 +1,4 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 
 // =============================================================
@@ -7,6 +7,9 @@ import { supabase } from './supabase'
 // =============================================================
 
 export type WearStatus = 'DS' | 'VNDS' | '9/10' | '8/10' | 'Beater'
+
+/** Tous les statuts de wear, dans l'ordre croissant d'usure. */
+export const WEAR_STATUSES: WearStatus[] = ['DS', 'VNDS', '9/10', '8/10', 'Beater']
 
 export function wearStatus(count: number | null | undefined): WearStatus {
   const c = count ?? 0
@@ -92,5 +95,42 @@ export function useResetWears() {
       return data
     },
     onSuccess: (_data, sneakerId) => invalidateAll(qc, sneakerId),
+  })
+}
+
+// =============================================================
+// Top N paires portees pour un utilisateur donne.
+// Exclut les DS (wear_count = 0) — un top des paires effectivement portees.
+// Hit l'index (user_id, wear_count DESC) pour rester rapide.
+// =============================================================
+
+export interface TopWornSneaker {
+  id: string
+  name: string
+  brand: string | null
+  photo_url: string | null
+  stockx_image_url: string | null
+  wear_count: number
+  last_worn_at: string | null
+}
+
+export function useTopWornSneakers(userId: string | undefined, limit = 10) {
+  return useQuery({
+    queryKey: ['top-worn', userId, limit],
+    queryFn: async (): Promise<TopWornSneaker[]> => {
+      if (!userId) return []
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select(
+          'id, name, brand, photo_url, stockx_image_url, wear_count, last_worn_at',
+        )
+        .eq('user_id', userId)
+        .gt('wear_count', 0)
+        .order('wear_count', { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return (data ?? []) as TopWornSneaker[]
+    },
+    enabled: !!userId,
   })
 }
