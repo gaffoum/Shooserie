@@ -7,11 +7,11 @@ import { Link, useParams } from 'react-router-dom'
 import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
 import {
-import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
   useUserProfileByPseudo,
   useUserSneakers,
   type UserSneaker,
 } from '../lib/publicProfileQueries'
+import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
 
 type ViewMode = 'grid' | 'list'
 type TabKey = 'all' | 'for-sale'
