@@ -12,6 +12,7 @@ import { OwnerCountBadge } from '@/components/OwnerCountBadge'
 import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
 import { wearStatus } from '@/lib/wears'
+import { WearTracker } from '@/components/WearTracker'
 export function SneakerDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -117,6 +118,13 @@ export function SneakerDetail() {
               onRefresh={handleRefresh}
               refreshing={refreshMutation.isPending}
               error={refreshError}
+            />
+
+            {/* Compteur de wears + statut derive */}
+            <WearTracker
+              sneakerId={sneaker.id}
+              wearCount={sneaker.wear_count}
+              lastWornAt={sneaker.last_worn_at}
             />
 
             {/* Achat info */}
