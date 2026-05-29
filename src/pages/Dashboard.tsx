@@ -90,6 +90,7 @@ export function Dashboard() {
   // Filters
   const [search, setSearch] = useState('')
   const [brandFilter, setBrandFilter] = useState<string | null>(null)
+  const [wearStatusFilter, setWearStatusFilter] = useState<WearStatus | null>(null)
   const [tagFilter, setTagFilter] = useState<string[]>([])
   const [forSaleOnly, setForSaleOnly] = useState(false)
   const [sortKey, setSortKey] = useState<SortKey>('delta_desc')
