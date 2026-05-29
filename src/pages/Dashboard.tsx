@@ -15,6 +15,7 @@ import { SneakerCard } from '@/components/SneakerCard'
 import { SneakerTable } from '@/components/SneakerTable'
 import { ScanButton } from '@/components/ScanButton'
 import { TopOwnedModels } from '@/components/TopOwnedModels'
+import { TopWornSneakers } from '@/components/TopWornSneakers'
 import { ShareDialog } from '@/components/ShareDialog'
 import type { ScanResult } from '@/components/BarcodeScanner'
 import type { Sneaker } from '@/lib/types'
@@ -259,6 +260,9 @@ export function Dashboard() {
             auto-hides if there's nothing in the leaderboard, so this slot
             stays clean on a fresh app. */}
         <TopOwnedModels limit={5} />
+
+        {/* User's most-worn paires — hides if no paires have been worn */}
+        <TopWornSneakers limit={10} />
 
         {/* Loading */}
         {isLoading && (

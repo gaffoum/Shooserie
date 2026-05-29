@@ -5,6 +5,7 @@ import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from './SneakerPhoto'
 import { RefreshCoteButton } from './RefreshCoteButton'
 import { OwnerCountBadge } from './OwnerCountBadge'
+import { wearStatus, WEAR_STATUS_COLORS, useIncrementWear } from '@/lib/wears'
 import type { CSSProperties } from 'react'
 
 interface SneakerCardProps {
@@ -18,6 +19,7 @@ interface SneakerCardProps {
 
 export function SneakerCard({ sneaker, ownerCount }: SneakerCardProps) {
   const { t } = useT()
+  const inc = useIncrementWear()
   const delta = calcDelta(effectiveCost(sneaker), sneaker.market_price)
   const sizeLabel = formatSize(sneaker.size_eu, sneaker.size_us)
   const priceShown = sneaker.market_price ?? effectiveCost(sneaker)
@@ -38,6 +40,30 @@ export function SneakerCard({ sneaker, ownerCount }: SneakerCardProps) {
           <div style={ownerBadgeWrapStyle}>
             <OwnerCountBadge count={ownerCount} variant="card" />
           </div>
+          {/* Wear status badge — bottom-left */}
+          <span
+            style={{
+              ...statusBadgeOnCardStyle,
+              background: WEAR_STATUS_COLORS[wearStatus(sneaker.wear_count)].bg,
+              color: WEAR_STATUS_COLORS[wearStatus(sneaker.wear_count)].fg,
+            }}
+          >
+            {wearStatus(sneaker.wear_count)}
+          </span>
+          {/* Inline +1 wear button — bottom-right (stops Link nav) */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault()
+              e.stopPropagation()
+              inc.mutate(sneaker.id)
+            }}
+            disabled={inc.isPending}
+            style={incrementBtnOnCardStyle}
+            aria-label="Incrémenter le compteur de wears"
+          >
+            +1
+          </button>
         </div>
         <div style={bodyStyle}>
           {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
@@ -171,4 +197,44 @@ const ownerBadgeWrapStyle: CSSProperties = {
   top: 8,
   right: 8,
   zIndex: 1,
+}
+// Wear status badge sur la carte (bottom-left de l'image).
+// Position absolue, miroir de forSaleRibbon (top-left) sur l'axe vertical.
+const statusBadgeOnCardStyle: CSSProperties = {
+  position: 'absolute',
+  bottom: 8,
+  left: 8,
+  zIndex: 1,
+  padding: '3px 8px',
+  fontSize: 9,
+  fontWeight: 700,
+  letterSpacing: '0.04em',
+  borderRadius: 'var(--radius-sm)',
+  fontFamily: "'Outfit', sans-serif",
+}
+
+// Bouton +1 inline sur la carte (bottom-right de l'image).
+// Position absolue, miroir de ownerBadgeWrap (top-right). z-index plus eleve
+// pour passer au-dessus de la photo. preventDefault dans le onClick pour
+// ne pas trigger le <Link> parent.
+const incrementBtnOnCardStyle: CSSProperties = {
+  position: 'absolute',
+  bottom: 8,
+  right: 8,
+  zIndex: 2,
+  width: 32,
+  height: 32,
+  borderRadius: '50%',
+  border: 'none',
+  background: 'var(--color-bred, #CE1141)',
+  color: '#FFFFFF',
+  fontSize: 13,
+  fontWeight: 700,
+  cursor: 'pointer',
+  fontFamily: "'Outfit', sans-serif",
+  display: 'inline-flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  boxShadow: '0 2px 8px rgba(0,0,0,0.20)',
+  transition: 'transform 120ms ease, opacity 120ms ease',
 }

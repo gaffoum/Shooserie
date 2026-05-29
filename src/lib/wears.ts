@@ -134,3 +134,21 @@ export function useTopWornSneakers(userId: string | undefined, limit = 10) {
     enabled: !!userId,
   })
 }
+
+// =============================================================
+// Top N portees de l'utilisateur courant.
+// Wrapper qui resoud l'auth user via supabase.auth puis delegue
+// a useTopWornSneakers. Utilise par <TopWornSneakers /> sur le dashboard.
+// =============================================================
+
+export function useMyTopWornSneakers(limit = 10) {
+  const { data: userId } = useQuery({
+    queryKey: ['auth-user-id'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser()
+      return data.user?.id ?? null
+    },
+    staleTime: 5 * 60 * 1000, // 5 min : l'identite ne change pas souvent
+  })
+  return useTopWornSneakers(userId ?? undefined, limit)
+}
