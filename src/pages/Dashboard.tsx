@@ -262,7 +262,7 @@ export function Dashboard() {
         <TopOwnedModels limit={5} />
 
         {/* User's most-worn paires — hides if no paires have been worn */}
-        <TopWornSneakers limit={10} />
+        <TopWornSneakers limit={10} viewAllUrl="/rankings" />
 
         {/* Loading */}
         {isLoading && (

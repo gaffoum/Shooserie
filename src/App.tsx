@@ -17,6 +17,7 @@ import { Messaging } from '@/pages/Messaging'
 import { PseudoSetupGuard } from './components/PseudoSetupGuard'
 import UserProfile from './pages/UserProfile';
 import Community from './pages/Community';
+import Rankings from './pages/Rankings';
 
 
 export default function App() {
@@ -127,7 +128,15 @@ export default function App() {
           />
           <Route path="/u/:pseudo" element={<UserProfile />} />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
-        </Routes>
+        <Route
+          path="/rankings"
+          element={
+            <ProtectedRoute>
+              <Rankings />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
       </BrowserRouter>
     </AuthProvider>
   )

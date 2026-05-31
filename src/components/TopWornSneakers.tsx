@@ -16,7 +16,7 @@ interface TopWornSneakersProps {
   limit?: number
 }
 
-export function TopWornSneakers({ limit = 10 }: TopWornSneakersProps) {
+export function TopWornSneakers({ limit = 10, viewAllUrl }: TopWornSneakersProps) {
   const { data: sneakers = [], isLoading } = useMyTopWornSneakers(limit)
 
   // Auto-hide : ni en chargement (UX clean), ni si rien a montrer
@@ -31,6 +31,9 @@ export function TopWornSneakers({ limit = 10 }: TopWornSneakersProps) {
             ? `${sneakers.length} ${sneakers.length > 1 ? 'paires' : 'paire'}`
             : `Top ${limit}`}
         </span>
+        {viewAllUrl && (
+          <Link to={viewAllUrl} style={viewAllStyle}>Voir tout →</Link>
+        )}
       </header>
       <div style={scrollStyle}>
         {sneakers.map((s, i) => {
@@ -210,4 +213,14 @@ const badgeStyle: CSSProperties = {
   whiteSpace: 'nowrap',
   letterSpacing: '0.02em',
   fontFamily: "'Outfit', sans-serif",
+}
+
+// Lien "Voir tout →" dans le header de la section
+const viewAllStyle: CSSProperties = {
+  fontSize: 12,
+  fontWeight: 600,
+  color: 'var(--color-bred, #CE1141)',
+  textDecoration: 'none',
+  fontFamily: "'Outfit', sans-serif",
+  marginLeft: 'auto',
 }
