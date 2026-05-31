@@ -152,3 +152,155 @@ export function useMyTopWornSneakers(limit = 10) {
   })
   return useTopWornSneakers(userId ?? undefined, limit)
 }
+
+// =============================================================
+// Page /rankings — distribution + recently worn + DS still standing
+// =============================================================
+
+export interface WearStatusCount {
+  status: WearStatus
+  count: number
+}
+
+/**
+ * Repartition par statut pour la collec de l'utilisateur courant.
+ * Fetch tous les wear_count (1 colonne), groupe cote JS via wearStatus().
+ * Pour 1000+ paires c'est encore largement OK.
+ */
+export function useMyWearStatusDistribution() {
+  const { data: userId } = useQuery({
+    queryKey: ['auth-user-id'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser()
+      return data.user?.id ?? null
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  return useQuery({
+    queryKey: ['wear-status-distribution', userId],
+    enabled: !!userId,
+    queryFn: async (): Promise<WearStatusCount[]> => {
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select('wear_count')
+        .eq('user_id', userId!)
+      if (error) throw error
+
+      const counts: Record<WearStatus, number> = {
+        DS: 0,
+        VNDS: 0,
+        '9/10': 0,
+        '8/10': 0,
+        Beater: 0,
+      }
+      for (const row of data ?? []) {
+        counts[wearStatus(row.wear_count as number)]++
+      }
+      return WEAR_STATUSES.map((s) => ({ status: s, count: counts[s] }))
+    },
+  })
+}
+
+/**
+ * Top N paires recemment portees (par last_worn_at desc).
+ * Hit l'index (user_id, last_worn_at DESC) WHERE last_worn_at IS NOT NULL.
+ */
+export interface RecentlyWornSneaker {
+  id: string
+  name: string
+  brand: string | null
+  photo_url: string | null
+  stockx_image_url: string | null
+  wear_count: number
+  last_worn_at: string
+}
+
+export function useMyRecentlyWornSneakers(limit = 10) {
+  const { data: userId } = useQuery({
+    queryKey: ['auth-user-id'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser()
+      return data.user?.id ?? null
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  return useQuery({
+    queryKey: ['recently-worn', userId, limit],
+    enabled: !!userId,
+    queryFn: async (): Promise<RecentlyWornSneaker[]> => {
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select(
+          'id, name, brand, photo_url, stockx_image_url, wear_count, last_worn_at',
+        )
+        .eq('user_id', userId!)
+        .gt('wear_count', 0)
+        .not('last_worn_at', 'is', null)
+        .order('last_worn_at', { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return (data ?? []) as RecentlyWornSneaker[]
+    },
+  })
+}
+
+/**
+ * DS still standing : paires jamais portees, triees par date d'acquisition desc.
+ * COALESCE(purchase_date, created_at) — tri cote client (Postgres ne permet
+ * pas COALESCE direct dans .order() de PostgREST). Fetch toutes les DS puis
+ * tri + slice cote client.
+ */
+export interface DsStillStandingSneaker {
+  id: string
+  name: string
+  brand: string | null
+  photo_url: string | null
+  stockx_image_url: string | null
+  wear_count: number
+  purchase_date: string | null
+  created_at: string
+  /** Resolu par le hook : purchase_date si dispo, sinon created_at. */
+  acquired_at: string
+  /** True si acquired_at provient de purchase_date (sinon = created_at fallback). */
+  has_real_purchase_date: boolean
+}
+
+export function useMyDsStillStanding(limit = 20) {
+  const { data: userId } = useQuery({
+    queryKey: ['auth-user-id'],
+    queryFn: async () => {
+      const { data } = await supabase.auth.getUser()
+      return data.user?.id ?? null
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  return useQuery({
+    queryKey: ['ds-still-standing', userId, limit],
+    enabled: !!userId,
+    queryFn: async (): Promise<DsStillStandingSneaker[]> => {
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select(
+          'id, name, brand, photo_url, stockx_image_url, wear_count, purchase_date, created_at',
+        )
+        .eq('user_id', userId!)
+        .eq('wear_count', 0)
+      if (error) throw error
+
+      // Tri cote client : COALESCE(purchase_date, created_at) desc
+      const enriched = (data ?? []).map((s) => {
+        const acquired = (s.purchase_date as string | null) ?? (s.created_at as string)
+        return {
+          ...s,
+          acquired_at: acquired,
+          has_real_purchase_date: s.purchase_date !== null,
+        } as DsStillStandingSneaker
+      })
+      enriched.sort((a, b) => b.acquired_at.localeCompare(a.acquired_at))
+      return enriched.slice(0, limit)
+    },
+  })
+}
