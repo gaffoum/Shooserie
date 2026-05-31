@@ -11,6 +11,9 @@ import {
   useUserSneakers,
   type UserSneaker,
 } from '../lib/publicProfileQueries'
+import { useUserBadge } from '../lib/badges'
+import { BadgeDisplay } from '../components/BadgeDisplay'
+import { FacetsList } from '../components/FacetsList'
 import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
 
 type ViewMode = 'grid' | 'list'
@@ -27,6 +30,9 @@ export default function UserProfile() {
   const [statusFilter, setStatusFilter] = useState<string>('all')
 
   const sneakersQ = useUserSneakers(profile?.id, tab === 'for-sale')
+  const badgeQ = useUserBadge(
+    profile?.collection_public ? profile.id : undefined,
+  )
   const sneakers = sneakersQ.data ?? []
 
   const brands = useMemo(() => {
@@ -115,6 +121,16 @@ export default function UserProfile() {
                 year: 'numeric',
               })}
             </p>
+            {badgeQ.data && (
+              <div style={{ marginTop: 12 }}>
+                <BadgeDisplay code={badgeQ.data.badge.code} size="md" showLabel longLabel />
+                {badgeQ.data.facets.length > 0 && (
+                  <div style={{ marginTop: 8 }}>
+                    <FacetsList facets={badgeQ.data.facets} />
+                  </div>
+                )}
+              </div>
+            )}
           </div>
           <div style={statsRowStyle}>
             {profile.sneakers_count !== null && (
