@@ -14,6 +14,8 @@ import {
 
 interface TopWornSneakersProps {
   limit?: number
+  /** Si fourni, affiche un lien 'Voir tout' a cote du titre. */
+  viewAllUrl?: string
 }
 
 export function TopWornSneakers({ limit = 10, viewAllUrl }: TopWornSneakersProps) {
