@@ -19,6 +19,10 @@ import UserProfile from './pages/UserProfile';
 import Community from './pages/Community';
 import Rankings from './pages/Rankings';
 import Labels from './pages/Labels';
+import CGV from './pages/CGV';
+import MyOrders from './pages/MyOrders';
+import OrderSuccess from './pages/OrderSuccess';
+import CheckoutLabels from './pages/CheckoutLabels';
 
 
 export default function App() {
@@ -142,6 +146,41 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Labels />
+            </ProtectedRoute>
+          }
+        />
+      <Route
+          path="/checkout-labels"
+          element={
+            <ProtectedRoute>
+              <CheckoutLabels />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders"
+          element={
+            <ProtectedRoute>
+              <MyOrders />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/orders/:id/success"
+          element={
+            <ProtectedRoute>
+              <OrderSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/cgv" element={<CGV />} />
+      <Route
+          path="/admin/orders"
+          element={
+            <ProtectedRoute>
+              <AdminGuard>
+                <AdminOrders />
+              </AdminGuard>
             </ProtectedRoute>
           }
         />

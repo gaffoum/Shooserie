@@ -10,6 +10,8 @@
  *  5. Generation PDF cote client (jsPDF) + download
  */
 import { useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { calculatePricing, formatEur } from '../lib/stickerPricing'
 import { useQuery } from '@tanstack/react-query'
 import type { CSSProperties } from 'react'
 import { AppHeader } from '../components/AppHeader'
@@ -53,6 +55,7 @@ function useMySneakersForLabels() {
 }
 
 export default function Labels() {
+  const navigate = useNavigate()
   const sneakersQ = useMySneakersForLabels()
   const sneakers = sneakersQ.data ?? []
 
@@ -244,6 +247,18 @@ export default function Labels() {
               ? 'Génération…'
               : `📄 Télécharger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
             }
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              if (selectedSneakers.length === 0) return
+              navigate('/checkout-labels', { state: { sneakerIds: selectedSneakers.map((s) => s.id) } })
+            }}
+            disabled={selectedSneakers.length === 0}
+            style={selectedSneakers.length === 0 ? ctaSecondaryDisabledStyle : ctaSecondaryStyle}
+          >
+            🎁 Commander la planche imprimée ({formatEur(calculatePricing(selectedSneakers.length).totalAmount)})
           </button>
           <p style={hintStyle}>
             Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).
