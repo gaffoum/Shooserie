@@ -1,1 +1,24 @@
 .vercel
+
+# Scripts one-shot (Claude)
+shooserie-*.ps1
+shooserie-*.sql
+
+# Backups
+*.bak
+
+# Docs internes (non commitées)
+DECISIONS*.md
+DEPLOY-*.md
+# Scripts one-shot (Claude)
+shooserie-*.ps1
+shooserie-*.sql
+
+# Backups
+*.bak
+
+# Docs internes (non commitees)
+DECISIONS*.md
+DEPLOY-*.md
+send-reminder-emails.ts
+send-day*-reminder.ts
