@@ -18,6 +18,7 @@ import { PseudoSetupGuard } from './components/PseudoSetupGuard'
 import UserProfile from './pages/UserProfile';
 import Community from './pages/Community';
 import Rankings from './pages/Rankings';
+import Labels from './pages/Labels';
 
 
 export default function App() {
@@ -133,6 +134,14 @@ export default function App() {
           element={
             <ProtectedRoute>
               <Rankings />
+            </ProtectedRoute>
+          }
+        />
+      <Route
+          path="/labels"
+          element={
+            <ProtectedRoute>
+              <Labels />
             </ProtectedRoute>
           }
         />

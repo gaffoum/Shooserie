@@ -1,0 +1,370 @@
+/**
+ * Labels — page de generation de stickers pour les boites.
+ * Format Avery L7165 / J8165 : 99x67mm, 8 par page A4.
+ *
+ * Workflow :
+ *  1. Fetch toutes les paires du user
+ *  2. Multi-select via SneakerSelectCard
+ *  3. Toggle des options (photo, taille, QR, bande marque)
+ *  4. Preview live du 1er sticker
+ *  5. Generation PDF cote client (jsPDF) + download
+ */
+import { useMemo, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import type { CSSProperties } from 'react'
+import { AppHeader } from '../components/AppHeader'
+import { BackButton } from '../components/BackButton'
+import { SneakerSelectCard } from '../components/SneakerSelectCard'
+import { StickerPreview } from '../components/StickerPreview'
+import { supabase } from '../lib/supabase'
+import {
+  generateStickerPdf,
+  downloadBlob,
+  type StickerSneaker,
+  type StickerOptions,
+} from '../lib/stickerPdf'
+
+const DEFAULT_OPTIONS: StickerOptions = {
+  showPhoto: true,
+  showSize: true,
+  showQR: true,
+  showBrandBar: true,
+  qrBaseUrl: 'https://shooserie.tech/sneakers',
+}
+
+function useMySneakersForLabels() {
+  return useQuery({
+    queryKey: ['my-sneakers-labels'],
+    queryFn: async (): Promise<StickerSneaker[]> => {
+      const { data: userData } = await supabase.auth.getUser()
+      const userId = userData.user?.id
+      if (!userId) return []
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select('id, name, brand, colorway, size_eu, size_us, stockx_image_url, photo_url')
+        .eq('user_id', userId)
+        .order('brand', { ascending: true })
+        .order('name', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as StickerSneaker[]
+    },
+    staleTime: 60 * 1000,
+  })
+}
+
+export default function Labels() {
+  const sneakersQ = useMySneakersForLabels()
+  const sneakers = sneakersQ.data ?? []
+
+  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [options, setOptions] = useState<StickerOptions>(DEFAULT_OPTIONS)
+  const [search, setSearch] = useState('')
+  const [brandFilter, setBrandFilter] = useState<string>('all')
+  const [isGenerating, setIsGenerating] = useState(false)
+
+  const brands = useMemo(() => {
+    const set = new Set<string>()
+    for (const s of sneakers) if (s.brand) set.add(s.brand)
+    return Array.from(set).sort((a, b) => a.localeCompare(b, 'fr'))
+  }, [sneakers])
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase()
+    return sneakers.filter((s) => {
+      if (brandFilter !== 'all' && s.brand !== brandFilter) return false
+      if (q && !`${s.name} ${s.brand ?? ''} ${s.colorway ?? ''}`.toLowerCase().includes(q)) return false
+      return true
+    })
+  }, [sneakers, brandFilter, search])
+
+  const selectedSneakers = useMemo(
+    () => sneakers.filter((s) => selected.has(s.id)),
+    [sneakers, selected],
+  )
+
+  const pagesCount = Math.ceil(selectedSneakers.length / 8)
+
+  function toggle(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev)
+      if (next.has(id)) next.delete(id); else next.add(id)
+      return next
+    })
+  }
+
+  function selectAll() {
+    setSelected(new Set(filtered.map((s) => s.id)))
+  }
+
+  function selectNone() {
+    setSelected(new Set())
+  }
+
+  async function handleGenerate() {
+    if (selectedSneakers.length === 0) return
+    setIsGenerating(true)
+    try {
+      const blob = await generateStickerPdf(selectedSneakers, options)
+      const filename = `shooserie-stickers-${new Date().toISOString().slice(0, 10)}.pdf`
+      downloadBlob(blob, filename)
+    } catch (err) {
+      console.error('PDF generation failed', err)
+      alert("La génération du PDF a échoué. Vérifie la console.")
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
+  if (sneakersQ.isLoading) {
+    return (
+      <>
+        <AppHeader leftActions={<BackButton />} />
+        <div style={pageStyle}>
+          <h1 style={titleStyle}>Étiquettes</h1>
+          <p style={mutedStyle}>Chargement de ta collec…</p>
+        </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <AppHeader leftActions={<BackButton />} />
+      <div style={pageStyle}>
+        <header style={headerStyle}>
+          <h1 style={titleStyle}>ÉTIQUETTES</h1>
+          <p style={subtitleStyle}>
+            Format Avery L7165 / J8165 · 99 × 67 mm · 8 par page A4
+          </p>
+        </header>
+
+        {/* Preview live (1er sticker selectionne ou 1er filtre) */}
+        <section style={sectionStyle}>
+          <h2 style={sectionTitleStyle}>APERÇU</h2>
+          <div style={previewWrapStyle}>
+            {selectedSneakers[0] || filtered[0] ? (
+              <StickerPreview
+                sneaker={selectedSneakers[0] || filtered[0]}
+                options={options}
+                scale={1.4}
+              />
+            ) : (
+              <div style={emptyPreviewStyle}>Aucune paire à prévisualiser</div>
+            )}
+          </div>
+        </section>
+
+        {/* Options */}
+        <section style={sectionStyle}>
+          <h2 style={sectionTitleStyle}>OPTIONS</h2>
+          <div style={optionsRowStyle}>
+            <OptionToggle
+              checked={options.showPhoto}
+              onChange={(v) => setOptions({ ...options, showPhoto: v })}
+              label="Photo"
+            />
+            <OptionToggle
+              checked={options.showSize}
+              onChange={(v) => setOptions({ ...options, showSize: v })}
+              label="Taille"
+            />
+            <OptionToggle
+              checked={options.showQR}
+              onChange={(v) => setOptions({ ...options, showQR: v })}
+              label="QR code"
+            />
+            <OptionToggle
+              checked={options.showBrandBar}
+              onChange={(v) => setOptions({ ...options, showBrandBar: v })}
+              label="Bande marque"
+            />
+          </div>
+        </section>
+
+        {/* Toolbar */}
+        <section style={sectionStyle}>
+          <h2 style={sectionTitleStyle}>
+            SÉLECTION ({selectedSneakers.length} / {sneakers.length})
+            {pagesCount > 0 && (
+              <span style={pagesBadgeStyle}>
+                {pagesCount} page{pagesCount > 1 ? 's' : ''}
+              </span>
+            )}
+          </h2>
+          <div style={toolbarStyle}>
+            <input
+              type="text"
+              placeholder="Rechercher (modèle, marque…)"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              style={inputStyle}
+            />
+            <select
+              value={brandFilter}
+              onChange={(e) => setBrandFilter(e.target.value)}
+              style={selectStyle}
+            >
+              <option value="all">Toutes les marques</option>
+              {brands.map((b) => (
+                <option key={b} value={b}>{b}</option>
+              ))}
+            </select>
+            <button type="button" onClick={selectAll} style={ghostBtnStyle}>
+              Tout sélectionner
+            </button>
+            <button type="button" onClick={selectNone} style={ghostBtnStyle}>
+              Aucun
+            </button>
+          </div>
+
+          <div style={cardsGridStyle}>
+            {filtered.map((s) => (
+              <SneakerSelectCard
+                key={s.id}
+                id={s.id}
+                name={s.name}
+                brand={s.brand}
+                photoUrl={s.stockx_image_url || s.photo_url}
+                selected={selected.has(s.id)}
+                onToggle={toggle}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* CTA generation */}
+        <div style={ctaWrapStyle}>
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={selectedSneakers.length === 0 || isGenerating}
+            style={selectedSneakers.length === 0 || isGenerating ? ctaDisabledStyle : ctaStyle}
+          >
+            {isGenerating
+              ? 'Génération…'
+              : `📄 Télécharger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
+            }
+          </button>
+          <p style={hintStyle}>
+            Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).
+            Vendue ~8€/10 planches en supermarché ou bureau-tabac.
+          </p>
+        </div>
+      </div>
+    </>
+  )
+}
+
+function OptionToggle({
+  checked, onChange, label,
+}: { checked: boolean; onChange: (v: boolean) => void; label: string }) {
+  return (
+    <label style={toggleLabelStyle}>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        style={{ marginRight: 6 }}
+      />
+      {label}
+    </label>
+  )
+}
+
+// =================================================================
+// Styles
+// =================================================================
+const pageStyle: CSSProperties = {
+  maxWidth: 900, margin: '0 auto',
+  padding: '24px 16px 80px',
+  fontFamily: "'Outfit', sans-serif",
+}
+const headerStyle: CSSProperties = { marginBottom: 24 }
+const titleStyle: CSSProperties = {
+  fontSize: 40, fontWeight: 900, letterSpacing: '-0.02em',
+  color: '#0A0A0A', margin: 0, lineHeight: 1.05,
+}
+const subtitleStyle: CSSProperties = {
+  fontSize: 13, color: '#6B7280', marginTop: 8,
+}
+const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 13 }
+
+const sectionStyle: CSSProperties = { marginBottom: 28 }
+const sectionTitleStyle: CSSProperties = {
+  fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
+  textTransform: 'uppercase', color: '#0A0A0A', margin: '0 0 12px',
+  display: 'flex', alignItems: 'center', gap: 8,
+}
+const pagesBadgeStyle: CSSProperties = {
+  marginLeft: 8, fontSize: 11, color: '#6B7280',
+  fontWeight: 500, letterSpacing: 'normal', textTransform: 'none',
+}
+
+const previewWrapStyle: CSSProperties = {
+  display: 'flex', justifyContent: 'center', padding: 16,
+  background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB',
+}
+const emptyPreviewStyle: CSSProperties = {
+  padding: 60, color: '#9CA3AF', fontSize: 13,
+}
+
+const optionsRowStyle: CSSProperties = {
+  display: 'flex', flexWrap: 'wrap', gap: 12,
+  padding: 14, background: '#FFFFFF', borderRadius: 10,
+  border: '1px solid #E5E7EB',
+}
+const toggleLabelStyle: CSSProperties = {
+  display: 'inline-flex', alignItems: 'center',
+  fontSize: 13, color: '#0A0A0A', cursor: 'pointer',
+}
+
+const toolbarStyle: CSSProperties = {
+  display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 12,
+}
+const inputStyle: CSSProperties = {
+  flex: '1 1 200px',
+  padding: '8px 12px', fontSize: 13, borderRadius: 8,
+  border: '1px solid #E5E7EB', fontFamily: 'inherit',
+}
+const selectStyle: CSSProperties = {
+  padding: '8px 12px', fontSize: 13, borderRadius: 8,
+  border: '1px solid #E5E7EB', background: '#FFFFFF',
+  fontFamily: 'inherit',
+}
+const ghostBtnStyle: CSSProperties = {
+  padding: '8px 14px', fontSize: 12, fontWeight: 600,
+  background: '#FFFFFF', border: '1px solid #E5E7EB',
+  borderRadius: 8, color: '#0A0A0A', cursor: 'pointer',
+  fontFamily: 'inherit',
+}
+
+const cardsGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(auto-fill, minmax(140px, 1fr))',
+  gap: 12,
+}
+
+const ctaWrapStyle: CSSProperties = {
+  position: 'sticky', bottom: 0,
+  background: 'rgba(249, 250, 251, 0.95)',
+  backdropFilter: 'blur(8px)',
+  padding: '16px 0',
+  marginTop: 24,
+  borderTop: '1px solid #E5E7EB',
+  textAlign: 'center',
+}
+const ctaStyle: CSSProperties = {
+  background: '#CE1141', color: '#FFFFFF',
+  fontSize: 15, fontWeight: 700,
+  padding: '14px 32px', border: 'none',
+  borderRadius: 999, cursor: 'pointer',
+  fontFamily: 'inherit', letterSpacing: '0.01em',
+}
+const ctaDisabledStyle: CSSProperties = {
+  ...ctaStyle,
+  background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed',
+}
+const hintStyle: CSSProperties = {
+  marginTop: 10, fontSize: 11, color: '#6B7280',
+  maxWidth: 420, marginInline: 'auto',
+}
