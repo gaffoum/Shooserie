@@ -383,3 +383,24 @@ const hintStyle: CSSProperties = {
   marginTop: 10, fontSize: 11, color: '#6B7280',
   maxWidth: 420, marginInline: 'auto',
 }
+
+const ctaSecondaryStyle: CSSProperties = {
+  background: '#FFFFFF',
+  color: '#CE1141',
+  fontSize: 15,
+  fontWeight: 700,
+  padding: '14px 32px',
+  border: '2px solid #CE1141',
+  borderRadius: 999,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  letterSpacing: '0.01em',
+  marginTop: 8,
+}
+
+const ctaSecondaryDisabledStyle: CSSProperties = {
+  ...ctaSecondaryStyle,
+  color: '#9CA3AF',
+  borderColor: '#E5E7EB',
+  cursor: 'not-allowed',
+}

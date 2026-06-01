@@ -19,10 +19,12 @@ import UserProfile from './pages/UserProfile';
 import Community from './pages/Community';
 import Rankings from './pages/Rankings';
 import Labels from './pages/Labels';
+import AdminOrders from './pages/AdminOrders';
 import CGV from './pages/CGV';
 import MyOrders from './pages/MyOrders';
 import OrderSuccess from './pages/OrderSuccess';
 import CheckoutLabels from './pages/CheckoutLabels';
+import { AdminGuard } from './components/AdminGuard';
 
 
 export default function App() {

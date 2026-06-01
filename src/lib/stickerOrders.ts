@@ -1,8 +1,9 @@
 /**
  * Hooks queries pour les commandes de stickers.
  */
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery } from '@tanstack/react-query'
 import { supabase } from './supabase'
+export { formatEur } from './stickerPricing'
 
 export interface StickerOrder {
   id: string
