@@ -22,7 +22,6 @@ import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
 import type { DictKey } from '@/i18n/dictionaries'
 import { WelcomeHeader } from '../components/WelcomeHeader'
-import { LabelsButton } from '@/components/LabelsButton'
 
 /* =====================================================
  * Sort keys — labels are dictionary keys, comparators below.
@@ -434,7 +433,6 @@ export function Dashboard() {
 					<span style={listingsCountBadgeStyle}>{unreadTotal}</span>
 				  )}
 				</Link>
-				  <LabelsButton variant="chip" showLabel />
                 <button
                   type="button"
                   onClick={() => setShareDialogOpen(true)}
