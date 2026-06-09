@@ -1,3 +1,29 @@
+# ============================================================================
+#  fix-stickers-middot.ps1
+#  Separateur de taille : remplace le "/" (et l'ancien "A·" bugue) par un VRAI
+#  point median dessine (petit cercle plein), identique a l'apercu, sans bug
+#  d'encodage et sans embarquer de police.
+#  Le reste (ratio image, proxy) est inchange.
+#  A lancer depuis la RACINE du repo Shooserie.
+# ============================================================================
+$ErrorActionPreference = 'Stop'
+
+function Write-FileUtf8NoBom {
+  param([string]$Path, [string]$Content)
+  $dir = Split-Path -Parent $Path
+  if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path, $Content, $enc)
+  Write-Host "  ecrit : $Path" -ForegroundColor DarkGray
+}
+
+if (-not (Test-Path 'src/lib/stickerPdf.ts')) {
+  Write-Host "ERREUR : lance ce script depuis la racine du repo Shooserie." -ForegroundColor Red
+  exit 1
+}
+
+Write-Host "== Reecriture de src/lib/stickerPdf.ts ==" -ForegroundColor Cyan
+$sticker = @'
 /**
  * Generation PDF de stickers au format Avery L7165 / J8165.
  *   - A4 portrait : 210 x 297 mm
@@ -220,7 +246,7 @@ async function drawSticker(
   }
 
   // Taille - bold. Separateur = VRAI point median DESSINE (cercle plein) pour
-  // eviter le bug d'encodage jsPDF sur "Â·" tout en gardant le look de l'apercu.
+  // eviter le bug d'encodage jsPDF sur "·" tout en gardant le look de l'apercu.
   // Virgule -> point pour homogeneiser l'affichage (44,5 et 44.5 selon les paires).
   if (options.showSize) {
     const eu = sneaker.size_eu ? `EU ${sneaker.size_eu.replace(',', '.')}` : ''
@@ -306,3 +332,17 @@ export function downloadBlob(blob: Blob, filename: string) {
   document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
+'@
+Write-FileUtf8NoBom -Path 'src/lib/stickerPdf.ts' -Content $sticker
+
+Get-ChildItem -Path 'src/lib/stickerPdf.ts' -File | Unblock-File
+
+Write-Host ""
+Write-Host "OK - stickerPdf.ts reecrit (point median dessine)." -ForegroundColor Green
+Write-Host ""
+Write-Host "Etapes :" -ForegroundColor Yellow
+Write-Host "  git branch                 # * dev"
+Write-Host "  git add -A"
+Write-Host "  git commit -m ""fix(stickers): vrai point median dessine entre EU et US"""
+Write-Host "  git push origin dev"
+Write-Host "  -> attendre Vercel READY, puis test navigation privee."
