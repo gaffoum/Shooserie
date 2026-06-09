@@ -18,6 +18,8 @@ import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
 import { SneakerSelectCard } from '../components/SneakerSelectCard'
 import { StickerPreview } from '../components/StickerPreview'
+import { useAuth } from '../contexts/AuthContext'
+import { ADMIN_EMAIL } from '../lib/queries'
 import { supabase } from '../lib/supabase'
 import {
   generateStickerPdf,
@@ -58,6 +60,8 @@ export default function Labels() {
   const navigate = useNavigate()
   const sneakersQ = useMySneakersForLabels()
   const sneakers = sneakersQ.data ?? []
+  const { session } = useAuth()
+  const isAdmin = session?.user.email === ADMIN_EMAIL
 
   const [selected, setSelected] = useState<Set<string>>(new Set())
   const [options, setOptions] = useState<StickerOptions>(DEFAULT_OPTIONS)
@@ -145,12 +149,14 @@ export default function Labels() {
         <section style={sectionStyle}>
           <h2 style={sectionTitleStyle}>APERÇU</h2>
           <div style={previewWrapStyle}>
-            {selectedSneakers[0] || filtered[0] ? (
-              <StickerPreview
-                sneaker={selectedSneakers[0] || filtered[0]}
-                options={options}
-                scale={1.4}
-              />
+            {selectedSneakers.length > 0 ? (
+              <div style={sheetGridStyle}>
+                {selectedSneakers.map((s) => (
+                  <StickerPreview key={s.id} sneaker={s} options={options} scale={1.1} />
+                ))}
+              </div>
+            ) : filtered[0] ? (
+              <StickerPreview sneaker={filtered[0]} options={options} scale={1.4} />
             ) : (
               <div style={emptyPreviewStyle}>Aucune paire à prévisualiser</div>
             )}
@@ -237,6 +243,7 @@ export default function Labels() {
 
         {/* CTA generation */}
         <div style={ctaWrapStyle}>
+          {isAdmin && (
           <button
             type="button"
             onClick={handleGenerate}
@@ -248,7 +255,9 @@ export default function Labels() {
               : `📄 Télécharger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
             }
           </button>
+          )}
 
+          {!isAdmin && (
           <button
             type="button"
             onClick={() => {
@@ -260,6 +269,7 @@ export default function Labels() {
           >
             🎁 Commander la planche imprimée ({formatEur(calculatePricing(selectedSneakers.length).totalAmount)})
           </button>
+          )}
           <p style={hintStyle}>
             Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).
             Vendue ~8€/10 planches en supermarché ou bureau-tabac.
@@ -318,6 +328,12 @@ const pagesBadgeStyle: CSSProperties = {
 const previewWrapStyle: CSSProperties = {
   display: 'flex', justifyContent: 'center', padding: 16,
   background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB',
+}
+const sheetGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 10,
+  width: '100%',
 }
 const emptyPreviewStyle: CSSProperties = {
   padding: 60, color: '#9CA3AF', fontSize: 13,
