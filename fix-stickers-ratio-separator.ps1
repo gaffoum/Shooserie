@@ -1,3 +1,28 @@
+# ============================================================================
+#  fix-stickers-ratio-separator.ps1
+#  - Photo : preserve le ratio (plus de deformation), centree dans 38x38 mm
+#  - Taille : separateur ASCII " / " (corrige le "A·" d'encodage UTF-8)
+#  - Taille : normalise virgule -> point pour l'affichage (homogene)
+#  A lancer depuis la RACINE du repo Shooserie.
+# ============================================================================
+$ErrorActionPreference = 'Stop'
+
+function Write-FileUtf8NoBom {
+  param([string]$Path, [string]$Content)
+  $dir = Split-Path -Parent $Path
+  if ($dir -and -not (Test-Path $dir)) { New-Item -ItemType Directory -Force -Path $dir | Out-Null }
+  $enc = New-Object System.Text.UTF8Encoding($false)
+  [System.IO.File]::WriteAllText($Path, $Content, $enc)
+  Write-Host "  ecrit : $Path" -ForegroundColor DarkGray
+}
+
+if (-not (Test-Path 'src/lib/stickerPdf.ts')) {
+  Write-Host "ERREUR : lance ce script depuis la racine du repo Shooserie." -ForegroundColor Red
+  exit 1
+}
+
+Write-Host "== Reecriture de src/lib/stickerPdf.ts ==" -ForegroundColor Cyan
+$sticker = @'
 /**
  * Generation PDF de stickers au format Avery L7165 / J8165.
  *   - A4 portrait : 210 x 297 mm
@@ -235,7 +260,7 @@ async function drawSticker(
   }
 
   // Taille - bold. Separateur ASCII " / " (jsPDF helvetica ne sort pas l'UTF-8
-  // proprement => le point median ressortait en "AÂ·"). Virgule -> point pour
+  // proprement => le point median ressortait en "A·"). Virgule -> point pour
   // homogeneiser l'affichage (44,5 et 44.5 selon les paires).
   if (options.showSize) {
     const parts: string[] = []
@@ -310,3 +335,18 @@ export function downloadBlob(blob: Blob, filename: string) {
   document.body.removeChild(a)
   setTimeout(() => URL.revokeObjectURL(url), 1000)
 }
+'@
+Write-FileUtf8NoBom -Path 'src/lib/stickerPdf.ts' -Content $sticker
+
+Get-ChildItem -Path 'src/lib/stickerPdf.ts' -File | Unblock-File
+
+Write-Host ""
+Write-Host "OK - stickerPdf.ts reecrit." -ForegroundColor Green
+Write-Host ""
+Write-Host "Etapes suivantes :" -ForegroundColor Yellow
+Write-Host "  1) git branch                 # attendu : * dev"
+Write-Host "  2) git add -A"
+Write-Host "     git commit -m ""fix(stickers): ratio photo preserve + separateur taille ASCII"""
+Write-Host "     git push origin dev"
+Write-Host "  3) ATTENDRE que Vercel passe en READY (~1-2 min) avant de tester."
+Write-Host "  4) Test en navigation PRIVEE (Ctrl+Shift+R) sur le preview dev."
