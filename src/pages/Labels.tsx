@@ -282,7 +282,13 @@ export default function Labels() {
           <p style={hintStyle}>
             {isAdmin
               ? 'Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).'
-              : 'PDF : tu imprimes toi-même (dès 5 planches : 1,50 €/planche). Planche imprimée : expédiée chez toi (dès 5 : 5 €, dès 10 : 4 €).'}
+              : (
+                <>
+                  PDF à imprimer toi-même : 2 €/planche de 8 stickers (1,50 € dès 5 planches).
+                  <br />
+                  Planche imprimée et expédiée : 6 €/planche (5 € dès 5, 4 € dès 10).
+                </>
+              )}
           </p>
         </div>
       </div>
