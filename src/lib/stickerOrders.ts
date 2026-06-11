@@ -3,23 +3,26 @@
  */
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import type { OrderType } from './stickerPricing'
+import type { StickerSneaker } from './stickerPdf'
 export { formatEur } from './stickerPricing'
 
 export interface StickerOrder {
   id: string
   user_id: string
+  type: OrderType
   sneaker_ids: string[]
   nb_stickers: number
   nb_planches: number
   price_per_plate_cents: number
   amount_total_cents: number
   currency: string
-  shipping_name: string
-  shipping_address_line1: string
+  shipping_name: string | null
+  shipping_address_line1: string | null
   shipping_address_line2: string | null
-  shipping_postal_code: string
-  shipping_city: string
-  shipping_country: string
+  shipping_postal_code: string | null
+  shipping_city: string | null
+  shipping_country: string | null
   shipping_phone: string | null
   stripe_session_id: string | null
   status: 'pending' | 'paid' | 'preparing' | 'shipped' | 'delivered' | 'cancelled' | 'refunded'
@@ -34,7 +37,8 @@ export interface StickerOrder {
 
 export interface CreateOrderInput {
   sneaker_ids: string[]
-  shipping: {
+  type: OrderType
+  shipping?: {
     name: string
     address_line1: string
     address_line2?: string
@@ -111,12 +115,33 @@ export function useOrder(orderId: string | undefined) {
     },
     enabled: !!orderId,
     staleTime: 30 * 1000,
-    // Refetch souvent si la commande est en cours (paiement en train de se confirmer)
     refetchInterval: (query) => {
       const d = query.state.data as StickerOrder | null | undefined
-      if (d && d.status === 'pending') return 2000 // poll pendant que le webhook tarde
+      if (d && d.status === 'pending') return 2000
       return false
     },
+  })
+}
+
+/** Recupere les paires (champs sticker) par ids, en preservant l'ordre demande. */
+export function useSneakersByIds(ids: string[] | undefined) {
+  return useQuery({
+    queryKey: ['sneakers-by-ids', (ids ?? []).slice().sort().join(',')],
+    queryFn: async (): Promise<StickerSneaker[]> => {
+      if (!ids || ids.length === 0) return []
+      const { data, error } = await supabase
+        .from('sneakers')
+        .select('id, name, brand, colorway, size_eu, size_us, stockx_image_url, photo_url')
+        .in('id', ids)
+      if (error) throw error
+      const rows = (data ?? []) as StickerSneaker[]
+      const byId = new Map(rows.map((r) => [r.id, r]))
+      return ids
+        .map((id) => byId.get(id))
+        .filter((x): x is StickerSneaker => Boolean(x))
+    },
+    enabled: !!ids && ids.length > 0,
+    staleTime: 60 * 1000,
   })
 }
 
@@ -124,12 +149,12 @@ export function useOrder(orderId: string | undefined) {
 export function statusLabel(status: StickerOrder['status']): string {
   const map: Record<StickerOrder['status'], string> = {
     pending: 'En attente de paiement',
-    paid: 'Payée',
-    preparing: 'En préparation',
-    shipped: 'Expédiée',
-    delivered: 'Livrée',
-    cancelled: 'Annulée',
-    refunded: 'Remboursée',
+    paid: 'PayÃ©e',
+    preparing: 'En prÃ©paration',
+    shipped: 'ExpÃ©diÃ©e',
+    delivered: 'LivrÃ©e',
+    cancelled: 'AnnulÃ©e',
+    refunded: 'RemboursÃ©e',
   }
   return map[status] ?? status
 }

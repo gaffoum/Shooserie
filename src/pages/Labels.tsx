@@ -1,13 +1,6 @@
 /**
- * Labels — page de generation de stickers pour les boites.
+ * Labels â€” page de generation de stickers pour les boites.
  * Format Avery L7165 / J8165 : 99x67mm, 8 par page A4.
- *
- * Workflow :
- *  1. Fetch toutes les paires du user
- *  2. Multi-select via SneakerSelectCard
- *  3. Toggle des options (photo, taille, QR, bande marque)
- *  4. Preview live du 1er sticker
- *  5. Generation PDF cote client (jsPDF) + download
  */
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -90,6 +83,8 @@ export default function Labels() {
   )
 
   const pagesCount = Math.ceil(selectedSneakers.length / 8)
+  const digitalTotal = calculatePricing(selectedSneakers.length, 'digital').totalAmount
+  const physicalTotal = calculatePricing(selectedSneakers.length, 'physical').totalAmount
 
   function toggle(id: string) {
     setSelected((prev) => {
@@ -107,6 +102,13 @@ export default function Labels() {
     setSelected(new Set())
   }
 
+  function goCheckout(type: 'digital' | 'physical') {
+    if (selectedSneakers.length === 0) return
+    navigate('/checkout-labels', {
+      state: { sneakerIds: selectedSneakers.map((s) => s.id), type },
+    })
+  }
+
   async function handleGenerate() {
     if (selectedSneakers.length === 0) return
     setIsGenerating(true)
@@ -116,7 +118,7 @@ export default function Labels() {
       downloadBlob(blob, filename)
     } catch (err) {
       console.error('PDF generation failed', err)
-      alert("La génération du PDF a échoué. Vérifie la console.")
+      alert("La gÃ©nÃ©ration du PDF a Ã©chouÃ©. VÃ©rifie la console.")
     } finally {
       setIsGenerating(false)
     }
@@ -127,8 +129,8 @@ export default function Labels() {
       <>
         <AppHeader leftActions={<BackButton />} />
         <div style={pageStyle}>
-          <h1 style={titleStyle}>Étiquettes</h1>
-          <p style={mutedStyle}>Chargement de ta collec…</p>
+          <h1 style={titleStyle}>Ã‰tiquettes</h1>
+          <p style={mutedStyle}>Chargement de ta collecâ€¦</p>
         </div>
       </>
     )
@@ -139,15 +141,15 @@ export default function Labels() {
       <AppHeader leftActions={<BackButton />} />
       <div style={pageStyle}>
         <header style={headerStyle}>
-          <h1 style={titleStyle}>ÉTIQUETTES</h1>
+          <h1 style={titleStyle}>Ã‰TIQUETTES</h1>
           <p style={subtitleStyle}>
-            Format Avery L7165 / J8165 · 99 × 67 mm · 8 par page A4
+            Format Avery L7165 / J8165 Â· 99 Ã— 67 mm Â· 8 par page A4
           </p>
         </header>
 
-        {/* Preview live (1er sticker selectionne ou 1er filtre) */}
+        {/* Preview live (toutes les paires selectionnees) */}
         <section style={sectionStyle}>
-          <h2 style={sectionTitleStyle}>APERÇU</h2>
+          <h2 style={sectionTitleStyle}>APERÃ‡U</h2>
           <div style={previewWrapStyle}>
             {selectedSneakers.length > 0 ? (
               <div style={sheetGridStyle}>
@@ -158,7 +160,7 @@ export default function Labels() {
             ) : filtered[0] ? (
               <StickerPreview sneaker={filtered[0]} options={options} scale={1.4} />
             ) : (
-              <div style={emptyPreviewStyle}>Aucune paire à prévisualiser</div>
+              <div style={emptyPreviewStyle}>Aucune paire Ã  prÃ©visualiser</div>
             )}
           </div>
         </section>
@@ -193,7 +195,7 @@ export default function Labels() {
         {/* Toolbar */}
         <section style={sectionStyle}>
           <h2 style={sectionTitleStyle}>
-            SÉLECTION ({selectedSneakers.length} / {sneakers.length})
+            SÃ‰LECTION ({selectedSneakers.length} / {sneakers.length})
             {pagesCount > 0 && (
               <span style={pagesBadgeStyle}>
                 {pagesCount} page{pagesCount > 1 ? 's' : ''}
@@ -203,7 +205,7 @@ export default function Labels() {
           <div style={toolbarStyle}>
             <input
               type="text"
-              placeholder="Rechercher (modèle, marque…)"
+              placeholder="Rechercher (modÃ¨le, marqueâ€¦)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={inputStyle}
@@ -219,7 +221,7 @@ export default function Labels() {
               ))}
             </select>
             <button type="button" onClick={selectAll} style={ghostBtnStyle}>
-              Tout sélectionner
+              Tout sÃ©lectionner
             </button>
             <button type="button" onClick={selectNone} style={ghostBtnStyle}>
               Aucun
@@ -241,38 +243,46 @@ export default function Labels() {
           </div>
         </section>
 
-        {/* CTA generation */}
+        {/* CTA */}
         <div style={ctaWrapStyle}>
           {isAdmin && (
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={selectedSneakers.length === 0 || isGenerating}
-            style={selectedSneakers.length === 0 || isGenerating ? ctaDisabledStyle : ctaStyle}
-          >
-            {isGenerating
-              ? 'Génération…'
-              : `📄 Télécharger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
-            }
-          </button>
+            <button
+              type="button"
+              onClick={handleGenerate}
+              disabled={selectedSneakers.length === 0 || isGenerating}
+              style={selectedSneakers.length === 0 || isGenerating ? ctaDisabledStyle : ctaStyle}
+            >
+              {isGenerating
+                ? 'GÃ©nÃ©rationâ€¦'
+                : `ðŸ“„ TÃ©lÃ©charger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
+              }
+            </button>
           )}
 
           {!isAdmin && (
-          <button
-            type="button"
-            onClick={() => {
-              if (selectedSneakers.length === 0) return
-              navigate('/checkout-labels', { state: { sneakerIds: selectedSneakers.map((s) => s.id) } })
-            }}
-            disabled={selectedSneakers.length === 0}
-            style={selectedSneakers.length === 0 ? ctaSecondaryDisabledStyle : ctaSecondaryStyle}
-          >
-            🎁 Commander la planche imprimée ({formatEur(calculatePricing(selectedSneakers.length).totalAmount)})
-          </button>
+            <div style={ctaDualStyle}>
+              <button
+                type="button"
+                onClick={() => goCheckout('digital')}
+                disabled={selectedSneakers.length === 0}
+                style={selectedSneakers.length === 0 ? ctaDisabledStyle : ctaStyle}
+              >
+                {`ðŸ“¥ Payer & tÃ©lÃ©charger (${formatEur(digitalTotal)})`}
+              </button>
+              <button
+                type="button"
+                onClick={() => goCheckout('physical')}
+                disabled={selectedSneakers.length === 0}
+                style={selectedSneakers.length === 0 ? ctaSecondaryDisabledStyle : ctaSecondaryStyle}
+              >
+                {`ðŸŽ Commander la planche imprimÃ©e (${formatEur(physicalTotal)})`}
+              </button>
+            </div>
           )}
           <p style={hintStyle}>
-            Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).
-            Vendue ~8€/10 planches en supermarché ou bureau-tabac.
+            {isAdmin
+              ? 'Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).'
+              : 'PDF : tu imprimes toi-mÃªme (dÃ¨s 5 planches : 1,50 â‚¬/planche). Planche imprimÃ©e : expÃ©diÃ©e chez toi (dÃ¨s 5 : 5 â‚¬, dÃ¨s 10 : 4 â‚¬).'}
           </p>
         </div>
       </div>
@@ -384,6 +394,10 @@ const ctaWrapStyle: CSSProperties = {
   borderTop: '1px solid #E5E7EB',
   textAlign: 'center',
 }
+const ctaDualStyle: CSSProperties = {
+  display: 'flex', flexDirection: 'column', gap: 8,
+  maxWidth: 420, marginInline: 'auto',
+}
 const ctaStyle: CSSProperties = {
   background: '#CE1141', color: '#FFFFFF',
   fontSize: 15, fontWeight: 700,
@@ -411,7 +425,6 @@ const ctaSecondaryStyle: CSSProperties = {
   cursor: 'pointer',
   fontFamily: 'inherit',
   letterSpacing: '0.01em',
-  marginTop: 8,
 }
 
 const ctaSecondaryDisabledStyle: CSSProperties = {

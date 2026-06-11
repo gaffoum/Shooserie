@@ -1,11 +1,9 @@
 /**
- * CheckoutLabels — page de commande des planches imprimees.
- * Workflow :
- *   1. L'utilisateur arrive avec une liste de sneaker_ids dans le location.state
- *   2. Saisit son adresse de livraison
- *   3. Voit le recap prix degressif
- *   4. Clique sur "Payer" -> redirige vers Stripe Checkout
- *   5. Stripe redirige vers /orders/:id/success
+ * CheckoutLabels â€” commande de stickers (numerique OU physique).
+ * Le `type` arrive via location.state depuis /labels.
+ *   - digital  : pas d'adresse, mention legale de renonciation a la retractation,
+ *                bouton "Payer & telecharger" (le PDF se telecharge sur la page succes).
+ *   - physical : adresse de livraison + mention "personnalise", bouton "Payer".
  */
 import type { CSSProperties, FormEvent } from 'react'
 import { useEffect, useMemo, useState } from 'react'
@@ -13,25 +11,28 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
 import { useCreateOrder } from '../lib/stickerOrders'
-import { calculatePricing, formatEur } from '../lib/stickerPricing'
+import { calculatePricing, formatEur, type OrderType } from '../lib/stickerPricing'
 
 interface LocationState {
   sneakerIds?: string[]
+  type?: OrderType
 }
 
 export default function CheckoutLabels() {
   const location = useLocation()
   const navigate = useNavigate()
-  const sneakerIds = (location.state as LocationState | null)?.sneakerIds ?? []
+  const state = location.state as LocationState | null
+  const sneakerIds = state?.sneakerIds ?? []
+  const type: OrderType = state?.type === 'digital' ? 'digital' : 'physical'
+  const isDigital = type === 'digital'
 
-  // Redirige vers /labels si pas de selection
   useEffect(() => {
     if (sneakerIds.length === 0) {
       navigate('/labels', { replace: true })
     }
   }, [sneakerIds.length, navigate])
 
-  const pricing = useMemo(() => calculatePricing(sneakerIds.length), [sneakerIds.length])
+  const pricing = useMemo(() => calculatePricing(sneakerIds.length, type), [sneakerIds.length, type])
 
   const [name, setName] = useState('')
   const [addr1, setAddr1] = useState('')
@@ -44,12 +45,15 @@ export default function CheckoutLabels() {
 
   const createOrder = useCreateOrder()
 
-  const canSubmit =
-    sneakerIds.length > 0 &&
+  const addressOk =
     name.trim().length >= 2 &&
     addr1.trim().length >= 3 &&
     /^\d{4,10}$/.test(postal.replace(/\s+/g, '')) &&
-    city.trim().length >= 2 &&
+    city.trim().length >= 2
+
+  const canSubmit =
+    sneakerIds.length > 0 &&
+    (isDigital || addressOk) &&
     acceptCgv &&
     acceptCustom &&
     !createOrder.isPending
@@ -61,17 +65,19 @@ export default function CheckoutLabels() {
     try {
       const response = await createOrder.mutateAsync({
         sneaker_ids: sneakerIds,
-        shipping: {
-          name: name.trim(),
-          address_line1: addr1.trim(),
-          address_line2: addr2.trim() || undefined,
-          postal_code: postal.replace(/\s+/g, ''),
-          city: city.trim(),
-          country: 'FR',
-          phone: phone.trim() || undefined,
-        },
+        type,
+        shipping: isDigital
+          ? undefined
+          : {
+              name: name.trim(),
+              address_line1: addr1.trim(),
+              address_line2: addr2.trim() || undefined,
+              postal_code: postal.replace(/\s+/g, ''),
+              city: city.trim(),
+              country: 'FR',
+              phone: phone.trim() || undefined,
+            },
       })
-      // Redirige vers Stripe Checkout
       window.location.href = response.checkout_url
     } catch (err) {
       console.error(err)
@@ -85,20 +91,20 @@ export default function CheckoutLabels() {
       <AppHeader leftActions={<BackButton />} />
       <div style={pageStyle}>
         <header style={headerStyle}>
-          <h1 style={titleStyle}>COMMANDE</h1>
+          <h1 style={titleStyle}>{isDigital ? 'TÃ‰LÃ‰CHARGEMENT' : 'COMMANDE'}</h1>
           <p style={subtitleStyle}>
-            {sneakerIds.length} sticker{sneakerIds.length > 1 ? 's' : ''} · {pricing.nbPlanches} planche{pricing.nbPlanches > 1 ? 's' : ''} A4
+            {sneakerIds.length} sticker{sneakerIds.length > 1 ? 's' : ''} Â· {pricing.nbPlanches} planche{pricing.nbPlanches > 1 ? 's' : ''} A4
           </p>
         </header>
 
         <form onSubmit={handleSubmit}>
           {/* Recap prix */}
           <section style={cardStyle}>
-            <h2 style={sectionTitleStyle}>RÉCAPITULATIF</h2>
+            <h2 style={sectionTitleStyle}>RÃ‰CAPITULATIF</h2>
             <table style={tableStyle}>
               <tbody>
                 <tr>
-                  <td style={tdLabelStyle}>Stickers personnalisés</td>
+                  <td style={tdLabelStyle}>Stickers personnalisÃ©s</td>
                   <td style={tdValueStyle}>{sneakerIds.length}</td>
                 </tr>
                 <tr>
@@ -106,12 +112,12 @@ export default function CheckoutLabels() {
                   <td style={tdValueStyle}>{pricing.nbPlanches}</td>
                 </tr>
                 <tr>
-                  <td style={tdLabelStyle}>Prix unitaire (tier {pricing.tier})</td>
+                  <td style={tdLabelStyle}>Prix unitaire</td>
                   <td style={tdValueStyle}>{formatEur(pricing.pricePerPlate)} / planche</td>
                 </tr>
                 <tr>
-                  <td style={tdLabelStyle}>Livraison France métropolitaine</td>
-                  <td style={tdValueStyle}>Incluse ✓</td>
+                  <td style={tdLabelStyle}>{isDigital ? 'Format' : 'Livraison France mÃ©tropolitaine'}</td>
+                  <td style={tdValueStyle}>{isDigital ? 'PDF immÃ©diat âœ“' : 'Incluse âœ“'}</td>
                 </tr>
                 <tr style={trTotalStyle}>
                   <td style={tdTotalLabelStyle}>Total TTC</td>
@@ -122,50 +128,56 @@ export default function CheckoutLabels() {
 
             {pricing.nextTier && pricing.nextTier.nbPlanchesNeeded > 0 && (
               <div style={nextTierHintStyle}>
-                💡 Ajoute encore <strong>{pricing.nextTier.nbPlanchesNeeded * 8} sticker{pricing.nextTier.nbPlanchesNeeded * 8 > 1 ? 's' : ''}</strong> pour passer à{' '}
+                ðŸ’¡ Ajoute encore <strong>{pricing.nextTier.nbPlanchesNeeded * 8} sticker{pricing.nextTier.nbPlanchesNeeded * 8 > 1 ? 's' : ''}</strong> pour passer Ã {' '}
                 <strong>{formatEur(pricing.nextTier.newPricePerPlate)} / planche</strong>
               </div>
             )}
           </section>
 
-          {/* Adresse */}
-          <section style={cardStyle}>
-            <h2 style={sectionTitleStyle}>📦 LIVRAISON</h2>
-            <div style={fieldsGridStyle}>
-              <Field label="Nom et prénom *" required>
-                <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} required minLength={2} />
-              </Field>
-              <Field label="Adresse *" required>
-                <input type="text" value={addr1} onChange={(e) => setAddr1(e.target.value)} style={inputStyle} required minLength={3} placeholder="N° et rue" />
-              </Field>
-              <Field label="Complément (optionnel)">
-                <input type="text" value={addr2} onChange={(e) => setAddr2(e.target.value)} style={inputStyle} placeholder="Appartement, étage, etc." />
-              </Field>
-              <Field label="Code postal *" required>
-                <input type="text" value={postal} onChange={(e) => setPostal(e.target.value)} style={inputStyle} required pattern="\d{4,10}" inputMode="numeric" />
-              </Field>
-              <Field label="Ville *" required>
-                <input type="text" value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} required minLength={2} />
-              </Field>
-              <Field label="Téléphone (optionnel, pour suivi colis)">
-                <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} placeholder="06 12 34 56 78" />
-              </Field>
-            </div>
-            <p style={hintStyle}>Livraison France métropolitaine uniquement pour l'instant.</p>
-          </section>
+          {/* Adresse (physique uniquement) */}
+          {!isDigital && (
+            <section style={cardStyle}>
+              <h2 style={sectionTitleStyle}>ðŸ“¦ LIVRAISON</h2>
+              <div style={fieldsGridStyle}>
+                <Field label="Nom et prÃ©nom" required>
+                  <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} required minLength={2} />
+                </Field>
+                <Field label="Adresse" required>
+                  <input type="text" value={addr1} onChange={(e) => setAddr1(e.target.value)} style={inputStyle} required minLength={3} placeholder="NÂ° et rue" />
+                </Field>
+                <Field label="ComplÃ©ment (optionnel)">
+                  <input type="text" value={addr2} onChange={(e) => setAddr2(e.target.value)} style={inputStyle} placeholder="Appartement, Ã©tage, etc." />
+                </Field>
+                <Field label="Code postal" required>
+                  <input type="text" value={postal} onChange={(e) => setPostal(e.target.value)} style={inputStyle} required pattern="\d{4,10}" inputMode="numeric" />
+                </Field>
+                <Field label="Ville" required>
+                  <input type="text" value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} required minLength={2} />
+                </Field>
+                <Field label="TÃ©lÃ©phone (optionnel, pour suivi colis)">
+                  <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} placeholder="06 12 34 56 78" />
+                </Field>
+              </div>
+              <p style={hintStyle}>Livraison France mÃ©tropolitaine uniquement pour l'instant.</p>
+            </section>
+          )}
 
           {/* Consentements */}
           <section style={cardStyle}>
             <label style={consentRowStyle}>
               <input type="checkbox" checked={acceptCgv} onChange={(e) => setAcceptCgv(e.target.checked)} style={checkboxStyle} />
               <span style={consentTextStyle}>
-                J'accepte les <Link to="/cgv" target="_blank" style={linkStyle}>Conditions Générales de Vente</Link>
+                J'accepte les <Link to="/cgv" target="_blank" style={linkStyle}>Conditions GÃ©nÃ©rales de Vente</Link>
               </span>
             </label>
             <label style={consentRowStyle}>
               <input type="checkbox" checked={acceptCustom} onChange={(e) => setAcceptCustom(e.target.checked)} style={checkboxStyle} />
               <span style={consentTextStyle}>
-                Je comprends que les stickers étant <strong>personnalisés</strong> avec ma collection, le droit de rétractation de 14 jours ne s'applique pas (art. L221-28 du Code de la consommation).
+                {isDigital ? (
+                  <>Je demande la fourniture immÃ©diate du PDF et je reconnais perdre mon droit de rÃ©tractation dÃ¨s que le tÃ©lÃ©chargement est disponible (art. L221-28 du Code de la consommation).</>
+                ) : (
+                  <>Je comprends que les stickers Ã©tant <strong>personnalisÃ©s</strong> avec ma collection, le droit de rÃ©tractation de 14 jours ne s'applique pas (art. L221-28 du Code de la consommation).</>
+                )}
               </span>
             </label>
           </section>
@@ -174,7 +186,7 @@ export default function CheckoutLabels() {
           <div style={ctaWrapStyle}>
             {createOrder.isError && (
               <p style={errorStyle}>
-                ⚠️ {(createOrder.error as Error)?.message ?? 'Une erreur est survenue'}
+                âš ï¸ {(createOrder.error as Error)?.message ?? 'Une erreur est survenue'}
               </p>
             )}
             <button
@@ -182,10 +194,14 @@ export default function CheckoutLabels() {
               disabled={!canSubmit}
               style={canSubmit ? ctaStyle : ctaDisabledStyle}
             >
-              {createOrder.isPending ? 'Redirection vers Stripe…' : `💳 Payer ${formatEur(pricing.totalAmount)}`}
+              {createOrder.isPending
+                ? 'Redirection vers Stripeâ€¦'
+                : isDigital
+                  ? `ðŸ’³ Payer & tÃ©lÃ©charger ${formatEur(pricing.totalAmount)}`
+                  : `ðŸ’³ Payer ${formatEur(pricing.totalAmount)}`}
             </button>
             <p style={trustStyle}>
-              🔒 Paiement sécurisé par Stripe · 💳 CB, Apple Pay, Google Pay
+              ðŸ”’ Paiement sÃ©curisÃ© par Stripe Â· ðŸ’³ CB, Apple Pay, Google Pay
             </p>
           </div>
         </form>

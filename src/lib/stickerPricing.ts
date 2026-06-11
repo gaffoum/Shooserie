@@ -1,10 +1,13 @@
 /**
- * Pricing degressif pour les commandes de stickers physiques.
- *  - 1 planche : 5.00 EUR/u
- *  - 2-3 planches : 4.00 EUR/u
- *  - 4+ planches : 3.00 EUR/u
- * Livraison incluse (France metropolitaine).
+ * Pricing des commandes de stickers â€” deux types :
+ *   - 'physical' (planche imprimee + expediee) : degressif
+ *       1-4 planches : 6 EUR Â· 5-9 : 5 EUR Â· 10+ : 4 EUR (plancher)
+ *   - 'digital' (PDF a telecharger) : degressif
+ *       1-4 planches : 2 EUR Â· 5+ : 1.50 EUR
+ * Prix PAR PLANCHE applique a toutes les planches selon le palier atteint.
  */
+
+export type OrderType = 'digital' | 'physical'
 
 export const STICKERS_PER_PLATE = 8
 
@@ -13,49 +16,47 @@ export function calculateNbPlanches(nbStickers: number): number {
   return Math.ceil(nbStickers / STICKERS_PER_PLATE)
 }
 
-export function pricePerPlate(nbPlanches: number): number {
-  if (nbPlanches <= 1) return 5
-  if (nbPlanches <= 3) return 4
-  return 3
+export function pricePerPlate(nbPlanches: number, type: OrderType): number {
+  if (type === 'digital') return nbPlanches >= 5 ? 1.5 : 2
+  if (nbPlanches >= 10) return 4
+  if (nbPlanches >= 5) return 5
+  return 6
 }
 
 export interface PricingResult {
+  type: OrderType
   nbStickers: number
   nbPlanches: number
   pricePerPlate: number
   totalAmount: number
-  /** Le tier "atteint" : 1, 2, ou 3 */
-  tier: 1 | 2 | 3
-  /** Si applicable : nb de planches a ajouter pour passer au tier suivant + nouveau prix unitaire */
+  /** nb de planches a ajouter pour baisser le prix unitaire + nouveau prix */
   nextTier?: {
     nbPlanchesNeeded: number
     newPricePerPlate: number
   }
 }
 
-export function calculatePricing(nbStickers: number): PricingResult {
+export function calculatePricing(nbStickers: number, type: OrderType = 'physical'): PricingResult {
   const nbPlanches = calculateNbPlanches(nbStickers)
-  const price = pricePerPlate(nbPlanches)
+  const price = pricePerPlate(nbPlanches, type)
   const total = nbPlanches * price
 
-  let tier: 1 | 2 | 3
-  if (nbPlanches <= 1) tier = 1
-  else if (nbPlanches <= 3) tier = 2
-  else tier = 3
-
   let nextTier: PricingResult['nextTier']
-  if (tier === 1) {
-    nextTier = { nbPlanchesNeeded: 2 - nbPlanches, newPricePerPlate: 4 }
-  } else if (tier === 2) {
-    nextTier = { nbPlanchesNeeded: 4 - nbPlanches, newPricePerPlate: 3 }
+  for (let extra = 1; extra <= 50; extra++) {
+    const np = nbPlanches + extra
+    const newPrice = pricePerPlate(np, type)
+    if (newPrice < price) {
+      nextTier = { nbPlanchesNeeded: extra, newPricePerPlate: newPrice }
+      break
+    }
   }
 
   return {
+    type,
     nbStickers,
     nbPlanches,
     pricePerPlate: price,
     totalAmount: total,
-    tier,
     nextTier,
   }
 }
