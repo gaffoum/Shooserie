@@ -64,7 +64,7 @@ export function useCreateOrder() {
       const accessToken = sessionData.session?.access_token
       if (!accessToken) throw new Error('Non authentifie')
 
-      const url = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/create-sticker-order`
+      const url = 'https://eykhnpnmpcrvcpajirst.supabase.co/functions/v1/create-sticker-order'
       const response = await fetch(url, {
         method: 'POST',
         headers: {
@@ -74,9 +74,15 @@ export function useCreateOrder() {
         body: JSON.stringify(input),
       })
 
-      const body = await response.json()
+      const text = await response.text()
+      let body: CreateOrderResponse | { error?: string }
+      try {
+        body = text ? JSON.parse(text) : {}
+      } catch {
+        throw new Error(`Reponse invalide (HTTP ${response.status})`)
+      }
       if (!response.ok) {
-        throw new Error(body?.error ?? `HTTP ${response.status}`)
+        throw new Error((body as { error?: string })?.error ?? `HTTP ${response.status}`)
       }
       return body as CreateOrderResponse
     },
