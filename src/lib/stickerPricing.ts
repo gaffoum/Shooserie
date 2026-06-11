@@ -1,9 +1,9 @@
 /**
- * Pricing des commandes de stickers â€” deux types :
+ * Pricing des commandes de stickers — deux types :
  *   - 'physical' (planche imprimee + expediee) : degressif
- *       1-4 planches : 6 EUR Â· 5-9 : 5 EUR Â· 10+ : 4 EUR (plancher)
+ *       1-4 planches : 6 EUR · 5-9 : 5 EUR · 10+ : 4 EUR (plancher)
  *   - 'digital' (PDF a telecharger) : degressif
- *       1-4 planches : 2 EUR Â· 5+ : 1.50 EUR
+ *       1-4 planches : 2 EUR · 5+ : 1.50 EUR
  * Prix PAR PLANCHE applique a toutes les planches selon le palier atteint.
  */
 

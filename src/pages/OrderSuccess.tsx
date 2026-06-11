@@ -1,5 +1,5 @@
 /**
- * OrderSuccess â€” page de retour apres paiement Stripe.
+ * OrderSuccess — page de retour apres paiement Stripe.
  * On poll la commande jusqu'a ce que le webhook ait marque "paid".
  * Si la commande est numerique et payee, on permet le telechargement du PDF
  * (genere cote client a partir des paires de la commande).
@@ -41,7 +41,7 @@ export default function OrderSuccess() {
       downloadBlob(blob, `shooserie-stickers-${order.id.slice(0, 8)}.pdf`)
     } catch (e) {
       console.error('PDF generation failed', e)
-      alert('La gÃ©nÃ©ration du PDF a Ã©chouÃ©. RÃ©essaie.')
+      alert('La génération du PDF a échoué. Réessaie.')
     } finally {
       setIsGen(false)
     }
@@ -52,7 +52,7 @@ export default function OrderSuccess() {
       <>
         <AppHeader />
         <div style={pageStyle}>
-          <p style={mutedStyle}>Chargementâ€¦</p>
+          <p style={mutedStyle}>Chargement…</p>
         </div>
       </>
     )
@@ -64,7 +64,7 @@ export default function OrderSuccess() {
         <AppHeader />
         <div style={pageStyle}>
           <h1 style={titleStyle}>Commande introuvable</h1>
-          <Link to="/orders" style={linkStyle}>â† Mes commandes</Link>
+          <Link to="/orders" style={linkStyle}>← Mes commandes</Link>
         </div>
       </>
     )
@@ -79,30 +79,30 @@ export default function OrderSuccess() {
       <div style={pageStyle}>
         {isPending ? (
           <div style={pendingBoxStyle}>
-            <div style={spinnerStyle}>â³</div>
-            <h1 style={titleStyle}>Paiement en cours de confirmationâ€¦</h1>
+            <div style={spinnerStyle}>⏳</div>
+            <h1 style={titleStyle}>Paiement en cours de confirmation…</h1>
             <p style={mutedStyle}>
-              Stripe est en train de confirmer ton paiement. Cette page se met Ã  jour automatiquement (max 30 sec).
+              Stripe est en train de confirmer ton paiement. Cette page se met à jour automatiquement (max 30 sec).
             </p>
           </div>
         ) : (
           <div style={successBoxStyle}>
-            <div style={emojiStyle}>ðŸŽ‰</div>
-            <h1 style={titleStyle}>{isDigital ? 'Paiement confirmÃ© !' : 'Commande confirmÃ©e !'}</h1>
+            <div style={emojiStyle}>🎉</div>
+            <h1 style={titleStyle}>{isDigital ? 'Paiement confirmé !' : 'Commande confirmée !'}</h1>
             <p style={subtitleStyle}>
-              Merci pour ta confiance. Un email de confirmation t'a Ã©tÃ© envoyÃ©.
+              Merci pour ta confiance. Un email de confirmation t'a été envoyé.
             </p>
 
             <div style={cardStyle}>
               <table style={tableStyle}>
                 <tbody>
                   <tr>
-                    <td style={tdLabelStyle}>NumÃ©ro de commande</td>
+                    <td style={tdLabelStyle}>Numéro de commande</td>
                     <td style={tdValueStyle}>#{order.id.slice(0, 8).toUpperCase()}</td>
                   </tr>
                   <tr>
                     <td style={tdLabelStyle}>Type</td>
-                    <td style={tdValueStyle}>{isDigital ? 'PDF numÃ©rique' : 'Planche imprimÃ©e'}</td>
+                    <td style={tdValueStyle}>{isDigital ? 'PDF numérique' : 'Planche imprimée'}</td>
                   </tr>
                   <tr>
                     <td style={tdLabelStyle}>Stickers</td>
@@ -113,7 +113,7 @@ export default function OrderSuccess() {
                     <td style={tdValueStyle}>{order.nb_planches}</td>
                   </tr>
                   <tr>
-                    <td style={tdLabelStyle}>Total payÃ©</td>
+                    <td style={tdLabelStyle}>Total payé</td>
                     <td style={tdValueStyle}>{formatEur(order.amount_total_cents / 100)}</td>
                   </tr>
                   <tr>
@@ -133,24 +133,24 @@ export default function OrderSuccess() {
                   style={isGen || sneakersQ.isLoading ? downloadDisabledStyle : downloadStyle}
                 >
                   {isGen
-                    ? 'GÃ©nÃ©ration du PDFâ€¦'
+                    ? 'Génération du PDF…'
                     : sneakersQ.isLoading
-                      ? 'PrÃ©parationâ€¦'
-                      : 'ðŸ“¥ TÃ©lÃ©charger mon PDF'}
+                      ? 'Préparation…'
+                      : '📥 Télécharger mon PDF'}
                 </button>
                 <p style={nextStepStyle}>
-                  Tu peux retÃ©lÃ©charger ton PDF Ã  tout moment depuis cette page ou Â« Mes commandes Â».
+                  Tu peux retélécharger ton PDF à tout moment depuis cette page ou « Mes commandes ».
                 </p>
               </>
             ) : (
               <p style={nextStepStyle}>
-                ðŸ“¦ Tes planches sont en cours de prÃ©paration. Tu recevras un mail avec le numÃ©ro de suivi sous 3-5 jours ouvrÃ©s.
+                📦 Tes planches sont en cours de préparation. Tu recevras un mail avec le numéro de suivi sous 3-5 jours ouvrés.
               </p>
             )}
 
             <div style={ctaWrapStyle}>
               <Link to="/orders" style={primaryCtaStyle}>Voir mes commandes</Link>
-              <Link to="/labels" style={secondaryCtaStyle}>Retour aux Ã©tiquettes</Link>
+              <Link to="/labels" style={secondaryCtaStyle}>Retour aux étiquettes</Link>
             </div>
           </div>
         )}

@@ -1,5 +1,5 @@
 /**
- * Labels â€” page de generation de stickers pour les boites.
+ * Labels — page de generation de stickers pour les boites.
  * Format Avery L7165 / J8165 : 99x67mm, 8 par page A4.
  */
 import { useMemo, useState } from 'react'
@@ -118,7 +118,7 @@ export default function Labels() {
       downloadBlob(blob, filename)
     } catch (err) {
       console.error('PDF generation failed', err)
-      alert("La gÃ©nÃ©ration du PDF a Ã©chouÃ©. VÃ©rifie la console.")
+      alert("La génération du PDF a échoué. Vérifie la console.")
     } finally {
       setIsGenerating(false)
     }
@@ -129,8 +129,8 @@ export default function Labels() {
       <>
         <AppHeader leftActions={<BackButton />} />
         <div style={pageStyle}>
-          <h1 style={titleStyle}>Ã‰tiquettes</h1>
-          <p style={mutedStyle}>Chargement de ta collecâ€¦</p>
+          <h1 style={titleStyle}>Étiquettes</h1>
+          <p style={mutedStyle}>Chargement de ta collec…</p>
         </div>
       </>
     )
@@ -141,15 +141,15 @@ export default function Labels() {
       <AppHeader leftActions={<BackButton />} />
       <div style={pageStyle}>
         <header style={headerStyle}>
-          <h1 style={titleStyle}>Ã‰TIQUETTES</h1>
+          <h1 style={titleStyle}>ÉTIQUETTES</h1>
           <p style={subtitleStyle}>
-            Format Avery L7165 / J8165 Â· 99 Ã— 67 mm Â· 8 par page A4
+            Format Avery L7165 / J8165 · 99 × 67 mm · 8 par page A4
           </p>
         </header>
 
         {/* Preview live (toutes les paires selectionnees) */}
         <section style={sectionStyle}>
-          <h2 style={sectionTitleStyle}>APERÃ‡U</h2>
+          <h2 style={sectionTitleStyle}>APERÇU</h2>
           <div style={previewWrapStyle}>
             {selectedSneakers.length > 0 ? (
               <div style={sheetGridStyle}>
@@ -160,7 +160,7 @@ export default function Labels() {
             ) : filtered[0] ? (
               <StickerPreview sneaker={filtered[0]} options={options} scale={1.4} />
             ) : (
-              <div style={emptyPreviewStyle}>Aucune paire Ã  prÃ©visualiser</div>
+              <div style={emptyPreviewStyle}>Aucune paire à prévisualiser</div>
             )}
           </div>
         </section>
@@ -195,7 +195,7 @@ export default function Labels() {
         {/* Toolbar */}
         <section style={sectionStyle}>
           <h2 style={sectionTitleStyle}>
-            SÃ‰LECTION ({selectedSneakers.length} / {sneakers.length})
+            SÉLECTION ({selectedSneakers.length} / {sneakers.length})
             {pagesCount > 0 && (
               <span style={pagesBadgeStyle}>
                 {pagesCount} page{pagesCount > 1 ? 's' : ''}
@@ -205,7 +205,7 @@ export default function Labels() {
           <div style={toolbarStyle}>
             <input
               type="text"
-              placeholder="Rechercher (modÃ¨le, marqueâ€¦)"
+              placeholder="Rechercher (modèle, marque…)"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               style={inputStyle}
@@ -221,7 +221,7 @@ export default function Labels() {
               ))}
             </select>
             <button type="button" onClick={selectAll} style={ghostBtnStyle}>
-              Tout sÃ©lectionner
+              Tout sélectionner
             </button>
             <button type="button" onClick={selectNone} style={ghostBtnStyle}>
               Aucun
@@ -253,8 +253,8 @@ export default function Labels() {
               style={selectedSneakers.length === 0 || isGenerating ? ctaDisabledStyle : ctaStyle}
             >
               {isGenerating
-                ? 'GÃ©nÃ©rationâ€¦'
-                : `ðŸ“„ TÃ©lÃ©charger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
+                ? 'Génération…'
+                : `📄 Télécharger ${selectedSneakers.length} sticker${selectedSneakers.length > 1 ? 's' : ''} en PDF`
               }
             </button>
           )}
@@ -267,7 +267,7 @@ export default function Labels() {
                 disabled={selectedSneakers.length === 0}
                 style={selectedSneakers.length === 0 ? ctaDisabledStyle : ctaStyle}
               >
-                {`ðŸ“¥ Payer & tÃ©lÃ©charger (${formatEur(digitalTotal)})`}
+                {`📥 Payer & télécharger (${formatEur(digitalTotal)})`}
               </button>
               <button
                 type="button"
@@ -275,14 +275,14 @@ export default function Labels() {
                 disabled={selectedSneakers.length === 0}
                 style={selectedSneakers.length === 0 ? ctaSecondaryDisabledStyle : ctaSecondaryStyle}
               >
-                {`ðŸŽ Commander la planche imprimÃ©e (${formatEur(physicalTotal)})`}
+                {`🎁 Commander la planche imprimée (${formatEur(physicalTotal)})`}
               </button>
             </div>
           )}
           <p style={hintStyle}>
             {isAdmin
               ? 'Imprime sur planche Avery L7165 / J8165 (8 stickers par feuille A4).'
-              : 'PDF : tu imprimes toi-mÃªme (dÃ¨s 5 planches : 1,50 â‚¬/planche). Planche imprimÃ©e : expÃ©diÃ©e chez toi (dÃ¨s 5 : 5 â‚¬, dÃ¨s 10 : 4 â‚¬).'}
+              : 'PDF : tu imprimes toi-même (dès 5 planches : 1,50 €/planche). Planche imprimée : expédiée chez toi (dès 5 : 5 €, dès 10 : 4 €).'}
           </p>
         </div>
       </div>

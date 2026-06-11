@@ -1,5 +1,5 @@
 /**
- * CheckoutLabels â€” commande de stickers (numerique OU physique).
+ * CheckoutLabels — commande de stickers (numerique OU physique).
  * Le `type` arrive via location.state depuis /labels.
  *   - digital  : pas d'adresse, mention legale de renonciation a la retractation,
  *                bouton "Payer & telecharger" (le PDF se telecharge sur la page succes).
@@ -91,20 +91,20 @@ export default function CheckoutLabels() {
       <AppHeader leftActions={<BackButton />} />
       <div style={pageStyle}>
         <header style={headerStyle}>
-          <h1 style={titleStyle}>{isDigital ? 'TÃ‰LÃ‰CHARGEMENT' : 'COMMANDE'}</h1>
+          <h1 style={titleStyle}>{isDigital ? 'TÉLÉCHARGEMENT' : 'COMMANDE'}</h1>
           <p style={subtitleStyle}>
-            {sneakerIds.length} sticker{sneakerIds.length > 1 ? 's' : ''} Â· {pricing.nbPlanches} planche{pricing.nbPlanches > 1 ? 's' : ''} A4
+            {sneakerIds.length} sticker{sneakerIds.length > 1 ? 's' : ''} · {pricing.nbPlanches} planche{pricing.nbPlanches > 1 ? 's' : ''} A4
           </p>
         </header>
 
         <form onSubmit={handleSubmit}>
           {/* Recap prix */}
           <section style={cardStyle}>
-            <h2 style={sectionTitleStyle}>RÃ‰CAPITULATIF</h2>
+            <h2 style={sectionTitleStyle}>RÉCAPITULATIF</h2>
             <table style={tableStyle}>
               <tbody>
                 <tr>
-                  <td style={tdLabelStyle}>Stickers personnalisÃ©s</td>
+                  <td style={tdLabelStyle}>Stickers personnalisés</td>
                   <td style={tdValueStyle}>{sneakerIds.length}</td>
                 </tr>
                 <tr>
@@ -116,8 +116,8 @@ export default function CheckoutLabels() {
                   <td style={tdValueStyle}>{formatEur(pricing.pricePerPlate)} / planche</td>
                 </tr>
                 <tr>
-                  <td style={tdLabelStyle}>{isDigital ? 'Format' : 'Livraison France mÃ©tropolitaine'}</td>
-                  <td style={tdValueStyle}>{isDigital ? 'PDF immÃ©diat âœ“' : 'Incluse âœ“'}</td>
+                  <td style={tdLabelStyle}>{isDigital ? 'Format' : 'Livraison France métropolitaine'}</td>
+                  <td style={tdValueStyle}>{isDigital ? 'PDF immédiat ✓' : 'Incluse ✓'}</td>
                 </tr>
                 <tr style={trTotalStyle}>
                   <td style={tdTotalLabelStyle}>Total TTC</td>
@@ -128,7 +128,7 @@ export default function CheckoutLabels() {
 
             {pricing.nextTier && pricing.nextTier.nbPlanchesNeeded > 0 && (
               <div style={nextTierHintStyle}>
-                ðŸ’¡ Ajoute encore <strong>{pricing.nextTier.nbPlanchesNeeded * 8} sticker{pricing.nextTier.nbPlanchesNeeded * 8 > 1 ? 's' : ''}</strong> pour passer Ã {' '}
+                💡 Ajoute encore <strong>{pricing.nextTier.nbPlanchesNeeded * 8} sticker{pricing.nextTier.nbPlanchesNeeded * 8 > 1 ? 's' : ''}</strong> pour passer à{' '}
                 <strong>{formatEur(pricing.nextTier.newPricePerPlate)} / planche</strong>
               </div>
             )}
@@ -137,16 +137,16 @@ export default function CheckoutLabels() {
           {/* Adresse (physique uniquement) */}
           {!isDigital && (
             <section style={cardStyle}>
-              <h2 style={sectionTitleStyle}>ðŸ“¦ LIVRAISON</h2>
+              <h2 style={sectionTitleStyle}>📦 LIVRAISON</h2>
               <div style={fieldsGridStyle}>
-                <Field label="Nom et prÃ©nom" required>
+                <Field label="Nom et prénom" required>
                   <input type="text" value={name} onChange={(e) => setName(e.target.value)} style={inputStyle} required minLength={2} />
                 </Field>
                 <Field label="Adresse" required>
-                  <input type="text" value={addr1} onChange={(e) => setAddr1(e.target.value)} style={inputStyle} required minLength={3} placeholder="NÂ° et rue" />
+                  <input type="text" value={addr1} onChange={(e) => setAddr1(e.target.value)} style={inputStyle} required minLength={3} placeholder="N° et rue" />
                 </Field>
-                <Field label="ComplÃ©ment (optionnel)">
-                  <input type="text" value={addr2} onChange={(e) => setAddr2(e.target.value)} style={inputStyle} placeholder="Appartement, Ã©tage, etc." />
+                <Field label="Complément (optionnel)">
+                  <input type="text" value={addr2} onChange={(e) => setAddr2(e.target.value)} style={inputStyle} placeholder="Appartement, étage, etc." />
                 </Field>
                 <Field label="Code postal" required>
                   <input type="text" value={postal} onChange={(e) => setPostal(e.target.value)} style={inputStyle} required pattern="\d{4,10}" inputMode="numeric" />
@@ -154,11 +154,11 @@ export default function CheckoutLabels() {
                 <Field label="Ville" required>
                   <input type="text" value={city} onChange={(e) => setCity(e.target.value)} style={inputStyle} required minLength={2} />
                 </Field>
-                <Field label="TÃ©lÃ©phone (optionnel, pour suivi colis)">
+                <Field label="Téléphone (optionnel, pour suivi colis)">
                   <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} placeholder="06 12 34 56 78" />
                 </Field>
               </div>
-              <p style={hintStyle}>Livraison France mÃ©tropolitaine uniquement pour l'instant.</p>
+              <p style={hintStyle}>Livraison France métropolitaine uniquement pour l'instant.</p>
             </section>
           )}
 
@@ -167,16 +167,16 @@ export default function CheckoutLabels() {
             <label style={consentRowStyle}>
               <input type="checkbox" checked={acceptCgv} onChange={(e) => setAcceptCgv(e.target.checked)} style={checkboxStyle} />
               <span style={consentTextStyle}>
-                J'accepte les <Link to="/cgv" target="_blank" style={linkStyle}>Conditions GÃ©nÃ©rales de Vente</Link>
+                J'accepte les <Link to="/cgv" target="_blank" style={linkStyle}>Conditions Générales de Vente</Link>
               </span>
             </label>
             <label style={consentRowStyle}>
               <input type="checkbox" checked={acceptCustom} onChange={(e) => setAcceptCustom(e.target.checked)} style={checkboxStyle} />
               <span style={consentTextStyle}>
                 {isDigital ? (
-                  <>Je demande la fourniture immÃ©diate du PDF et je reconnais perdre mon droit de rÃ©tractation dÃ¨s que le tÃ©lÃ©chargement est disponible (art. L221-28 du Code de la consommation).</>
+                  <>Je demande la fourniture immédiate du PDF et je reconnais perdre mon droit de rétractation dès que le téléchargement est disponible (art. L221-28 du Code de la consommation).</>
                 ) : (
-                  <>Je comprends que les stickers Ã©tant <strong>personnalisÃ©s</strong> avec ma collection, le droit de rÃ©tractation de 14 jours ne s'applique pas (art. L221-28 du Code de la consommation).</>
+                  <>Je comprends que les stickers étant <strong>personnalisés</strong> avec ma collection, le droit de rétractation de 14 jours ne s'applique pas (art. L221-28 du Code de la consommation).</>
                 )}
               </span>
             </label>
@@ -186,7 +186,7 @@ export default function CheckoutLabels() {
           <div style={ctaWrapStyle}>
             {createOrder.isError && (
               <p style={errorStyle}>
-                âš ï¸ {(createOrder.error as Error)?.message ?? 'Une erreur est survenue'}
+                ⚠️ {(createOrder.error as Error)?.message ?? 'Une erreur est survenue'}
               </p>
             )}
             <button
@@ -195,13 +195,13 @@ export default function CheckoutLabels() {
               style={canSubmit ? ctaStyle : ctaDisabledStyle}
             >
               {createOrder.isPending
-                ? 'Redirection vers Stripeâ€¦'
+                ? 'Redirection vers Stripe…'
                 : isDigital
-                  ? `ðŸ’³ Payer & tÃ©lÃ©charger ${formatEur(pricing.totalAmount)}`
-                  : `ðŸ’³ Payer ${formatEur(pricing.totalAmount)}`}
+                  ? `💳 Payer & télécharger ${formatEur(pricing.totalAmount)}`
+                  : `💳 Payer ${formatEur(pricing.totalAmount)}`}
             </button>
             <p style={trustStyle}>
-              ðŸ”’ Paiement sÃ©curisÃ© par Stripe Â· ðŸ’³ CB, Apple Pay, Google Pay
+              🔒 Paiement sécurisé par Stripe · 💳 CB, Apple Pay, Google Pay
             </p>
           </div>
         </form>

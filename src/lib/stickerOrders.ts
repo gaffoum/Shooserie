@@ -149,12 +149,12 @@ export function useSneakersByIds(ids: string[] | undefined) {
 export function statusLabel(status: StickerOrder['status']): string {
   const map: Record<StickerOrder['status'], string> = {
     pending: 'En attente de paiement',
-    paid: 'PayÃ©e',
-    preparing: 'En prÃ©paration',
-    shipped: 'ExpÃ©diÃ©e',
-    delivered: 'LivrÃ©e',
-    cancelled: 'AnnulÃ©e',
-    refunded: 'RemboursÃ©e',
+    paid: 'Payée',
+    preparing: 'En préparation',
+    shipped: 'Expédiée',
+    delivered: 'Livrée',
+    cancelled: 'Annulée',
+    refunded: 'Remboursée',
   }
   return map[status] ?? status
 }
