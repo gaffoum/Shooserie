@@ -230,8 +230,13 @@ export function useUpdateOrderStatus() {
         .eq('id', input.id)
       if (error) throw error
     },
-    onSuccess: () => {
+    onSuccess: (_data, variables) => {
       qc.invalidateQueries({ queryKey: ['admin-sticker-orders'] })
+      if (variables.status === 'shipped') {
+        supabase.functions
+          .invoke('notify-order-shipped', { body: { order_id: variables.id } })
+          .catch((e) => console.error('notify shipped failed', e))
+      }
     },
   })
 }
