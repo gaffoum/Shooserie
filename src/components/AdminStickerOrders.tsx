@@ -83,7 +83,7 @@ function OrderCard({ order }: { order: StickerOrder }) {
       <div style={metaStyle}>
         {order.nb_planches} planche{order.nb_planches > 1 ? 's' : ''} ·{' '}
         {order.nb_stickers} sticker{order.nb_stickers > 1 ? 's' : ''} ·{' '}
-        {formatEur(order.amount_total_cents)}
+        {formatEur(order.amount_total_cents / 100)}
         {order.paid_at ? ` · payée le ${formatDate(order.paid_at)}` : ''}
       </div>
 
