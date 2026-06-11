@@ -6,6 +6,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { KpiCard } from '@/components/KpiCard'
 import { Sparkline } from '@/components/Sparkline'
 import { formatEur } from '@/lib/format'
+import { AdminStickerOrders } from '@/components/AdminStickerOrders'
 
 /**
  * Internal monitoring dashboard. Shows app growth (users, sneakers, signups
@@ -34,6 +35,7 @@ export function Admin() {
     <div style={pageStyle}>
       <AppHeader />
       <main style={mainStyle}>
+        <AdminStickerOrders />
         <header style={headerStyle}>
           <div>
             <h1 style={titleStyle}>Monitoring</h1>

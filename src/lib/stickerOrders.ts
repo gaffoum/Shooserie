@@ -1,7 +1,7 @@
 /**
  * Hooks queries pour les commandes de stickers.
  */
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import type { OrderType } from './stickerPricing'
 import type { StickerSneaker } from './stickerPdf'
@@ -12,6 +12,7 @@ export interface StickerOrder {
   user_id: string
   type: OrderType
   sneaker_ids: string[]
+  items: StickerSneaker[] | null
   nb_stickers: number
   nb_planches: number
   price_per_plate_cents: number
@@ -176,4 +177,61 @@ export function statusColor(status: StickerOrder['status']): { bg: string; fg: s
     case 'cancelled':  return { bg: '#FEE2E2', fg: '#991B1B' }
     case 'refunded':   return { bg: '#FCE7F3', fg: '#9F1239' }
   }
+}
+
+// ============================================================================
+// ADMIN — file d'impression (commandes physiques)
+// ============================================================================
+
+/** [admin] Liste les commandes physiques actives (payees / en prepa / expediees). */
+export function useAdminStickerOrders() {
+  return useQuery({
+    queryKey: ['admin-sticker-orders'],
+    queryFn: async (): Promise<StickerOrder[]> => {
+      const { data, error } = await supabase
+        .from('sticker_orders')
+        .select('*')
+        .eq('type', 'physical')
+        .in('status', ['paid', 'preparing', 'shipped'])
+        .order('paid_at', { ascending: true })
+      if (error) throw error
+      return (data ?? []) as StickerOrder[]
+    },
+    staleTime: 15 * 1000,
+  })
+}
+
+export interface UpdateOrderStatusInput {
+  id: string
+  status: StickerOrder['status']
+  carrier?: string | null
+  tracking_number?: string | null
+  tracking_url?: string | null
+}
+
+/** [admin] Met a jour le statut d'une commande (+ timestamps/suivi). */
+export function useUpdateOrderStatus() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async (input: UpdateOrderStatusInput): Promise<void> => {
+      const patch: Record<string, unknown> = { status: input.status }
+      if (input.status === 'shipped') {
+        patch.shipped_at = new Date().toISOString()
+        if (input.carrier !== undefined) patch.carrier = input.carrier
+        if (input.tracking_number !== undefined) patch.tracking_number = input.tracking_number
+        if (input.tracking_url !== undefined) patch.tracking_url = input.tracking_url
+      }
+      if (input.status === 'delivered') {
+        patch.delivered_at = new Date().toISOString()
+      }
+      const { error } = await supabase
+        .from('sticker_orders')
+        .update(patch)
+        .eq('id', input.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['admin-sticker-orders'] })
+    },
+  })
 }
