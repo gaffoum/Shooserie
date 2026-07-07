@@ -423,6 +423,10 @@ const fr = {
   // Page Guide (/guide)
   'guide.title': 'Guide',
   'guide.intro': 'Comment fonctionne ta progression sur Shooserie.',
+  'guide.pairs': 'paires',
+  'guide.grades.title': 'Grades',
+  'guide.grades.sub': 'Ton niveau grimpe avec le nombre de paires de ta collection.',
+  'guide.grades.current': 'Ton grade',
 }
 
 const en: typeof fr = {
@@ -837,6 +841,10 @@ const en: typeof fr = {
   // Page Guide (/guide)
   'guide.title': 'Guide',
   'guide.intro': 'How your progress works on Shooserie.',
+  'guide.pairs': 'pairs',
+  'guide.grades.title': 'Grades',
+  'guide.grades.sub': 'Your level climbs with the number of pairs in your collection.',
+  'guide.grades.current': 'Your grade',
 }
 
 export type DictKey = keyof typeof fr

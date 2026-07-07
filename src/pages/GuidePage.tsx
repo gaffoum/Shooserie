@@ -1,5 +1,6 @@
 import { AppHeader } from '@/components/AppHeader'
 import { useT } from '@/i18n/I18nContext'
+import { GuideGrades } from '@/components/guide/GuideGrades'
 import './GuidePage.css'
 
 /**
@@ -18,7 +19,8 @@ export function GuidePage() {
           <h1 className="guide-title">{t('guide.title')}</h1>
           <p className="guide-intro">{t('guide.intro')}</p>
         </header>
-        {/* Sections ajoutées dans les lots suivants : Grades, Facettes, Raretés */}
+        <GuideGrades />
+        {/* Sections suivantes : Facettes, Raretés */}
       </main>
     </div>
   )
