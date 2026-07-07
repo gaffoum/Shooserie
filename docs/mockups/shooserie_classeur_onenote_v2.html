@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shooserie — Classeur (cartes gabarit fixe)</title>
+<style>
+  :root{ --bred:#CE1141; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;padding:20px 12px;font-family:"Inter","Segoe UI",system-ui,sans-serif;
+    background:radial-gradient(900px 500px at 50% -10%,#1c1710,transparent 55%),linear-gradient(180deg,#0e0e11,#15141a);color:#e9e9ee;min-height:100vh;display:flex;justify-content:center}
+  .app{position:relative;width:100%;max-width:420px;height:min(880px,94vh);border-radius:20px;overflow:hidden;background:#141319;border:1px solid rgba(255,255,255,.07);box-shadow:0 24px 60px rgba(0,0,0,.5);display:flex;flex-direction:column}
+
+  .tabs{display:flex;overflow-x:auto;padding:10px 10px 0;background:#101015;flex:0 0 auto;scrollbar-width:none}
+  .tabs::-webkit-scrollbar{display:none}
+  .tab{flex:0 0 auto;padding:9px 14px;border-radius:9px 9px 0 0;font-size:13px;font-weight:600;white-space:nowrap;color:#cfcfd6;background:transparent;border:none;cursor:pointer;opacity:.7}
+  .tab .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:middle}
+  .tab.active{opacity:1;color:#fff;background:var(--tabc)}
+  .tabline{height:3px;background:var(--tabc,#CE1141);flex:0 0 auto}
+
+  .ctx{display:flex;align-items:center;gap:10px;padding:11px 12px;background:#17161d;border-bottom:1px solid rgba(255,255,255,.06);flex:0 0 auto}
+  .burger{display:flex;flex-direction:column;gap:3px;padding:8px;border-radius:8px;background:rgba(255,255,255,.06);border:none;cursor:pointer}
+  .burger span{width:16px;height:2px;background:#e9e9ee;border-radius:2px}
+  .ctx .cm{font-size:14px;font-weight:600}
+  .ctx .cc{font-size:11px;color:#8a8a92;margin-left:auto;font-variant-numeric:tabular-nums}
+
+  .stage{flex:1;position:relative;padding:12px;min-height:0}
+  .book{position:relative;width:100%;height:100%;perspective:1800px}
+  .page{position:absolute;inset:0;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#201f26,#191820);border:1px solid rgba(255,255,255,.06);box-shadow:0 16px 40px rgba(0,0,0,.45);transform-origin:left center;backface-visibility:hidden;will-change:transform;display:flex;padding:12px 12px 12px 20px}
+  .page::before{content:'';position:absolute;left:6px;top:0;bottom:0;width:12px;background:radial-gradient(circle at 6px 10%,#0c0c10 4px,transparent 5px),radial-gradient(circle at 6px 30%,#0c0c10 4px,transparent 5px),radial-gradient(circle at 6px 50%,#0c0c10 4px,transparent 5px),radial-gradient(circle at 6px 70%,#0c0c10 4px,transparent 5px),radial-gradient(circle at 6px 90%,#0c0c10 4px,transparent 5px)}
+  .page .fs{position:absolute;inset:0;background:linear-gradient(90deg,rgba(0,0,0,.5),transparent 40%);opacity:0;pointer-events:none}
+  .grid{flex:1;display:grid;grid-template-columns:repeat(3,1fr);grid-auto-rows:1fr;gap:8px;min-height:0}
+
+  .pocket{position:relative;border-radius:9px;padding:3px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);box-shadow:inset 0 1px 0 rgba(255,255,255,.14)}
+  .pocket::after{content:'';position:absolute;inset:0;border-radius:9px;pointer-events:none;z-index:9;background:linear-gradient(125deg,rgba(255,255,255,.26),rgba(255,255,255,.02) 26%,transparent 44%,transparent 62%,rgba(255,255,255,.12))}
+  .pocket.empty{background:rgba(255,255,255,.02);border-style:dashed;border-color:rgba(255,255,255,.06)}
+
+  /* ===== FULL gabarit-fixe card, compact ===== */
+  .card{position:relative;height:100%;border-radius:6px;overflow:hidden;background:#0a0a0a;border:1.5px solid #242424;display:flex;flex-direction:column;padding:5px}
+  .card.metal{padding:3px}
+  .c-top{flex:0 0 auto;display:flex;justify-content:space-between;align-items:center;position:relative;z-index:6;height:14px}
+  .badge{display:inline-flex;align-items:center;gap:2px;font-size:7px;font-weight:700;padding:2px 5px;border-radius:20px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;max-width:72%;text-overflow:ellipsis}
+  .stars{font-size:7px;letter-spacing:.5px}
+  .win{flex:1 1 auto;position:relative;z-index:2;margin-top:4px;border-radius:5px;overflow:hidden;min-height:0;background:linear-gradient(160deg,#1c1c1c,#0f0f0f);border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center}
+  .win img{width:100%;height:100%;object-fit:contain;position:relative;z-index:2}
+  .win .fb{position:absolute;inset:0;display:none;align-items:center;justify-content:center;color:#555;font-size:7px;text-align:center;padding:3px}
+  /* NAMEPLATE FIFA — hauteur fixe (2 lignes nom + colorway) */
+  .plate{flex:0 0 auto;position:relative;z-index:6;margin-top:4px;height:40px;border-radius:5px;padding:4px 5px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(180deg,#161616,#000);box-shadow:0 0 0 1px var(--metal,#2a2a2a)}
+  .name{color:#f4f4f4;font-weight:700;font-size:8.5px;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cw{color:#9a9aa2;font-size:6.5px;margin-top:2px;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  .card.metal .m-frame{position:absolute;inset:2px;border-radius:4px;z-index:0}
+  .card.metal .m-sheen{position:absolute;top:0;left:-60%;width:45%;height:100%;z-index:3;pointer-events:none;background:linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-12deg)}
+  .card.rare{border:1.5px solid #b06a34;background:linear-gradient(135deg,#e6a56b,#8f5326 52%,#e6a56b)}
+  .rare .m-frame{background:radial-gradient(120% 90% at 50% 36%,#a86a37,#3a2413)} .rare .win{background:radial-gradient(120% 90% at 50% 40%,#3a2413,#150d06);border-color:#7c4e29} .rare .plate{--metal:#b8763f} .rare .m-sheen{animation:sheen 6s ease-in-out infinite}
+  .card.ultra_rare{border:1.5px solid #9aa3ad;background:linear-gradient(135deg,#eef2f6,#787f88 52%,#eef2f6)}
+  .ultra_rare .m-frame{background:radial-gradient(120% 90% at 50% 36%,#aab3bd,#2b2f34)} .ultra_rare .win{background:radial-gradient(120% 90% at 50% 40%,#2b2f34,#14161a);border-color:#828a93} .ultra_rare .plate{--metal:#c2c9d1} .ultra_rare .m-sheen{animation:sheen 5.2s ease-in-out infinite}
+  .card.grail{border:1.5px solid #c9a227;background:linear-gradient(135deg,#f7e392,#8a6a1e 52%,#f7e392)}
+  .grail .m-frame{background:radial-gradient(120% 90% at 50% 34%,#e7c257,#3a2809)} .grail .win{background:radial-gradient(120% 90% at 50% 40%,#3a2c0c,#150f04);border-color:#7a5f1c} .grail .plate{--metal:#d8b24a;background:linear-gradient(180deg,#1a1608,#000)} .grail .name{background:linear-gradient(180deg,#fbeaa6,#e7c257 55%,#c99a34);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .grail .holo{position:absolute;inset:0;z-index:4;pointer-events:none;mix-blend-mode:color-dodge;opacity:.5;background:repeating-linear-gradient(115deg,rgba(255,0,120,.18),rgba(74,214,255,.18) 10px,rgba(255,209,102,.18) 18px,rgba(155,107,255,.18) 28px,rgba(87,227,154,.18) 38px);background-size:220% 220%;animation:holo 7s linear infinite} .grail .m-sheen{animation:sheen 4.5s ease-in-out infinite}
+  .card.commune{border-color:#8a8a8a55} .commune .plate{--metal:#5a5a5a}
+  .card.peu_commune{border-color:#2f9e4455} .peu_commune .plate{--metal:#2f9e44}
+  @keyframes sheen{0%{left:-60%}55%{left:130%}100%{left:130%}}
+  @keyframes holo{0%{background-position:0 0}100%{background-position:200% 100%}}
+
+  .nav{display:flex;gap:10px;padding:10px 12px 14px;flex:0 0 auto}
+  .nav button{flex:1;padding:11px;border-radius:11px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.05);color:#e9e9ee;font-size:13px;font-weight:600;cursor:pointer}
+  .nav button:disabled{opacity:.32}
+
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.5);opacity:0;visibility:hidden;transition:opacity .2s;z-index:20}
+  .scrim.open{opacity:1;visibility:visible}
+  .drawer{position:absolute;top:0;left:0;bottom:0;width:76%;max-width:300px;background:#1a1922;z-index:21;transform:translateX(-100%);transition:transform .24s ease;box-shadow:8px 0 30px rgba(0,0,0,.5);display:flex;flex-direction:column}
+  .drawer.open{transform:translateX(0)}
+  .drawer h3{margin:0;padding:16px 16px 10px;font-family:"Outfit",sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:#9a9aa4}
+  .drawer .brandname{color:var(--tabc,#CE1141);font-weight:700}
+  .models{flex:1;overflow-y:auto;padding:0 10px 16px}
+  .mrow{display:flex;align-items:center;gap:10px;padding:12px;border-radius:10px;cursor:pointer;border-left:3px solid transparent}
+  .mrow.active{background:rgba(255,255,255,.06);border-left-color:var(--tabc,#CE1141)}
+  .mrow .mn{font-size:14px;font-weight:600}
+  .mrow .mc{margin-left:auto;font-size:11px;color:#8a8a92;background:rgba(255,255,255,.06);padding:2px 8px;border-radius:10px}
+</style>
+</head>
+<body>
+  <div class="app">
+    <div class="tabs" id="tabs"></div>
+    <div class="tabline" id="tabline"></div>
+    <div class="ctx"><button class="burger" id="burger"><span></span><span></span><span></span></button><span class="cm" id="curModel">—</span><span class="cc" id="pageCount">—</span></div>
+    <div class="stage"><div class="book" id="book"></div></div>
+    <div class="nav"><button id="prev">‹</button><button id="next">›</button></div>
+    <div class="scrim" id="scrim"></div>
+    <div class="drawer" id="drawer"><h3>Modèles · <span class="brandname" id="drawerBrand"></span></h3><div class="models" id="models"></div></div>
+  </div>
+<script>
+(function(){
+  var TIER={commune:{s:1,l:'Commune'},peu_commune:{s:2,l:'Peu commune'},rare:{s:3,l:'Rare'},ultra_rare:{s:4,l:'Ultra rare'},grail:{s:5,l:'Grail'}};
+  function stars(t){return '★'.repeat((TIER[t]||{s:0}).s);}
+  function scol(t){return t==='grail'?'#e7c257':t==='ultra_rare'?'#c2c9d1':t==='rare'?'#c9824c':t==='peu_commune'?'#2f9e44':'#8a8a8a';}
+  function btext(t){return t==='grail'||t==='rare'?'#1a1206':t==='ultra_rare'?'#1a1d22':'#fff';}
+  function img(s){return "https://images.stockx.com/360/"+s+"/Images/"+s+"/Lv2/img01.jpg";}
+  var BRANDCOLOR={'Air Jordan':'#CE1141','Nike':'#E8590C','adidas':'#1D428A','New Balance':'#2f9e44'};
+  var D=[
+    ['Air Jordan','Jordan 1','Jordan 1 Retro Banned (2011)','grail',"Air-Jordan-1-Retro-Banned-2011","Black / Varsity Red / White"],
+    ['Air Jordan','Jordan 1','Jordan 1 Low Travis Scott Mocha','grail',"Air-Jordan-1-Retro-Low-Travis-Scott","Black / Dark Mocha / University Red"],
+    ['Air Jordan','Jordan 1','Jordan 1 High Off-White University Blue','ultra_rare',"Air-Jordan-1-Retro-High-Off-White-University-Blue","White / Dark Powder Blue / Cone"],
+    ['Air Jordan','Jordan 1','Jordan 1 Low Reverse Mocha','ultra_rare',"Air-Jordan-1-Retro-Low-OG-SP-Travis-Scott-Reverse-Mocha","Sail / University Red / Ridgerock"],
+    ['Air Jordan','Jordan 1','Jordan 1 Retro Red Suede','ultra_rare',"Air-Jordan-1-Retro-High-Red-Suede","Gym Red / Gym Red"],
+    ['Air Jordan','Jordan 1','Jordan 1 High Travis Scott Mocha','ultra_rare',"Air-Jordan-1-Retro-High-Travis-Scott","Sail / Black / Dark Mocha"],
+    ['Air Jordan','Jordan 1','Jordan 1 Low Year of the Dragon (W)','ultra_rare',"Air-Jordan-1-Low-Year-of-the-Dragon-2024-Womens","Sail / Metallic Gold / Dark Team Red"],
+    ['Air Jordan','Jordan 4','Jordan 4 Toro Bravo (2013)','ultra_rare',"Air-Jordan-4-Retro-Toro-Bravo","Fire Red / White / Black / Cement"],
+    ['Air Jordan','Jordan 5','Jordan 5 Retro Off-White','ultra_rare',"Air-Jordan-5-Retro-Off-White-Black","Black / Muslin / Fire Red"],
+    ['Air Jordan','Jordan 7','Jordan 7 Retro Citrus (2006)','ultra_rare',"Air-Jordan-7-Retro-Citrus","Black / Citrus / Varsity Red"],
+    ['Nike','Air Max 1','Air Max 1 atmos Elephant (2017)','ultra_rare',"Nike-Air-Max-1-Atmos-Elephant-2017","Medium Grey / Clear Jade / Black"],
+    ['Nike','Air Max 1','Air Max 1 Air Max Day 3.26','ultra_rare',"Nike-Air-Max-1-Air-Max-Day-3-26","Sail / University Red"],
+    ['Nike','Air Max 1/97','Air Max 1/97 Sean Wotherspoon','ultra_rare',"Nike-Air-Max-1-97-Sean-Wotherspoon-NA","Light Blue Fury / Lemon Wash"],
+    ['Nike','SB Dunk Low','SB Dunk Low Travis Scott','ultra_rare',"Nike-SB-Dunk-Low-Travis-Scott","Black / Parachute Beige / Petra Brown"],
+    ['Nike','SB Dunk Low','SB Dunk Low Black Pigeon','ultra_rare',"Nike-SB-Dunk-Low-Black-Pigeon","Black / Black / Sienna"],
+    ['Nike','SB Dunk High','SB Dunk High Diamond','ultra_rare',"Nike-Dunk-SB-High-Tiffany-Diamond","Aqua / Chrome / Black"],
+    ['adidas','ZX 8000','adidas ZX 8000 OG Aqua','grail',"adidas-ZX-8000-OG-Aqua","Light Aqua / Lemon Peel / Violet"],
+    ['adidas','Yeezy 350 V2','Yeezy 350 V2 Core Black Copper','rare',"adidas-Yeezy-Boost-350-V2-Core-Black-Copper","Core Black / Copper"],
+    ['adidas','Yeezy 350 V2','Yeezy 350 V2 Core Black White','rare',"adidas-Yeezy-Boost-350-V2-Core-Black-White","Core Black / Core White"],
+    ['adidas','Yeezy 750','Yeezy 750 Triple Black','rare',"adidas-Yeezy-Boost-750-Triple-Black","Black / Black / Black"],
+    ['adidas','Yeezy 750','Yeezy 750 Chocolate','rare',"adidas-Yeezy-Boost-750-Light-Brown-Glow","Light Brown / Light Brown / Gum"],
+    ['New Balance','1906R','1906R Aimé Leon Dore Jade','rare',"New-Balance-1906R-Aime-Leon-Dore-Green","Jade / White"],
+    ['New Balance','2002R','2002R Protection Pack Pink','peu_commune',"New-Balance-2002R-Protection-Pack-Pink","Pink / Violet"],
+    ['New Balance','2002R','2002R Protection Pack Rain Cloud','peu_commune',"New-Balance-M2002-Protection-Pack-Rain-Cloud","Rain Cloud / Grey"],
+    ['New Balance','992','992 Grey','rare',"New-Balance-992-Grey","Grey / Silver"]
+  ];
+  var brands=[],G={};
+  D.forEach(function(r){var b=r[0],m=r[1];if(!G[b]){G[b]={models:[],cards:{}};brands.push(b);}if(!G[b].cards[m]){G[b].models.push(m);G[b].cards[m]=[];}G[b].cards[m].push({name:r[2],rarity:r[3],img:img(r[4]),cw:r[5]});});
+  var curBrand=brands[0],curModel=G[curBrand].models[0],pages=[],pageEls=[],cur=0,animating=false;
+
+  function cardHTML(c){
+    var metal=(c.rarity==='rare'||c.rarity==='ultra_rare'||c.rarity==='grail');
+    var t=TIER[c.rarity]||{l:''};
+    var layers=metal?'<div class="m-frame"></div>'+(c.rarity==='grail'?'<div class="holo"></div>':'')+'<div class="m-sheen"></div>':'';
+    return '<div class="pocket"><div class="card '+c.rarity+(metal?' metal':'')+'">'+layers
+      +'<div class="c-top"><span class="badge" style="background:'+scol(c.rarity)+';color:'+btext(c.rarity)+'">★ '+t.l.toUpperCase()+'</span><span class="stars" style="color:'+scol(c.rarity)+'">'+stars(c.rarity)+'</span></div>'
+      +'<div class="win"><img src="'+c.img+'" alt="'+c.name+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'"><div class="fb">'+c.name+'</div></div>'
+      +'<div class="plate"><div class="name">'+c.name+'</div><div class="cw">'+c.cw+'</div></div>'
+      +'</div></div>';
+  }
+  function buildPages(cards){var pg=[],p=[];cards.forEach(function(c){p.push(c);if(p.length===9){pg.push(p);p=[];}});if(p.length){while(p.length<9)p.push(null);pg.push(p);}if(!pg.length)pg.push(new Array(9).fill(null));return pg;}
+
+  function renderTabs(){
+    document.getElementById('tabs').innerHTML=brands.map(function(b){var c=BRANDCOLOR[b]||'#7a5cff';return '<button class="tab'+(b===curBrand?' active':'')+'" data-b="'+b+'" style="--tabc:'+c+'"><span class="dot" style="background:'+c+'"></span>'+b+'</button>';}).join('');
+    document.getElementById('tabline').style.setProperty('--tabc',BRANDCOLOR[curBrand]||'#7a5cff');
+    document.querySelectorAll('.tab').forEach(function(t){t.onclick=function(){curBrand=t.dataset.b;curModel=G[curBrand].models[0];renderTabs();renderDrawer();loadModel();};});
+  }
+  function renderDrawer(){
+    var c=BRANDCOLOR[curBrand]||'#7a5cff';document.getElementById('drawer').style.setProperty('--tabc',c);document.getElementById('drawerBrand').textContent=curBrand;
+    document.getElementById('models').innerHTML=G[curBrand].models.map(function(m){return '<div class="mrow'+(m===curModel?' active':'')+'" data-m="'+m+'"><span class="mn">'+m+'</span><span class="mc">'+G[curBrand].cards[m].length+'</span></div>';}).join('');
+    document.querySelectorAll('.mrow').forEach(function(r){r.onclick=function(){curModel=r.dataset.m;renderDrawer();loadModel();closeDrawer();};});
+  }
+  function loadModel(){
+    document.getElementById('curModel').textContent=curModel;
+    pages=buildPages(G[curBrand].cards[curModel]);
+    document.getElementById('book').innerHTML=pages.map(function(pg,i){return '<div class="page" data-i="'+i+'"><div class="fs"></div><div class="grid">'+pg.map(function(c){return c?cardHTML(c):'<div class="pocket empty"></div>';}).join('')+'</div></div>';}).join('');
+    pageEls=[].slice.call(document.querySelectorAll('#book .page'));cur=0;layout();
+  }
+  function layout(){pageEls.forEach(function(el,i){el.style.transition='none';el.style.transform='rotateY(0deg)';el.style.zIndex=(i===cur)?'3':'1';el.style.visibility=(Math.abs(i-cur)<=1)?'visible':'hidden';el.querySelector('.fs').style.opacity='0';});document.getElementById('pageCount').textContent='Page '+(cur+1)+'/'+pages.length;document.getElementById('prev').disabled=cur===0;document.getElementById('next').disabled=cur===pages.length-1;}
+  function go(dir){if(animating)return;var target=cur+dir;if(target<0||target>=pages.length)return;animating=true;
+    if(dir>0){var turning=pageEls[cur],beneath=pageEls[target];beneath.style.visibility='visible';beneath.style.zIndex='1';beneath.style.transform='rotateY(0deg)';turning.style.zIndex='4';turning.getBoundingClientRect();turning.style.transition='transform .55s ease-in';var fs=turning.querySelector('.fs');fs.style.transition='opacity .4s';fs.style.opacity='1';turning.style.transform='rotateY(-172deg)';setTimeout(function(){cur=target;layout();animating=false;},560);}
+    else{var incoming=pageEls[target];incoming.style.visibility='visible';incoming.style.zIndex='4';incoming.style.transition='none';incoming.style.transform='rotateY(-172deg)';incoming.querySelector('.fs').style.opacity='1';incoming.getBoundingClientRect();incoming.style.transition='transform .55s ease-out';incoming.style.transform='rotateY(0deg)';var fs2=incoming.querySelector('.fs');fs2.style.transition='opacity .4s';fs2.style.opacity='0';setTimeout(function(){cur=target;layout();animating=false;},560);}}
+  document.getElementById('next').onclick=function(){go(1);};document.getElementById('prev').onclick=function(){go(-1);};
+  function openDrawer(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open');}
+  function closeDrawer(){document.getElementById('drawer').classList.remove('open');document.getElementById('scrim').classList.remove('open');}
+  document.getElementById('burger').onclick=openDrawer;document.getElementById('scrim').onclick=closeDrawer;
+  var x0=null,book=document.getElementById('book');
+  book.addEventListener('touchstart',function(e){x0=e.touches[0].clientX;},{passive:true});
+  book.addEventListener('touchend',function(e){if(x0===null)return;var dx=e.changedTouches[0].clientX-x0;x0=null;if(Math.abs(dx)>45)go(dx<0?1:-1);},{passive:true});
+  renderTabs();renderDrawer();loadModel();
+})();
+</script>
+</body>
+</html>
