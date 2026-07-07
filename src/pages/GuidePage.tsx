@@ -2,6 +2,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { useT } from '@/i18n/I18nContext'
 import { GuideGrades } from '@/components/guide/GuideGrades'
 import { GuideFacets } from '@/components/guide/GuideFacets'
+import { GuideRarities } from '@/components/guide/GuideRarities'
 import './GuidePage.css'
 
 /**
@@ -22,7 +23,7 @@ export function GuidePage() {
         </header>
         <GuideGrades />
         <GuideFacets />
-        {/* Section suivante : Raretés */}
+        <GuideRarities />
       </main>
     </div>
   )

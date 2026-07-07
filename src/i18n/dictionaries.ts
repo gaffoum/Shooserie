@@ -431,6 +431,24 @@ const fr = {
   'guide.facets.sub': 'Des distinctions débloquées selon la composition de ta collection.',
   'guide.facets.unlocked': 'Débloquée',
   'guide.facets.note': 'À noter : Active Wearer et Pure Collector sont mutuellement exclusifs — tu ne peux avoir que l’un des deux.',
+  'guide.rarity.title': 'Raretés',
+  'guide.rarity.sub': 'Cinq paliers, du plus courant au plus mythique.',
+  'guide.rarity.commune.label': 'Commune',
+  'guide.rarity.commune.desc': 'Modèle courant, largement disponible au prix retail.',
+  'guide.rarity.peu_commune.label': 'Peu commune',
+  'guide.rarity.peu_commune.desc': 'Diffusion plus limitée, légère prime à la revente.',
+  'guide.rarity.rare.label': 'Rare',
+  'guide.rarity.rare.desc': 'Recherchée : la cote passe nettement au-dessus du retail.',
+  'guide.rarity.ultra_rare.label': 'Ultra rare',
+  'guide.rarity.ultra_rare.desc': 'Très difficile à trouver, forte demande sur le marché.',
+  'guide.rarity.grail.label': 'Grail',
+  'guide.rarity.grail.desc': 'Pièce mythique : collabs introuvables, OG d’époque, éditions spéciales.',
+  'guide.rarity.score.title': 'Comment le score est calculé',
+  'guide.rarity.score.p1':
+    'La rareté combine plusieurs signaux : la cote face au prix retail, le type de sortie (general release, collab, Friends & Family…), le fait d’avoir sold-out, et l’ancienneté du modèle.',
+  'guide.rarity.score.p2':
+    'Certaines sorties passent directement en Grail : Friends & Family, samples, paires numérotées et Player Exclusives.',
+  'guide.rarity.score.p3': 'Le palier est recalculable à tout moment — il n’est jamais figé.',
 }
 
 const en: typeof fr = {
@@ -853,6 +871,24 @@ const en: typeof fr = {
   'guide.facets.sub': 'Distinctions unlocked based on how your collection is built.',
   'guide.facets.unlocked': 'Unlocked',
   'guide.facets.note': 'Note: Active Wearer and Pure Collector are mutually exclusive — you can only have one of the two.',
+  'guide.rarity.title': 'Rarities',
+  'guide.rarity.sub': 'Five tiers, from the most common to the most mythical.',
+  'guide.rarity.commune.label': 'Common',
+  'guide.rarity.commune.desc': 'Everyday model, widely available at retail.',
+  'guide.rarity.peu_commune.label': 'Uncommon',
+  'guide.rarity.peu_commune.desc': 'More limited distribution, a small resale premium.',
+  'guide.rarity.rare.label': 'Rare',
+  'guide.rarity.rare.desc': 'Sought-after: market value climbs well above retail.',
+  'guide.rarity.ultra_rare.label': 'Ultra rare',
+  'guide.rarity.ultra_rare.desc': 'Very hard to find, strong market demand.',
+  'guide.rarity.grail.label': 'Grail',
+  'guide.rarity.grail.desc': 'Mythical piece: unobtainable collabs, era OGs, special editions.',
+  'guide.rarity.score.title': 'How the score is computed',
+  'guide.rarity.score.p1':
+    'Rarity combines several signals: market value vs retail price, the release type (general release, collab, Friends & Family…), whether it sold out, and the model’s age.',
+  'guide.rarity.score.p2':
+    'Some releases go straight to Grail: Friends & Family, samples, numbered pairs and Player Exclusives.',
+  'guide.rarity.score.p3': 'The tier can be recomputed at any time — it is never fixed.',
 }
 
 export type DictKey = keyof typeof fr

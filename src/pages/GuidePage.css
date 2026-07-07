@@ -132,9 +132,18 @@
 }
 
 /* Raretés */
-.guide-rarity-stars {
+.guide-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 56px;
+  height: 30px;
+  padding: 0 10px;
+  border-radius: var(--radius-pill);
   font-size: 12px;
+  font-weight: 700;
   letter-spacing: 1px;
+  flex-shrink: 0;
 }
 .guide-score-box {
   margin-top: 16px;
