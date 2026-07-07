@@ -419,6 +419,10 @@ const fr = {
   'dashboard.mode.aria': 'Mode d’affichage',
   'dashboard.mode.portfolio': 'Portfolio',
   'dashboard.mode.collection': 'Collection',
+
+  // Page Guide (/guide)
+  'guide.title': 'Guide',
+  'guide.intro': 'Comment fonctionne ta progression sur Shooserie.',
 }
 
 const en: typeof fr = {
@@ -829,6 +833,10 @@ const en: typeof fr = {
   'dashboard.mode.aria': 'Display mode',
   'dashboard.mode.portfolio': 'Portfolio',
   'dashboard.mode.collection': 'Collection',
+
+  // Page Guide (/guide)
+  'guide.title': 'Guide',
+  'guide.intro': 'How your progress works on Shooserie.',
 }
 
 export type DictKey = keyof typeof fr

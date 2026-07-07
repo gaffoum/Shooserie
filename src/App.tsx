@@ -25,6 +25,7 @@ import MyOrders from './pages/MyOrders';
 import OrderSuccess from './pages/OrderSuccess';
 import CheckoutLabels from './pages/CheckoutLabels';
 import { AdminGuard } from './components/AdminGuard';
+import { GuidePage } from './pages/GuidePage';
 
 
 export default function App() {
@@ -134,6 +135,14 @@ export default function App() {
             }
           />
           <Route path="/u/:pseudo" element={<UserProfile />} />
+          <Route
+            path="/guide"
+            element={
+              <ProtectedRoute>
+                <GuidePage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/dashboard" replace />} />
         <Route
           path="/rankings"
