@@ -33,6 +33,16 @@ Fin de message de commit :
 Co-Authored-By: Claude Opus 4.8 (1M context) <noreply@anthropic.com>
 ```
 
+## Autonomie (graduée par niveau de risque)
+- AUTO, sans demander — actions réversibles et sans effet de bord :
+  création/édition de fichiers, `npx tsc --noEmit`, tests, lecture du repo,
+  installation de dépendances. Enchaîne.
+- CONFIRMATION groupée, une fois par lot — avant `git commit` et `git push`.
+  Montre un récap du lot, puis attends l'accord (pas de blocage fichier par fichier).
+- JAMAIS en automatique — montre le diff/plan et attends l'accord explicite :
+  migrations ou écritures de données en base (UPDATE/DELETE en masse),
+  push sur `main`, suppressions, toute action irréversible. Puis commit sur dev.
+
 ## Workflow par « Lots »
 
 Le travail est découpé en **Lots** numérotés (`Lot 1`, `Lot 2`, `Lot 3`, `Lot 3b`…), référencés dans les messages de commit. Chaque lot a souvent un script PowerShell dédié à la racine (`lot3-admin.ps1`, `lot3b-notify.ps1`, `fix-order-url.ps1`…) qui applique les changements. Ces scripts sont des artefacts de génération, pas la source de vérité — le code appliqué vit dans `src/`.
