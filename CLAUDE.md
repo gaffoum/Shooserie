@@ -78,4 +78,5 @@ Tokens dans `src/styles/tokens.css`, à utiliser via `var(--…)` (jamais de hex
 ## État des chantiers
 
 - ✅ **Activation faite** : `CommunityPreview` + leaderboard affichés dans **l'état vide du Dashboard** (onboarding social quand la collection est vide).
-- ⏳ **TCG / rareté** : en attente d'une **migration additive** Supabase avant implémentation. Ne pas coder le front tant que le schéma n'est pas migré.
+- ✅ **Schéma rareté migré** : migration additive appliquée en prod le 2026-07-07 (`supabase/migrations/20260707120000_rarity_system.sql`, versionnée pour doc, non rejouée). Ajoute à `public.sneakers` : `rarity` (enum `rarity_tier`), `rarity_source` (`auto`/`manual`), `rarity_score` (0–100), `release_type` (enum), `sold_out`, `collection_number` + index `sneakers_rarity_idx`.
+- ⏳ **TCG / rareté — front à implémenter** : le schéma est prêt, reste l'UI (affichage du tier, badges de rareté, calcul/affichage du score). Le front peut désormais être codé.
