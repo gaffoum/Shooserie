@@ -1,0 +1,191 @@
+/*
+ * Carte TCG « boîte étiquetée » — porté de docs/mockups/shooserie_classeur_onenote_v2.html.
+ * Classes préfixées `tcg-` pour ne pas heurter le CSS global.
+ * La carte est un artefact volontairement sombre (comme une vraie carte à
+ * collectionner) : ses couleurs — dont les métaux — sont fixes, indépendantes
+ * du thème clair/sombre de l'app.
+ */
+
+.tcg-card {
+  position: relative;
+  height: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0a0a0a;
+  border: 1.5px solid #242424;
+  display: flex;
+  flex-direction: column;
+  padding: 5px;
+}
+.tcg-card.tcg-metal { padding: 3px; }
+
+.tcg-c-top {
+  flex: 0 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  z-index: 6;
+  height: 14px;
+}
+.tcg-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 7px;
+  font-weight: 700;
+  padding: 2px 5px;
+  border-radius: 20px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  max-width: 72%;
+  text-overflow: ellipsis;
+}
+.tcg-badge-unknown {
+  background: rgba(255, 255, 255, 0.06);
+  color: #8a8a92;
+}
+.tcg-stars { font-size: 7px; letter-spacing: 0.5px; }
+
+.tcg-win {
+  flex: 1 1 auto;
+  position: relative;
+  z-index: 2;
+  margin-top: 4px;
+  border-radius: 5px;
+  overflow: hidden;
+  min-height: 0;
+  background: linear-gradient(160deg, #1c1c1c, #0f0f0f);
+  border: 1px solid #2a2a2a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* NAMEPLATE FIFA — hauteur fixe (2 lignes nom + colorway) */
+.tcg-plate {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 6;
+  margin-top: 4px;
+  height: 40px;
+  border-radius: 5px;
+  padding: 4px 5px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: linear-gradient(180deg, #161616, #000);
+  box-shadow: 0 0 0 1px var(--metal, #2a2a2a);
+}
+.tcg-name {
+  color: #f4f4f4;
+  font-weight: 700;
+  font-size: 8.5px;
+  line-height: 1.1;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.tcg-cw {
+  color: #9a9aa2;
+  font-size: 6.5px;
+  margin-top: 2px;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ===== Métaux ===== */
+.tcg-card.tcg-metal .tcg-m-frame {
+  position: absolute;
+  inset: 2px;
+  border-radius: 4px;
+  z-index: 0;
+}
+.tcg-card.tcg-metal .tcg-m-sheen {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  z-index: 3;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-12deg);
+}
+
+.tcg-card.tcg-rare {
+  border: 1.5px solid #b06a34;
+  background: linear-gradient(135deg, #e6a56b, #8f5326 52%, #e6a56b);
+}
+.tcg-rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #a86a37, #3a2413); }
+.tcg-rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #3a2413, #150d06); border-color: #7c4e29; }
+.tcg-rare .tcg-plate { --metal: #b8763f; }
+.tcg-rare .tcg-m-sheen { animation: tcg-sheen 6s ease-in-out infinite; }
+
+.tcg-card.tcg-ultra_rare {
+  border: 1.5px solid #9aa3ad;
+  background: linear-gradient(135deg, #eef2f6, #787f88 52%, #eef2f6);
+}
+.tcg-ultra_rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #aab3bd, #2b2f34); }
+.tcg-ultra_rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #2b2f34, #14161a); border-color: #828a93; }
+.tcg-ultra_rare .tcg-plate { --metal: #c2c9d1; }
+.tcg-ultra_rare .tcg-m-sheen { animation: tcg-sheen 5.2s ease-in-out infinite; }
+
+.tcg-card.tcg-grail {
+  border: 1.5px solid #c9a227;
+  background: linear-gradient(135deg, #f7e392, #8a6a1e 52%, #f7e392);
+}
+.tcg-grail .tcg-m-frame { background: radial-gradient(120% 90% at 50% 34%, #e7c257, #3a2809); }
+.tcg-grail .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #3a2c0c, #150f04); border-color: #7a5f1c; }
+.tcg-grail .tcg-plate { --metal: #d8b24a; background: linear-gradient(180deg, #1a1608, #000); }
+.tcg-grail .tcg-name {
+  background: linear-gradient(180deg, #fbeaa6, #e7c257 55%, #c99a34);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.tcg-grail .tcg-holo {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(255, 0, 120, 0.18),
+    rgba(74, 214, 255, 0.18) 10px,
+    rgba(255, 209, 102, 0.18) 18px,
+    rgba(155, 107, 255, 0.18) 28px,
+    rgba(87, 227, 154, 0.18) 38px
+  );
+  background-size: 220% 220%;
+  animation: tcg-holo 7s linear infinite;
+}
+.tcg-grail .tcg-m-sheen { animation: tcg-sheen 4.5s ease-in-out infinite; }
+
+.tcg-card.tcg-commune { border-color: #8a8a8a55; }
+.tcg-commune .tcg-plate { --metal: #5a5a5a; }
+.tcg-card.tcg-peu_commune { border-color: #2f9e4455; }
+.tcg-peu_commune .tcg-plate { --metal: #2f9e44; }
+.tcg-card.tcg-unknown { border-color: #33333388; }
+.tcg-unknown .tcg-plate { --metal: #333; }
+
+@keyframes tcg-sheen {
+  0% { left: -60%; }
+  55% { left: 130%; }
+  100% { left: 130%; }
+}
+@keyframes tcg-holo {
+  0% { background-position: 0 0; }
+  100% { background-position: 200% 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tcg-m-sheen,
+  .tcg-holo { animation: none !important; }
+}
