@@ -408,6 +408,12 @@ const fr = {
   // Messaging — delete
   'messaging.deleteMessage': 'Supprimer ce message',
   'messaging.confirmDelete': 'Confirmer la suppression',
+
+  // Thème clair/sombre
+  'theme.toggle.aria': 'Changer de thème',
+  'theme.light': 'Clair',
+  'theme.dark': 'Sombre',
+  'theme.system': 'Système',
 }
 
 const en: typeof fr = {
@@ -807,6 +813,12 @@ const en: typeof fr = {
  
   'messaging.deleteMessage': 'Delete this message',
   'messaging.confirmDelete': 'Confirm deletion',
+
+  // Thème clair/sombre
+  'theme.toggle.aria': 'Toggle theme',
+  'theme.light': 'Light',
+  'theme.dark': 'Dark',
+  'theme.system': 'System',
 }
 
 export type DictKey = keyof typeof fr

@@ -5,6 +5,7 @@ import { useMyCollectionPublic } from '@/lib/publicProfileQueries'
 import { useT } from '@/i18n/I18nContext'
 import { Logo } from './Logo'
 import { LanguageToggle } from './LanguageToggle'
+import { ThemeToggle } from './ThemeToggle'
 import type { CSSProperties, ReactNode } from 'react'
 
 interface AppHeaderProps {
@@ -73,6 +74,7 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
         >
           <UserIcon />
         </Link>
+        <ThemeToggle />
         <LanguageToggle />
       </div>
     </header>
