@@ -427,6 +427,10 @@ const fr = {
   'guide.grades.title': 'Grades',
   'guide.grades.sub': 'Ton niveau grimpe avec le nombre de paires de ta collection.',
   'guide.grades.current': 'Ton grade',
+  'guide.facets.title': 'Facettes',
+  'guide.facets.sub': 'Des distinctions débloquées selon la composition de ta collection.',
+  'guide.facets.unlocked': 'Débloquée',
+  'guide.facets.note': 'À noter : Active Wearer et Pure Collector sont mutuellement exclusifs — tu ne peux avoir que l’un des deux.',
 }
 
 const en: typeof fr = {
@@ -845,6 +849,10 @@ const en: typeof fr = {
   'guide.grades.title': 'Grades',
   'guide.grades.sub': 'Your level climbs with the number of pairs in your collection.',
   'guide.grades.current': 'Your grade',
+  'guide.facets.title': 'Facets',
+  'guide.facets.sub': 'Distinctions unlocked based on how your collection is built.',
+  'guide.facets.unlocked': 'Unlocked',
+  'guide.facets.note': 'Note: Active Wearer and Pure Collector are mutually exclusive — you can only have one of the two.',
 }
 
 export type DictKey = keyof typeof fr
