@@ -1,9 +1,11 @@
 /**
  * WelcomeHeader — bandeau "Salut [pseudo] !" en haut du Dashboard.
  */
+import { Link } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { useMyProfile } from '../lib/queries'
 import { useMyBadge } from '@/lib/badges'
+import { useT } from '@/i18n/I18nContext'
 import { BadgeDisplay } from './BadgeDisplay'
 import { FacetsList } from './FacetsList'
 import { BadgeProgressBar } from './BadgeProgressBar'
@@ -12,6 +14,7 @@ export function WelcomeHeader() {
   const { user } = useAuth()
   const { data: profile } = useMyProfile()
   const badgeQ = useMyBadge()
+  const { t } = useT()
 
   const displayName =
     profile?.display_name && profile.display_name.trim().length > 0
@@ -34,10 +37,23 @@ export function WelcomeHeader() {
             </div>
           )}
           <BadgeProgressBar progress={badgeQ.data.progress} />
+          <Link to="/guide" style={guideLinkStyle}>
+            {t('guide.link')} →
+          </Link>
         </div>
       )}
     </div>
   )
+}
+
+const guideLinkStyle: React.CSSProperties = {
+  display: 'inline-block',
+  marginTop: 8,
+  fontSize: 12,
+  fontWeight: 600,
+  color: 'var(--color-royal)',
+  textDecoration: 'none',
+  fontFamily: "'Outfit', sans-serif",
 }
 
 const wrapperStyle: React.CSSProperties = {

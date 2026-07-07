@@ -449,6 +449,8 @@ const fr = {
   'guide.rarity.score.p2':
     'Certaines sorties passent directement en Grail : Friends & Family, samples, paires numérotées et Player Exclusives.',
   'guide.rarity.score.p3': 'Le palier est recalculable à tout moment — il n’est jamais figé.',
+  'nav.guide': 'Guide',
+  'guide.link': 'Comment ça marche ?',
 }
 
 const en: typeof fr = {
@@ -889,6 +891,8 @@ const en: typeof fr = {
   'guide.rarity.score.p2':
     'Some releases go straight to Grail: Friends & Family, samples, numbered pairs and Player Exclusives.',
   'guide.rarity.score.p3': 'The tier can be recomputed at any time — it is never fixed.',
+  'nav.guide': 'Guide',
+  'guide.link': 'How does it work?',
 }
 
 export type DictKey = keyof typeof fr

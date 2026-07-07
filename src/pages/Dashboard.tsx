@@ -302,6 +302,20 @@ export function Dashboard() {
               </Link>
               <ScanButton onScan={handleDashboardScan} variant="secondary" />
             </div>
+            <Link
+              to="/guide"
+              style={{
+                display: 'inline-block',
+                marginTop: 16,
+                fontSize: 13,
+                fontWeight: 600,
+                color: 'var(--color-royal)',
+                textDecoration: 'none',
+                fontFamily: 'var(--font-display)',
+              }}
+            >
+              {t('guide.link')} →
+            </Link>
           </section>
         )}
 

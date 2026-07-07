@@ -57,6 +57,16 @@ export function AppHeader({ leftActions, rightActions }: AppHeaderProps) {
           </Link>
         )}
         <Link
+          to="/guide"
+          className="app-header-community"
+          style={communityLinkStyle}
+          title={t('nav.guide')}
+          aria-label={t('nav.guide')}
+        >
+          <HelpIcon />
+          <span className="app-header-action-text">{t('nav.guide')}</span>
+        </Link>
+        <Link
           to="/account"
           className="app-header-email"
           style={emailStyle}
@@ -96,6 +106,26 @@ function CommunityIcon() {
     >
       <circle cx="12" cy="12" r="10" />
       <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
+    </svg>
+  )
+}
+
+function HelpIcon() {
+  return (
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   )
 }
