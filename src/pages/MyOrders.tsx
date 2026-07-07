@@ -98,24 +98,24 @@ const pageStyle: CSSProperties = {
 const headerStyle: CSSProperties = { marginBottom: 24 }
 const titleStyle: CSSProperties = {
   fontSize: 40, fontWeight: 900, letterSpacing: '-0.02em',
-  color: '#0A0A0A', margin: 0, lineHeight: 1.05,
+  color: 'var(--color-text)', margin: 0, lineHeight: 1.05,
 }
 const subtitleStyle: CSSProperties = {
-  fontSize: 14, color: '#6B7280', marginTop: 8,
+  fontSize: 14, color: 'var(--color-text-muted)', marginTop: 8,
 }
-const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 13 }
+const mutedStyle: CSSProperties = { color: 'var(--color-text-muted)', fontSize: 13 }
 
 const emptyStyle: CSSProperties = {
-  textAlign: 'center', padding: 60, background: '#FFFFFF',
-  borderRadius: 12, border: '1px solid #E5E7EB',
+  textAlign: 'center', padding: 60, background: 'var(--color-surface)',
+  borderRadius: 12, border: '1px solid var(--color-border)',
 }
 const emptyEmojiStyle: CSSProperties = { fontSize: 48, marginBottom: 16 }
 const emptyTitleStyle: CSSProperties = {
-  fontSize: 18, fontWeight: 700, color: '#0A0A0A', margin: '0 0 8px',
+  fontSize: 18, fontWeight: 700, color: 'var(--color-text)', margin: '0 0 8px',
 }
 const primaryCtaStyle: CSSProperties = {
   display: 'inline-block', marginTop: 16,
-  padding: '10px 20px', background: '#CE1141', color: '#FFFFFF',
+  padding: '10px 20px', background: 'var(--color-bred)', color: '#FFFFFF',
   borderRadius: 999, textDecoration: 'none', fontWeight: 700, fontSize: 14,
 }
 
@@ -123,7 +123,7 @@ const listStyle: CSSProperties = {
   display: 'flex', flexDirection: 'column', gap: 12,
 }
 const orderCardStyle: CSSProperties = {
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 12, padding: 16,
 }
 const orderHeaderStyle: CSSProperties = {
@@ -131,11 +131,11 @@ const orderHeaderStyle: CSSProperties = {
   marginBottom: 12,
 }
 const orderIdStyle: CSSProperties = {
-  fontSize: 14, fontWeight: 800, color: '#0A0A0A',
+  fontSize: 14, fontWeight: 800, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums',
 }
 const orderDateStyle: CSSProperties = {
-  fontSize: 12, color: '#6B7280', marginTop: 2,
+  fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2,
 }
 const statusPillStyle: CSSProperties = {
   padding: '4px 10px', borderRadius: 999,
@@ -147,15 +147,15 @@ const orderBodyStyle: CSSProperties = {
 const orderRowStyle: CSSProperties = {
   display: 'flex', gap: 16, alignItems: 'center', fontSize: 13,
 }
-const orderLabelStyle: CSSProperties = { color: '#6B7280' }
+const orderLabelStyle: CSSProperties = { color: 'var(--color-text-muted)' }
 const orderAmountStyle: CSSProperties = {
-  marginLeft: 'auto', fontWeight: 800, color: '#0A0A0A',
+  marginLeft: 'auto', fontWeight: 800, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums', fontSize: 15,
 }
 const trackingStyle: CSSProperties = {
-  marginTop: 8, fontSize: 13, color: '#374151',
-  padding: 8, background: '#F9FAFB', borderRadius: 6,
+  marginTop: 8, fontSize: 13, color: 'var(--color-text)',
+  padding: 8, background: 'var(--color-surface-alt)', borderRadius: 6,
 }
 const trackingLinkStyle: CSSProperties = {
-  color: '#CE1141', textDecoration: 'underline', fontWeight: 600,
+  color: 'var(--color-bred)', textDecoration: 'underline', fontWeight: 600,
 }

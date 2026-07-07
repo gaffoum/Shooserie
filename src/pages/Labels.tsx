@@ -323,27 +323,27 @@ const pageStyle: CSSProperties = {
 const headerStyle: CSSProperties = { marginBottom: 24 }
 const titleStyle: CSSProperties = {
   fontSize: 40, fontWeight: 900, letterSpacing: '-0.02em',
-  color: '#0A0A0A', margin: 0, lineHeight: 1.05,
+  color: 'var(--color-text)', margin: 0, lineHeight: 1.05,
 }
 const subtitleStyle: CSSProperties = {
-  fontSize: 13, color: '#6B7280', marginTop: 8,
+  fontSize: 13, color: 'var(--color-text-muted)', marginTop: 8,
 }
-const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 13 }
+const mutedStyle: CSSProperties = { color: 'var(--color-text-muted)', fontSize: 13 }
 
 const sectionStyle: CSSProperties = { marginBottom: 28 }
 const sectionTitleStyle: CSSProperties = {
   fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
-  textTransform: 'uppercase', color: '#0A0A0A', margin: '0 0 12px',
+  textTransform: 'uppercase', color: 'var(--color-text)', margin: '0 0 12px',
   display: 'flex', alignItems: 'center', gap: 8,
 }
 const pagesBadgeStyle: CSSProperties = {
-  marginLeft: 8, fontSize: 11, color: '#6B7280',
+  marginLeft: 8, fontSize: 11, color: 'var(--color-text-muted)',
   fontWeight: 500, letterSpacing: 'normal', textTransform: 'none',
 }
 
 const previewWrapStyle: CSSProperties = {
   display: 'flex', justifyContent: 'center', padding: 16,
-  background: '#F9FAFB', borderRadius: 10, border: '1px solid #E5E7EB',
+  background: 'var(--color-surface-alt)', borderRadius: 10, border: '1px solid var(--color-border)',
 }
 const sheetGridStyle: CSSProperties = {
   display: 'grid',
@@ -352,17 +352,17 @@ const sheetGridStyle: CSSProperties = {
   width: '100%',
 }
 const emptyPreviewStyle: CSSProperties = {
-  padding: 60, color: '#9CA3AF', fontSize: 13,
+  padding: 60, color: 'var(--color-text-faint)', fontSize: 13,
 }
 
 const optionsRowStyle: CSSProperties = {
   display: 'flex', flexWrap: 'wrap', gap: 12,
-  padding: 14, background: '#FFFFFF', borderRadius: 10,
-  border: '1px solid #E5E7EB',
+  padding: 14, background: 'var(--color-surface)', borderRadius: 10,
+  border: '1px solid var(--color-border)',
 }
 const toggleLabelStyle: CSSProperties = {
   display: 'inline-flex', alignItems: 'center',
-  fontSize: 13, color: '#0A0A0A', cursor: 'pointer',
+  fontSize: 13, color: 'var(--color-text)', cursor: 'pointer',
 }
 
 const toolbarStyle: CSSProperties = {
@@ -371,17 +371,17 @@ const toolbarStyle: CSSProperties = {
 const inputStyle: CSSProperties = {
   flex: '1 1 200px',
   padding: '8px 12px', fontSize: 13, borderRadius: 8,
-  border: '1px solid #E5E7EB', fontFamily: 'inherit',
+  border: '1px solid var(--color-border)', fontFamily: 'inherit',
 }
 const selectStyle: CSSProperties = {
   padding: '8px 12px', fontSize: 13, borderRadius: 8,
-  border: '1px solid #E5E7EB', background: '#FFFFFF',
+  border: '1px solid var(--color-border)', background: 'var(--color-surface)',
   fontFamily: 'inherit',
 }
 const ghostBtnStyle: CSSProperties = {
   padding: '8px 14px', fontSize: 12, fontWeight: 600,
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
-  borderRadius: 8, color: '#0A0A0A', cursor: 'pointer',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+  borderRadius: 8, color: 'var(--color-text)', cursor: 'pointer',
   fontFamily: 'inherit',
 }
 
@@ -397,7 +397,7 @@ const ctaWrapStyle: CSSProperties = {
   backdropFilter: 'blur(8px)',
   padding: '16px 0',
   marginTop: 24,
-  borderTop: '1px solid #E5E7EB',
+  borderTop: '1px solid var(--color-border)',
   textAlign: 'center',
 }
 const ctaDualStyle: CSSProperties = {
@@ -405,7 +405,7 @@ const ctaDualStyle: CSSProperties = {
   maxWidth: 420, marginInline: 'auto',
 }
 const ctaStyle: CSSProperties = {
-  background: '#CE1141', color: '#FFFFFF',
+  background: 'var(--color-bred)', color: '#FFFFFF',
   fontSize: 15, fontWeight: 700,
   padding: '14px 32px', border: 'none',
   borderRadius: 999, cursor: 'pointer',
@@ -413,20 +413,20 @@ const ctaStyle: CSSProperties = {
 }
 const ctaDisabledStyle: CSSProperties = {
   ...ctaStyle,
-  background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed',
+  background: '#E5E7EB', color: 'var(--color-text-faint)', cursor: 'not-allowed',
 }
 const hintStyle: CSSProperties = {
-  marginTop: 10, fontSize: 11, color: '#6B7280',
+  marginTop: 10, fontSize: 11, color: 'var(--color-text-muted)',
   maxWidth: 420, marginInline: 'auto',
 }
 
 const ctaSecondaryStyle: CSSProperties = {
-  background: '#FFFFFF',
-  color: '#CE1141',
+  background: 'var(--color-surface)',
+  color: 'var(--color-bred)',
   fontSize: 15,
   fontWeight: 700,
   padding: '14px 32px',
-  border: '2px solid #CE1141',
+  border: '2px solid var(--color-bred)',
   borderRadius: 999,
   cursor: 'pointer',
   fontFamily: 'inherit',
@@ -435,7 +435,7 @@ const ctaSecondaryStyle: CSSProperties = {
 
 const ctaSecondaryDisabledStyle: CSSProperties = {
   ...ctaSecondaryStyle,
-  color: '#9CA3AF',
-  borderColor: '#E5E7EB',
+  color: 'var(--color-text-faint)',
+  borderColor: 'var(--color-border)',
   cursor: 'not-allowed',
 }

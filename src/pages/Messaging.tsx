@@ -276,13 +276,13 @@ const headerWithBackStyle: React.CSSProperties = {
 }
 
 const backLinkStyle: React.CSSProperties = {
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   textDecoration: 'none',
   fontSize: 14,
   fontWeight: 500,
   padding: '8px 14px',
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
 }
 
@@ -308,8 +308,8 @@ const layoutStyle: React.CSSProperties = {
 }
 
 const sidebarStyle: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   padding: 8,
   overflowY: 'auto',
@@ -324,7 +324,7 @@ const convItemStyle: React.CSSProperties = {
   gap: 12,
   padding: 12,
   borderRadius: 8,
-  background: 'white',
+  background: 'var(--color-surface)',
   border: '1px solid transparent',
   cursor: 'pointer',
   textAlign: 'left',
@@ -334,7 +334,7 @@ const convItemStyle: React.CSSProperties = {
 
 const convItemActiveStyle: React.CSSProperties = {
   ...convItemStyle,
-  borderColor: '#CE1141',
+  borderColor: 'var(--color-bred)',
   background: '#FEF2F4',
 }
 
@@ -350,7 +350,7 @@ const convAvatarPlaceholderStyle: React.CSSProperties = {
   width: 40,
   height: 40,
   borderRadius: 8,
-  background: '#F5F5F5',
+  background: 'var(--color-bg)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -366,7 +366,7 @@ const convInfoStyle: React.CSSProperties = {
 const convNameStyle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 600,
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
@@ -374,14 +374,14 @@ const convNameStyle: React.CSSProperties = {
 
 const convSneakerStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#CE1141',
+  color: 'var(--color-bred)',
   whiteSpace: 'nowrap',
   overflow: 'hidden',
   textOverflow: 'ellipsis',
 }
 
 const unreadBadgeStyle: React.CSSProperties = {
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   fontSize: 10,
   fontWeight: 700,
@@ -392,8 +392,8 @@ const unreadBadgeStyle: React.CSSProperties = {
 }
 
 const chatMainStyle: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   display: 'flex',
   flexDirection: 'column',
@@ -405,7 +405,7 @@ const chatEmptyStyle: React.CSSProperties = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
   fontSize: 14,
 }
 
@@ -415,8 +415,8 @@ const chatHeaderStyle: React.CSSProperties = {
   alignItems: 'center',
   justifyContent: 'space-between',
   padding: '12px 16px',
-  borderBottom: '1px solid #E5E7EB',
-  background: '#FAFAFA',
+  borderBottom: '1px solid var(--color-border)',
+  background: 'var(--color-surface-alt)',
 }
 
 const chatHeaderInfoStyle: React.CSSProperties = {
@@ -427,12 +427,12 @@ const chatHeaderInfoStyle: React.CSSProperties = {
 const chatHeaderNameStyle: React.CSSProperties = {
   fontSize: 15,
   fontWeight: 600,
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
 }
 
 const chatHeaderSneakerStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#CE1141',
+  color: 'var(--color-bred)',
 }
 
 const deleteConvBtnStyle: React.CSSProperties = {
@@ -441,9 +441,9 @@ const deleteConvBtnStyle: React.CSSProperties = {
   gap: 6,
   padding: '6px 10px',
   background: 'transparent',
-  border: '1px solid #E5E7EB',
+  border: '1px solid var(--color-border)',
   borderRadius: 6,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   fontSize: 12,
   fontWeight: 500,
   cursor: 'pointer',
@@ -452,9 +452,9 @@ const deleteConvBtnStyle: React.CSSProperties = {
 
 const deleteConvBtnConfirmStyle: React.CSSProperties = {
   ...deleteConvBtnStyle,
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
-  borderColor: '#CE1141',
+  borderColor: 'var(--color-bred)',
 }
 
 const chatMessagesStyle: React.CSSProperties = {
@@ -475,7 +475,7 @@ const bubbleRowStyle: React.CSSProperties = {
 
 const bubbleOwnStyle: React.CSSProperties = {
   maxWidth: '70%',
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   padding: '10px 14px',
   borderRadius: 18,
@@ -486,8 +486,8 @@ const bubbleOwnStyle: React.CSSProperties = {
 
 const bubbleOtherStyle: React.CSSProperties = {
   maxWidth: '70%',
-  background: '#F3F4F6',
-  color: '#0A0A0A',
+  background: 'var(--color-surface-alt)',
+  color: 'var(--color-text)',
   padding: '10px 14px',
   borderRadius: 18,
   borderBottomLeftRadius: 4,
@@ -502,7 +502,7 @@ const deleteBtnStyle: React.CSSProperties = {
   width: 28,
   height: 28,
   cursor: 'pointer',
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -513,7 +513,7 @@ const deleteBtnStyle: React.CSSProperties = {
 
 const deleteBtnConfirmStyle: React.CSSProperties = {
   ...deleteBtnStyle,
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   opacity: 1,
 }
@@ -522,13 +522,13 @@ const chatInputBarStyle: React.CSSProperties = {
   display: 'flex',
   gap: 8,
   padding: 12,
-  borderTop: '1px solid #E5E7EB',
+  borderTop: '1px solid var(--color-border)',
 }
 
 const chatInputStyle: React.CSSProperties = {
   flex: 1,
   padding: '10px 14px',
-  border: '1px solid #E5E7EB',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
   fontSize: 14,
   fontFamily: 'inherit',
@@ -536,7 +536,7 @@ const chatInputStyle: React.CSSProperties = {
 
 const sendButtonStyle: React.CSSProperties = {
   padding: '10px 20px',
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   border: 'none',
   borderRadius: 8,
@@ -549,6 +549,6 @@ const sendButtonStyle: React.CSSProperties = {
 const emptyStyle: React.CSSProperties = {
   textAlign: 'center',
   padding: '24px 0',
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
   fontSize: 13,
 }

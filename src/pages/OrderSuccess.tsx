@@ -173,39 +173,39 @@ const spinnerStyle: CSSProperties = {
 }
 const emojiStyle: CSSProperties = { fontSize: 56, marginBottom: 16 }
 const titleStyle: CSSProperties = {
-  fontSize: 28, fontWeight: 800, color: '#0A0A0A',
+  fontSize: 28, fontWeight: 800, color: 'var(--color-text)',
   margin: '0 0 8px', lineHeight: 1.2,
 }
 const subtitleStyle: CSSProperties = {
-  fontSize: 15, color: '#6B7280', margin: '0 0 24px', lineHeight: 1.5,
+  fontSize: 15, color: 'var(--color-text-muted)', margin: '0 0 24px', lineHeight: 1.5,
 }
-const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 14 }
+const mutedStyle: CSSProperties = { color: 'var(--color-text-muted)', fontSize: 14 }
 
 const cardStyle: CSSProperties = {
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 12, padding: 20, marginBottom: 16, textAlign: 'left',
 }
 const tableStyle: CSSProperties = {
   width: '100%', borderCollapse: 'collapse', fontSize: 14,
 }
-const tdLabelStyle: CSSProperties = { padding: '6px 0', color: '#6B7280' }
+const tdLabelStyle: CSSProperties = { padding: '6px 0', color: 'var(--color-text-muted)' }
 const tdValueStyle: CSSProperties = {
-  padding: '6px 0', textAlign: 'right', fontWeight: 600, color: '#0A0A0A',
+  padding: '6px 0', textAlign: 'right', fontWeight: 600, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums',
 }
 
 const downloadStyle: CSSProperties = {
-  background: '#CE1141', color: '#FFFFFF', border: 'none',
+  background: 'var(--color-bred)', color: '#FFFFFF', border: 'none',
   borderRadius: 999, padding: '14px 28px', fontSize: 15, fontWeight: 700,
   cursor: 'pointer', fontFamily: 'inherit', margin: '8px 0',
 }
 const downloadDisabledStyle: CSSProperties = {
-  ...downloadStyle, background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed',
+  ...downloadStyle, background: '#E5E7EB', color: 'var(--color-text-faint)', cursor: 'not-allowed',
 }
 
 const nextStepStyle: CSSProperties = {
-  fontSize: 14, color: '#374151', lineHeight: 1.5,
-  background: '#F9FAFB', padding: 16, borderRadius: 10, margin: '16px 0',
+  fontSize: 14, color: 'var(--color-text)', lineHeight: 1.5,
+  background: 'var(--color-surface-alt)', padding: 16, borderRadius: 10, margin: '16px 0',
 }
 
 const ctaWrapStyle: CSSProperties = {
@@ -219,6 +219,6 @@ const primaryCtaStyle: CSSProperties = {
 }
 const secondaryCtaStyle: CSSProperties = {
   display: 'inline-block', padding: '8px 16px',
-  color: '#6B7280', textDecoration: 'none', fontSize: 13,
+  color: 'var(--color-text-muted)', textDecoration: 'none', fontSize: 13,
 }
-const linkStyle: CSSProperties = { color: '#CE1141', textDecoration: 'underline' }
+const linkStyle: CSSProperties = { color: 'var(--color-bred)', textDecoration: 'underline' }

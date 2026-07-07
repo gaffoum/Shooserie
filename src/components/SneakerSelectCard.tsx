@@ -46,8 +46,8 @@ const cardStyle: CSSProperties = {
   display: 'flex',
   flexDirection: 'column',
   alignItems: 'center',
-  background: '#FFFFFF',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 10,
   padding: 12,
   cursor: 'pointer',
@@ -57,13 +57,13 @@ const cardStyle: CSSProperties = {
 }
 const cardSelectedStyle: CSSProperties = {
   ...cardStyle,
-  border: '2px solid #CE1141',
+  border: '2px solid var(--color-bred)',
   background: '#FFF5F7',
 }
 const imageWrapStyle: CSSProperties = {
   width: '100%',
   aspectRatio: '4 / 3',
-  background: '#F9FAFB',
+  background: 'var(--color-surface-alt)',
   borderRadius: 6,
   overflow: 'hidden',
   marginBottom: 8,
@@ -72,15 +72,15 @@ const imgStyle: CSSProperties = {
   width: '100%', height: '100%', objectFit: 'contain',
 }
 const imgPlaceholderStyle: CSSProperties = {
-  width: '100%', height: '100%', background: '#F3F4F6',
+  width: '100%', height: '100%', background: 'var(--color-surface-alt)',
 }
 const infoStyle: CSSProperties = { width: '100%' }
 const brandStyle: CSSProperties = {
   fontSize: 9, fontWeight: 600, letterSpacing: '0.06em',
-  color: '#6B7280', marginBottom: 2,
+  color: 'var(--color-text-muted)', marginBottom: 2,
 }
 const nameStyle: CSSProperties = {
-  fontSize: 12, fontWeight: 500, color: '#0A0A0A',
+  fontSize: 12, fontWeight: 500, color: 'var(--color-text)',
   lineHeight: 1.3,
   display: '-webkit-box',
   WebkitLineClamp: 2,
@@ -92,14 +92,14 @@ const checkStyle: CSSProperties = {
   top: 8, right: 8,
   width: 22, height: 22,
   borderRadius: '50%',
-  border: '2px solid #E5E7EB',
-  background: '#FFFFFF',
+  border: '2px solid var(--color-border)',
+  background: 'var(--color-surface)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
 }
 const checkSelectedStyle: CSSProperties = {
   ...checkStyle,
-  background: '#CE1141',
-  border: '2px solid #CE1141',
+  background: 'var(--color-bred)',
+  border: '2px solid var(--color-bred)',
 }

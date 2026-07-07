@@ -228,39 +228,39 @@ const pageStyle: CSSProperties = {
 const headerStyle: CSSProperties = { marginBottom: 24 }
 const titleStyle: CSSProperties = {
   fontSize: 40, fontWeight: 900, letterSpacing: '-0.02em',
-  color: '#0A0A0A', margin: 0, lineHeight: 1.05,
+  color: 'var(--color-text)', margin: 0, lineHeight: 1.05,
 }
 const subtitleStyle: CSSProperties = {
-  fontSize: 14, color: '#6B7280', marginTop: 8,
+  fontSize: 14, color: 'var(--color-text-muted)', marginTop: 8,
 }
 
 const cardStyle: CSSProperties = {
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 12, padding: 20, marginBottom: 16,
 }
 const sectionTitleStyle: CSSProperties = {
   fontSize: 12, fontWeight: 600, letterSpacing: '0.08em',
-  textTransform: 'uppercase', color: '#0A0A0A', margin: '0 0 16px',
+  textTransform: 'uppercase', color: 'var(--color-text)', margin: '0 0 16px',
 }
 
 const tableStyle: CSSProperties = {
   width: '100%', borderCollapse: 'collapse', fontSize: 14,
 }
 const tdLabelStyle: CSSProperties = {
-  padding: '6px 0', color: '#6B7280',
+  padding: '6px 0', color: 'var(--color-text-muted)',
 }
 const tdValueStyle: CSSProperties = {
-  padding: '6px 0', textAlign: 'right', fontWeight: 600, color: '#0A0A0A',
+  padding: '6px 0', textAlign: 'right', fontWeight: 600, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums',
 }
 const trTotalStyle: CSSProperties = {
-  borderTop: '2px solid #E5E7EB',
+  borderTop: '2px solid var(--color-border)',
 }
 const tdTotalLabelStyle: CSSProperties = {
-  padding: '12px 0 0', color: '#0A0A0A', fontWeight: 700, fontSize: 15,
+  padding: '12px 0 0', color: 'var(--color-text)', fontWeight: 700, fontSize: 15,
 }
 const tdTotalValueStyle: CSSProperties = {
-  padding: '12px 0 0', textAlign: 'right', fontWeight: 800, color: '#CE1141',
+  padding: '12px 0 0', textAlign: 'right', fontWeight: 800, color: 'var(--color-bred)',
   fontSize: 18, fontVariantNumeric: 'tabular-nums',
 }
 const nextTierHintStyle: CSSProperties = {
@@ -276,15 +276,15 @@ const fieldStyle: CSSProperties = {
   display: 'flex', flexDirection: 'column', gap: 4,
 }
 const fieldLabelStyle: CSSProperties = {
-  fontSize: 11, fontWeight: 600, color: '#6B7280',
+  fontSize: 11, fontWeight: 600, color: 'var(--color-text-muted)',
   textTransform: 'uppercase', letterSpacing: '0.04em',
 }
 const inputStyle: CSSProperties = {
   padding: '10px 12px', fontSize: 14, borderRadius: 8,
-  border: '1px solid #E5E7EB', fontFamily: 'inherit',
+  border: '1px solid var(--color-border)', fontFamily: 'inherit',
 }
 const hintStyle: CSSProperties = {
-  marginTop: 12, fontSize: 12, color: '#9CA3AF',
+  marginTop: 12, fontSize: 12, color: 'var(--color-text-faint)',
 }
 
 const consentRowStyle: CSSProperties = {
@@ -295,28 +295,28 @@ const checkboxStyle: CSSProperties = {
   marginTop: 3, flexShrink: 0,
 }
 const consentTextStyle: CSSProperties = {
-  fontSize: 13, color: '#374151', lineHeight: 1.5,
+  fontSize: 13, color: 'var(--color-text)', lineHeight: 1.5,
 }
 const linkStyle: CSSProperties = {
-  color: '#CE1141', textDecoration: 'underline',
+  color: 'var(--color-bred)', textDecoration: 'underline',
 }
 
 const ctaWrapStyle: CSSProperties = {
   marginTop: 16, textAlign: 'center',
 }
 const ctaStyle: CSSProperties = {
-  background: '#CE1141', color: '#FFFFFF',
+  background: 'var(--color-bred)', color: '#FFFFFF',
   fontSize: 16, fontWeight: 700, padding: '14px 32px',
   border: 'none', borderRadius: 999, cursor: 'pointer',
   fontFamily: 'inherit', width: '100%', maxWidth: 400,
 }
 const ctaDisabledStyle: CSSProperties = {
-  ...ctaStyle, background: '#E5E7EB', color: '#9CA3AF', cursor: 'not-allowed',
+  ...ctaStyle, background: '#E5E7EB', color: 'var(--color-text-faint)', cursor: 'not-allowed',
 }
 const trustStyle: CSSProperties = {
-  marginTop: 12, fontSize: 11, color: '#6B7280',
+  marginTop: 12, fontSize: 11, color: 'var(--color-text-muted)',
 }
 const errorStyle: CSSProperties = {
-  color: '#CE1141', fontSize: 13, marginBottom: 12,
+  color: 'var(--color-bred)', fontSize: 13, marginBottom: 12,
   padding: 10, background: '#FEE2E2', borderRadius: 8,
 }

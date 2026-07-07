@@ -157,12 +157,12 @@ function ResetModal({
 // Styles — design tokens Shooserie
 // =================================================================
 const FONT = "'Outfit', sans-serif"
-const TEXT = '#0A0A0A'
-const MUTED = '#6B7280'
-const BORDER = '#E5E7EB'
-const RED = '#CE1141'
-const CARD = '#FFFFFF'
-const SOFT = '#F9FAFB'
+const TEXT = 'var(--color-text)'
+const MUTED = 'var(--color-text-muted)'
+const BORDER = 'var(--color-border)'
+const RED = 'var(--color-bred)'
+const CARD = 'var(--color-surface)'
+const SOFT = 'var(--color-surface-alt)'
 
 const cardStyle: CSSProperties = {
   background: CARD,

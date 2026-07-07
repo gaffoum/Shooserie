@@ -48,11 +48,11 @@ const titleStyle: React.CSSProperties = {
   fontSize: 32,
   fontWeight: 700,
   margin: 0,
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   fontFamily: "'Outfit', sans-serif",
   letterSpacing: '-0.02em',
 }
 
 const nameStyle: React.CSSProperties = {
-  color: '#CE1141',
+  color: 'var(--color-bred)',
 }

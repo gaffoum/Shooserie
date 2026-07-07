@@ -167,11 +167,11 @@ function formatDate(iso: string): string {
 
 const sectionStyle: CSSProperties = { marginBottom: 24 }
 const titleStyle: CSSProperties = { fontSize: 18, fontWeight: 700, margin: '0 0 12px' }
-const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 14 }
+const mutedStyle: CSSProperties = { color: 'var(--color-text-muted)', fontSize: 14 }
 const listStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 12 }
 const cardStyle: CSSProperties = {
-  background: '#FFFFFF',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   padding: 16,
   display: 'flex',
@@ -181,11 +181,11 @@ const cardStyle: CSSProperties = {
 const rowStyle: CSSProperties = { display: 'flex', justifyContent: 'space-between', alignItems: 'center' }
 const idStyle: CSSProperties = { fontWeight: 700, letterSpacing: 0.5 }
 const badgeStyle: CSSProperties = { fontSize: 12, fontWeight: 700, padding: '3px 10px', borderRadius: 999 }
-const metaStyle: CSSProperties = { fontSize: 13, color: '#6B7280' }
+const metaStyle: CSSProperties = { fontSize: 13, color: 'var(--color-text-muted)' }
 const addrStyle: CSSProperties = {
   fontSize: 13,
-  color: '#0A0A0A',
-  background: '#F9FAFB',
+  color: 'var(--color-text)',
+  background: 'var(--color-surface-alt)',
   borderRadius: 8,
   padding: '10px 12px',
   lineHeight: 1.4,
@@ -200,8 +200,8 @@ const printBtnStyle: CSSProperties = {
   cursor: 'pointer',
 }
 const stepBtnStyle: CSSProperties = {
-  background: '#FFFFFF',
-  color: '#0A0A0A',
+  background: 'var(--color-surface)',
+  color: 'var(--color-text)',
   border: '1px solid #0A0A0A',
   borderRadius: 999,
   padding: '8px 16px',
@@ -210,13 +210,13 @@ const stepBtnStyle: CSSProperties = {
 }
 const shipFormStyle: CSSProperties = { display: 'flex', flexDirection: 'column', gap: 8 }
 const inputStyle: CSSProperties = {
-  border: '1px solid #D1D5DB',
+  border: '1px solid var(--color-border-strong)',
   borderRadius: 8,
   padding: '8px 10px',
   fontSize: 14,
 }
 const shipBtnStyle: CSSProperties = {
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: '#FFFFFF',
   border: 'none',
   borderRadius: 999,

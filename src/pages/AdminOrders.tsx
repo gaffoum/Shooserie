@@ -132,7 +132,7 @@ function FilterChip({
       style={{
         ...filterChipStyle,
         ...(active ? filterChipActiveStyle : {}),
-        ...(urgent && !active ? { borderColor: '#CE1141', color: '#CE1141' } : {}),
+        ...(urgent && !active ? { borderColor: 'var(--color-bred)', color: 'var(--color-bred)' } : {}),
       }}
     >
       {label}
@@ -299,21 +299,21 @@ const pageStyle: CSSProperties = {
 const headerStyle: CSSProperties = { marginBottom: 20 }
 const titleStyle: CSSProperties = {
   fontSize: 40, fontWeight: 900, letterSpacing: '-0.02em',
-  color: '#0A0A0A', margin: 0, lineHeight: 1.05,
+  color: 'var(--color-text)', margin: 0, lineHeight: 1.05,
 }
 const subtitleStyle: CSSProperties = {
-  fontSize: 14, color: '#6B7280', marginTop: 8,
+  fontSize: 14, color: 'var(--color-text-muted)', marginTop: 8,
 }
-const mutedStyle: CSSProperties = { color: '#6B7280', fontSize: 13 }
-const errorStyle: CSSProperties = { color: '#CE1141', fontSize: 13 }
+const mutedStyle: CSSProperties = { color: 'var(--color-text-muted)', fontSize: 13 }
+const errorStyle: CSSProperties = { color: 'var(--color-bred)', fontSize: 13 }
 
 const filtersStyle: CSSProperties = {
   display: 'flex', flexWrap: 'wrap', gap: 8, marginBottom: 20,
 }
 const filterChipStyle: CSSProperties = {
   padding: '6px 14px', fontSize: 12, fontWeight: 600,
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
-  borderRadius: 999, color: '#6B7280', cursor: 'pointer',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+  borderRadius: 999, color: 'var(--color-text-muted)', cursor: 'pointer',
   fontFamily: 'inherit',
 }
 const filterChipActiveStyle: CSSProperties = {
@@ -324,24 +324,24 @@ const listStyle: CSSProperties = {
   display: 'flex', flexDirection: 'column', gap: 12,
 }
 const cardStyle: CSSProperties = {
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
   borderRadius: 12, overflow: 'hidden',
 }
 const cardHeaderStyle: CSSProperties = {
   display: 'flex', gap: 12, padding: 16, cursor: 'pointer',
 }
 const cardIdStyle: CSSProperties = {
-  fontSize: 13, fontWeight: 800, color: '#0A0A0A',
+  fontSize: 13, fontWeight: 800, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums',
 }
 const cardCustomerStyle: CSSProperties = {
-  fontSize: 14, fontWeight: 600, color: '#0A0A0A', marginTop: 2,
+  fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginTop: 2,
 }
 const cardMetaStyle: CSSProperties = {
-  fontSize: 12, color: '#6B7280', marginTop: 2,
+  fontSize: 12, color: 'var(--color-text-muted)', marginTop: 2,
 }
 const cardAmountStyle: CSSProperties = {
-  fontSize: 16, fontWeight: 800, color: '#0A0A0A',
+  fontSize: 16, fontWeight: 800, color: 'var(--color-text)',
   fontVariantNumeric: 'tabular-nums', marginBottom: 4,
 }
 const statusPillStyle: CSSProperties = {
@@ -354,31 +354,31 @@ const cardBodyStyle: CSSProperties = {
 }
 const blockStyle: CSSProperties = { marginBottom: 16 }
 const blockTitleStyle: CSSProperties = {
-  fontSize: 11, fontWeight: 700, color: '#6B7280',
+  fontSize: 11, fontWeight: 700, color: 'var(--color-text-muted)',
   textTransform: 'uppercase', letterSpacing: '0.06em', marginBottom: 8,
 }
 const addrStyle: CSSProperties = {
-  fontSize: 13, lineHeight: 1.6, color: '#0A0A0A',
-  background: '#F9FAFB', padding: 12, borderRadius: 8,
+  fontSize: 13, lineHeight: 1.6, color: 'var(--color-text)',
+  background: 'var(--color-surface-alt)', padding: 12, borderRadius: 8,
   marginBottom: 8,
 }
 const sneakerListStyle: CSSProperties = {
   display: 'flex', flexWrap: 'wrap', gap: 6,
 }
 const sneakerIdStyle: CSSProperties = {
-  fontSize: 11, padding: '3px 8px', background: '#F3F4F6',
-  borderRadius: 4, fontFamily: 'monospace', color: '#6B7280',
+  fontSize: 11, padding: '3px 8px', background: 'var(--color-surface-alt)',
+  borderRadius: 4, fontFamily: 'monospace', color: 'var(--color-text-muted)',
 }
 
 const ghostBtnStyle: CSSProperties = {
   padding: '6px 12px', fontSize: 12, fontWeight: 600,
-  background: '#FFFFFF', border: '1px solid #E5E7EB',
-  borderRadius: 8, color: '#0A0A0A', cursor: 'pointer',
+  background: 'var(--color-surface)', border: '1px solid var(--color-border)',
+  borderRadius: 8, color: 'var(--color-text)', cursor: 'pointer',
   fontFamily: 'inherit',
 }
 const primaryBtnStyle: CSSProperties = {
   padding: '10px 20px', fontSize: 13, fontWeight: 700,
-  background: '#CE1141', color: '#FFFFFF', border: 'none',
+  background: 'var(--color-bred)', color: '#FFFFFF', border: 'none',
   borderRadius: 8, cursor: 'pointer', fontFamily: 'inherit',
 }
 const shipFormStyle: CSSProperties = {
@@ -386,8 +386,8 @@ const shipFormStyle: CSSProperties = {
 }
 const inputStyle: CSSProperties = {
   padding: '10px 12px', fontSize: 13, borderRadius: 8,
-  border: '1px solid #E5E7EB', fontFamily: 'inherit',
+  border: '1px solid var(--color-border)', fontFamily: 'inherit',
 }
 const linkStyle: CSSProperties = {
-  color: '#CE1141', textDecoration: 'underline',
+  color: 'var(--color-bred)', textDecoration: 'underline',
 }

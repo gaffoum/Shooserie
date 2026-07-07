@@ -12,8 +12,8 @@ interface PhotoPlaceholderProps {
  * Silhouette SVG simple d'une sneaker, utilisée quand pas de photo dispo.
  */
 export function PhotoPlaceholder({
-  background = '#EAEAEA',
-  color = '#FFFFFF',
+  background = 'var(--color-surface-alt)',
+  color = 'var(--color-text-faint)',
   size = 54,
 }: PhotoPlaceholderProps) {
   return (

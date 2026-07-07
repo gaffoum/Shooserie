@@ -416,12 +416,12 @@ function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
 // =================================================================
 
 const FONT = "'Outfit', sans-serif"
-const COLOR_TEXT = '#0A0A0A'
-const COLOR_MUTED = '#6B7280'
-const COLOR_RED = '#CE1141'
-const COLOR_BORDER = '#E5E7EB'
-const COLOR_BG_SOFT = '#F9FAFB'
-const COLOR_CARD = '#FFFFFF'
+const COLOR_TEXT = 'var(--color-text)'
+const COLOR_MUTED = 'var(--color-text-muted)'
+const COLOR_RED = 'var(--color-bred)'
+const COLOR_BORDER = 'var(--color-border)'
+const COLOR_BG_SOFT = 'var(--color-surface-alt)'
+const COLOR_CARD = 'var(--color-surface)'
 
 const pageStyle: React.CSSProperties = {
   maxWidth: 1200,
@@ -605,7 +605,7 @@ const viewBtnStyle: React.CSSProperties = {
 
 const activeViewBtnStyle: React.CSSProperties = {
   ...baseViewBtnStyle,
-  background: COLOR_TEXT,
+  background: '#0A0A0A',
   color: '#FFFFFF',
 }
 

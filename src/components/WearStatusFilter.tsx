@@ -67,7 +67,7 @@ const chipStyle = (
   // Active + accent (statut coloré) → bg = couleur statut
   // Active sans accent (chip "TOUS") → bg = rouge brand
   // Inactive → chip neutre
-  const bg = active ? (accentBg ?? '#CE1141') : 'var(--color-surface)'
+  const bg = active ? (accentBg ?? 'var(--color-bred)') : 'var(--color-surface)'
   const fg = active ? (accentFg ?? '#FFFFFF') : 'var(--color-text)'
   const border = active ? bg : 'var(--color-border)'
   return {

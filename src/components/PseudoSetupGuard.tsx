@@ -152,7 +152,7 @@ const overlayStyle: React.CSSProperties = {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'white',
+  background: 'var(--color-surface)',
   borderRadius: 16,
   maxWidth: 480,
   width: '100%',
@@ -164,7 +164,7 @@ const headerStyle: React.CSSProperties = { marginBottom: 24 }
 
 const badgeStyle: React.CSSProperties = {
   display: 'inline-block',
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   fontSize: 11,
   fontWeight: 700,
@@ -178,14 +178,14 @@ const titleStyle: React.CSSProperties = {
   fontSize: 28,
   fontWeight: 700,
   margin: '0 0 8px',
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   fontFamily: "'Outfit', sans-serif",
   lineHeight: 1.15,
 }
 
 const subtitleStyle: React.CSSProperties = {
   fontSize: 14,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   margin: 0,
   lineHeight: 1.5,
 }
@@ -195,7 +195,7 @@ const inputWrapStyle: React.CSSProperties = { marginBottom: 20 }
 const inputStyle: React.CSSProperties = {
   width: '100%',
   padding: '14px 16px',
-  border: '2px solid #E5E7EB',
+  border: '2px solid var(--color-border)',
   borderRadius: 10,
   fontSize: 16,
   fontFamily: 'inherit',
@@ -209,8 +209,8 @@ const statusRowStyle: React.CSSProperties = {
   fontSize: 13,
 }
 
-const hintStyle: React.CSSProperties = { color: '#6B7280' }
-const errorStyle: React.CSSProperties = { color: '#CE1141', fontWeight: 500 }
+const hintStyle: React.CSSProperties = { color: 'var(--color-text-muted)' }
+const errorStyle: React.CSSProperties = { color: 'var(--color-bred)', fontWeight: 500 }
 const successStyle: React.CSSProperties = { color: '#10B981', fontWeight: 600 }
 
 const errorBoxStyle: React.CSSProperties = {
@@ -219,14 +219,14 @@ const errorBoxStyle: React.CSSProperties = {
   background: '#FEF2F4',
   border: '1px solid #FCA5A5',
   borderRadius: 8,
-  color: '#CE1141',
+  color: 'var(--color-bred)',
   fontSize: 13,
 }
 
 const ctaActiveStyle: React.CSSProperties = {
   width: '100%',
   padding: '14px 20px',
-  background: '#CE1141',
+  background: 'var(--color-bred)',
   color: 'white',
   border: 'none',
   borderRadius: 10,
@@ -245,6 +245,6 @@ const ctaDisabledStyle: React.CSSProperties = {
 const footerNoteStyle: React.CSSProperties = {
   marginTop: 16,
   fontSize: 12,
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
   textAlign: 'center',
 }

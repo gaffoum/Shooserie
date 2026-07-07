@@ -188,13 +188,13 @@ export function Marketplace() {
 // ===== Styles =====
 const backLinkStyle: React.CSSProperties = {
   display: 'inline-block',
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   textDecoration: 'none',
   fontSize: 14,
   fontWeight: 500,
   padding: '8px 14px',
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
   marginBottom: 16,
 }
@@ -221,7 +221,7 @@ const titleStyle: React.CSSProperties = {
 
 const subtitleStyle: React.CSSProperties = {
   fontSize: 14,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   margin: '4px 0 0',
 }
 
@@ -237,7 +237,7 @@ const searchStyle: React.CSSProperties = {
   flex: 1,
   minWidth: 220,
   padding: '12px 16px',
-  border: '1px solid #E5E7EB',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
   fontSize: 14,
   fontFamily: 'inherit',
@@ -245,20 +245,20 @@ const searchStyle: React.CSSProperties = {
 
 const selectStyle: React.CSSProperties = {
   padding: '12px 16px',
-  border: '1px solid #E5E7EB',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
   fontSize: 14,
-  background: 'white',
+  background: 'var(--color-surface)',
   fontFamily: 'inherit',
 }
 
 const viewToggleStyle: React.CSSProperties = {
   display: 'flex',
   gap: 4,
-  border: '1px solid #E5E7EB',
+  border: '1px solid var(--color-border)',
   borderRadius: 8,
   padding: 4,
-  background: 'white',
+  background: 'var(--color-surface)',
 }
 
 const viewBtnStyle: React.CSSProperties = {
@@ -267,7 +267,7 @@ const viewBtnStyle: React.CSSProperties = {
   borderRadius: 6,
   padding: '8px 12px',
   cursor: 'pointer',
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -282,7 +282,7 @@ const viewBtnActiveStyle: React.CSSProperties = {
 const emptyStyle: React.CSSProperties = {
   textAlign: 'center',
   padding: '48px 0',
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
 }
 
 const gridStyle: React.CSSProperties = {
@@ -297,8 +297,8 @@ const cardLinkStyle: React.CSSProperties = {
 }
 
 const cardStyle: React.CSSProperties = {
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   overflow: 'hidden',
   transition: 'transform 0.15s, box-shadow 0.15s',
@@ -306,7 +306,7 @@ const cardStyle: React.CSSProperties = {
 
 const cardImageWrapStyle: React.CSSProperties = {
   aspectRatio: '1 / 1',
-  background: '#F5F5F5',
+  background: 'var(--color-bg)',
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -329,7 +329,7 @@ const cardBodyStyle: React.CSSProperties = {
 
 const cardBrandStyle: React.CSSProperties = {
   fontSize: 11,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   fontWeight: 600,
@@ -339,26 +339,26 @@ const cardBrandStyle: React.CSSProperties = {
 const cardNameStyle: React.CSSProperties = {
   fontSize: 14,
   fontWeight: 600,
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   marginBottom: 4,
 }
 
 const cardSizeStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   marginBottom: 8,
 }
 
 const cardPriceStyle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 700,
-  color: '#CE1141',
+  color: 'var(--color-bred)',
   marginBottom: 6,
 }
 
 const cardSellerStyle: React.CSSProperties = {
   fontSize: 11,
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
 }
 
 const listStyle: React.CSSProperties = {
@@ -377,8 +377,8 @@ const listRowStyle: React.CSSProperties = {
   alignItems: 'center',
   gap: 16,
   padding: 12,
-  background: 'white',
-  border: '1px solid #E5E7EB',
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
   borderRadius: 12,
   transition: 'background 0.15s',
 }
@@ -387,7 +387,7 @@ const listImageWrapStyle: React.CSSProperties = {
   width: 80,
   height: 80,
   flexShrink: 0,
-  background: '#F5F5F5',
+  background: 'var(--color-bg)',
   borderRadius: 8,
   display: 'flex',
   alignItems: 'center',
@@ -413,7 +413,7 @@ const listInfoStyle: React.CSSProperties = {
 
 const listBrandStyle: React.CSSProperties = {
   fontSize: 11,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   textTransform: 'uppercase',
   letterSpacing: '0.05em',
   fontWeight: 600,
@@ -423,7 +423,7 @@ const listBrandStyle: React.CSSProperties = {
 const listNameStyle: React.CSSProperties = {
   fontSize: 15,
   fontWeight: 600,
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   marginBottom: 4,
   whiteSpace: 'nowrap',
   overflow: 'hidden',
@@ -432,19 +432,19 @@ const listNameStyle: React.CSSProperties = {
 
 const listMetaStyle: React.CSSProperties = {
   fontSize: 12,
-  color: '#6B7280',
+  color: 'var(--color-text-muted)',
   marginBottom: 4,
 }
 
 const listSellerStyle: React.CSSProperties = {
   fontSize: 11,
-  color: '#9CA3AF',
+  color: 'var(--color-text-faint)',
 }
 
 const listPriceStyle: React.CSSProperties = {
   fontSize: 20,
   fontWeight: 700,
-  color: '#CE1141',
+  color: 'var(--color-bred)',
   whiteSpace: 'nowrap',
   paddingLeft: 12,
 }

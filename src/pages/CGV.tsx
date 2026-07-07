@@ -145,7 +145,7 @@ const pageStyle: CSSProperties = {
   maxWidth: 720, margin: '0 auto',
   padding: '24px 16px 80px',
   fontFamily: "'Outfit', sans-serif",
-  color: '#0A0A0A',
+  color: 'var(--color-text)',
   fontSize: 14,
   lineHeight: 1.7,
 }
@@ -154,16 +154,16 @@ const titleStyle: CSSProperties = {
   margin: '0 0 4px',
 }
 const updateStyle: CSSProperties = {
-  fontSize: 12, color: '#6B7280', marginBottom: 32,
+  fontSize: 12, color: 'var(--color-text-muted)', marginBottom: 32,
 }
 const sectionStyle: CSSProperties = { marginBottom: 28 }
 const sectionTitleStyle: CSSProperties = {
-  fontSize: 16, fontWeight: 700, color: '#0A0A0A',
+  fontSize: 16, fontWeight: 700, color: 'var(--color-text)',
   margin: '0 0 12px',
 }
 const listStyle: CSSProperties = {
   paddingLeft: 24, margin: '8px 0',
 }
 const linkStyle: CSSProperties = {
-  color: '#CE1141', textDecoration: 'underline',
+  color: 'var(--color-bred)', textDecoration: 'underline',
 }
