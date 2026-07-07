@@ -23,6 +23,7 @@ import type { CSSProperties } from 'react'
 import type { DictKey } from '@/i18n/dictionaries'
 import { WelcomeHeader } from '../components/WelcomeHeader'
 import { LabelsButton } from '@/components/LabelsButton'
+import { BinderView } from '@/components/collection/BinderView'
 
 /* =====================================================
  * Sort keys — labels are dictionary keys, comparators below.
@@ -88,6 +89,25 @@ export function Dashboard() {
 
   const { t } = useT()
   const [view, setView] = useState<ViewMode>('grid')
+  // Mode de page niveau 1 : Portfolio (financier) vs Collection (classeur TCG),
+  // persisté en localStorage et relu à l'init.
+  const [pageMode, setPageMode] = useState<'portfolio' | 'collection'>(() => {
+    try {
+      return localStorage.getItem('shooserie:collectionMode') === 'collection'
+        ? 'collection'
+        : 'portfolio'
+    } catch {
+      return 'portfolio'
+    }
+  })
+  const selectPageMode = (m: 'portfolio' | 'collection') => {
+    setPageMode(m)
+    try {
+      localStorage.setItem('shooserie:collectionMode', m)
+    } catch {
+      // localStorage indisponible (mode privé) : on ignore.
+    }
+  }
 
   // Filters
   const [search, setSearch] = useState('')
@@ -371,19 +391,23 @@ export function Dashboard() {
             </div>
 
             <div style={toolbarStyle}>
-              <div style={countLabelStyle}>
-                {t(
-                  sorted.length > 1
-                    ? 'dashboard.collectionCountPlural'
-                    : 'dashboard.collectionCount',
-                  { n: sorted.length },
-                )}
-                {(brandFilter || tagFilter.length > 0 || forSaleOnly || search) && (
-                  <span style={{ marginLeft: 8, color: 'var(--color-text-faint)' }}>
-                    {' '}{t('dashboard.filtered')}
-                  </span>
-                )}
-              </div>
+              {pageMode === 'portfolio' ? (
+                <div style={countLabelStyle}>
+                  {t(
+                    sorted.length > 1
+                      ? 'dashboard.collectionCountPlural'
+                      : 'dashboard.collectionCount',
+                    { n: sorted.length },
+                  )}
+                  {(brandFilter || tagFilter.length > 0 || forSaleOnly || search) && (
+                    <span style={{ marginLeft: 8, color: 'var(--color-text-faint)' }}>
+                      {' '}{t('dashboard.filtered')}
+                    </span>
+                  )}
+                </div>
+              ) : (
+                <div />
+              )}
               <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                 <Link
                   to="/ventes"
@@ -453,23 +477,65 @@ export function Dashboard() {
                     {t('dashboard.share.button')}
                   </span>
                 </button>
-                <select
-                  value={sortKey}
-                  onChange={(e) => setSortKey(e.target.value as SortKey)}
-                  style={sortSelectStyle}
-                  aria-label={t('dashboard.sort.aria')}
+                {/* Toggle niveau 1 : Portfolio / Collection (persisté) */}
+                <div
+                  style={{
+                    display: 'inline-flex',
+                    gap: 2,
+                    background: 'var(--color-surface-alt)',
+                    border: '1px solid var(--color-border)',
+                    borderRadius: 'var(--radius-md)',
+                    padding: 2,
+                  }}
+                  role="group"
+                  aria-label={t('dashboard.mode.aria')}
                 >
-                  {(Object.keys(SORT_LABEL_KEYS) as SortKey[]).map((k) => (
-                    <option key={k} value={k}>
-                      {t(SORT_LABEL_KEYS[k])}
-                    </option>
+                  {(['portfolio', 'collection'] as const).map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      onClick={() => selectPageMode(m)}
+                      aria-pressed={pageMode === m}
+                      style={{
+                        border: 'none',
+                        cursor: 'pointer',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        padding: '6px 12px',
+                        borderRadius: 'var(--radius-sm)',
+                        fontFamily: 'var(--font-display)',
+                        whiteSpace: 'nowrap',
+                        background: pageMode === m ? 'var(--color-bred)' : 'transparent',
+                        color: pageMode === m ? '#FFFFFF' : 'var(--color-text-muted)',
+                      }}
+                    >
+                      {t(m === 'portfolio' ? 'dashboard.mode.portfolio' : 'dashboard.mode.collection')}
+                    </button>
                   ))}
-                </select>
-                <ViewToggle value={view} onChange={setView} />
+                </div>
+                {pageMode === 'portfolio' && (
+                  <>
+                    <select
+                      value={sortKey}
+                      onChange={(e) => setSortKey(e.target.value as SortKey)}
+                      style={sortSelectStyle}
+                      aria-label={t('dashboard.sort.aria')}
+                    >
+                      {(Object.keys(SORT_LABEL_KEYS) as SortKey[]).map((k) => (
+                        <option key={k} value={k}>
+                          {t(SORT_LABEL_KEYS[k])}
+                        </option>
+                      ))}
+                    </select>
+                    <ViewToggle value={view} onChange={setView} />
+                  </>
+                )}
               </div>
             </div>
 
-            {sorted.length === 0 ? (
+            {pageMode === 'collection' ? (
+              <BinderView sneakers={sorted} />
+            ) : sorted.length === 0 ? (
               <div style={noMatchStyle}>
                 {t('dashboard.noMatch')}
               </div>

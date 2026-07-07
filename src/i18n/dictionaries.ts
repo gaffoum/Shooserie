@@ -414,6 +414,11 @@ const fr = {
   'theme.light': 'Clair',
   'theme.dark': 'Sombre',
   'theme.system': 'Système',
+
+  // Mode de page : Portfolio / Collection
+  'dashboard.mode.aria': 'Mode d’affichage',
+  'dashboard.mode.portfolio': 'Portfolio',
+  'dashboard.mode.collection': 'Collection',
 }
 
 const en: typeof fr = {
@@ -819,6 +824,11 @@ const en: typeof fr = {
   'theme.light': 'Light',
   'theme.dark': 'Dark',
   'theme.system': 'System',
+
+  // Mode de page : Portfolio / Collection
+  'dashboard.mode.aria': 'Display mode',
+  'dashboard.mode.portfolio': 'Portfolio',
+  'dashboard.mode.collection': 'Collection',
 }
 
 export type DictKey = keyof typeof fr
