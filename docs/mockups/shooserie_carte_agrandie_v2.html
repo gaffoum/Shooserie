@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shooserie — Carte agrandie + retournée (maquette)</title>
+<style>
+  :root{ --bred:#CE1141; }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;padding:22px 14px 60px;font-family:"Inter","Segoe UI",system-ui,sans-serif;background:#F4F4F6;color:#1a1a1e;min-height:100vh}
+  h1{font-family:"Outfit","Inter",sans-serif;font-weight:700;font-size:20px;text-align:center;margin:0 0 4px}
+  .sub{text-align:center;color:#71717a;font-size:12.5px;margin-bottom:22px}
+
+  /* mini grille classeur (fond clair, comme la vraie vue Collection) */
+  .page{max-width:760px;margin:0 auto;background:#FAFAFA;border:1px solid #e6e6ea;border-radius:16px;padding:16px 16px 16px 22px;position:relative;box-shadow:0 10px 30px rgba(0,0,0,.06)}
+  .page::before{content:'';position:absolute;left:8px;top:0;bottom:0;width:12px;background:radial-gradient(circle at 6px 12%,#d7d7dd 3px,transparent 4px),radial-gradient(circle at 6px 38%,#d7d7dd 3px,transparent 4px),radial-gradient(circle at 6px 64%,#d7d7dd 3px,transparent 4px),radial-gradient(circle at 6px 90%,#d7d7dd 3px,transparent 4px)}
+  .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+
+  .pocket{position:relative;border-radius:10px;padding:4px;background:rgba(0,0,0,.03);border:1px solid #e2e2e8;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .pocket::after{content:'';position:absolute;inset:0;border-radius:10px;pointer-events:none;background:linear-gradient(125deg,rgba(255,255,255,.5),transparent 30%)}
+  .pocket.empty{border-style:dashed;border-color:#e2e2e8;background:rgba(0,0,0,.015)}
+
+  /* carte (recto compact) */
+  .card{position:relative;border-radius:8px;overflow:hidden;background:#0a0a0a;border:1.5px solid #242424;display:flex;flex-direction:column;padding:5px;cursor:pointer;aspect-ratio:63/88;transition:transform .12s}
+  .card:hover{transform:translateY(-3px)}
+  .c-top{display:flex;justify-content:space-between;align-items:center;height:13px;position:relative;z-index:6}
+  .badge{font-size:7px;font-weight:700;padding:2px 6px;border-radius:20px;white-space:nowrap}
+  .stars{font-size:7px}
+  .win{flex:1;position:relative;z-index:2;margin-top:4px;border-radius:5px;overflow:hidden;background:linear-gradient(160deg,#1b1b1b,#0f0f0f);border:1px solid #2a2a2a;display:flex;align-items:center;justify-content:center;min-height:0}
+  .win img{width:100%;height:100%;object-fit:contain}
+  .plate{position:relative;z-index:6;margin-top:4px;height:34px;border-radius:5px;padding:4px 6px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(180deg,#141414,#000);box-shadow:0 0 0 1px var(--metal,#242424)}
+  .nm{font-size:8px;font-weight:700;color:#f2f2f2;line-height:1.1;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .cwm{font-size:6px;color:#9a9aa2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badgestory{position:absolute;top:5px;left:5px;z-index:7;font-size:7px;font-weight:700;color:#e7c257;background:rgba(0,0,0,.55);padding:2px 5px;border-radius:20px;pointer-events:none}
+
+  .metal .m-frame{position:absolute;inset:2px;border-radius:4px;z-index:0}
+  .metal .m-sheen{position:absolute;top:0;left:-60%;width:45%;height:100%;z-index:3;pointer-events:none;background:linear-gradient(105deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-12deg);animation:sheen 5.5s ease-in-out infinite}
+  .rare{border-color:#b06a34!important;background:linear-gradient(135deg,#e6a56b,#8f5326 52%,#e6a56b)!important;--metal:#b8763f}
+  .rare .m-frame{background:radial-gradient(120% 90% at 50% 36%,#a86a37,#3a2413)}.rare .win{background:radial-gradient(120% 90% at 50% 40%,#3a2413,#150d06);border-color:#7c4e29}
+  .peu{border-color:#2f9e4455!important;--metal:#2f9e44}
+  @keyframes sheen{0%{left:-60%}55%{left:130%}100%{left:130%}}
+
+  /* ===== OVERLAY carte agrandie ===== */
+  .overlay{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;padding:20px;
+    background:rgba(8,8,10,.72);backdrop-filter:blur(4px);opacity:0;visibility:hidden;transition:opacity .28s}
+  .overlay.open{opacity:1;visibility:visible}
+  .big{width:min(360px,86vw);aspect-ratio:63/88;perspective:1600px;transform:scale(.6);transition:transform .42s cubic-bezier(.34,1.3,.4,1)}
+  .overlay.open .big{transform:scale(1)}
+  .bigInner{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.1,.2,1)}
+  .big.flipped .bigInner{transform:rotateY(180deg)}
+  .bigFace{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:16px;overflow:hidden}
+  .bigBack{transform:rotateY(180deg)}
+  .close{position:absolute;top:-42px;right:0;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,.14);color:#fff;font-size:18px;cursor:pointer;line-height:1}
+  .tapinfo{position:absolute;bottom:-34px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:11px}
+
+  /* recto agrandi */
+  .bigCardR{position:relative;height:100%;border-radius:16px;overflow:hidden;background:#0a0a0a;border:3px solid #b06a34;display:flex;flex-direction:column;padding:14px;background:linear-gradient(135deg,#e6a56b,#8f5326 52%,#e6a56b)}
+  .bigCardR .rf{position:absolute;inset:5px;border-radius:12px;background:radial-gradient(120% 90% at 50% 36%,#a86a37,#3a2413);z-index:0}
+  .bigCardR .rtop{display:flex;justify-content:space-between;align-items:center;position:relative;z-index:4}
+  .bigCardR .rbadge{font-size:12px;font-weight:700;color:#1a1206;background:#c9824c;padding:5px 12px;border-radius:20px}
+  .bigCardR .rstars{color:#c9824c;font-size:15px}
+  .bigCardR .rwin{flex:1;margin-top:12px;border-radius:10px;overflow:hidden;background:radial-gradient(120% 90% at 50% 40%,#3a2413,#150d06);border:1px solid #7c4e29;display:flex;align-items:center;justify-content:center;position:relative;z-index:2}
+  .bigCardR .rwin img{width:100%;height:100%;object-fit:contain}
+  .bigCardR .rplate{position:relative;z-index:4;margin-top:12px;border-radius:10px;padding:11px 13px;background:linear-gradient(180deg,#141414,#000);box-shadow:0 0 0 1.5px #b8763f}
+  .bigCardR .rnm{font-size:18px;font-weight:700;color:#f4f4f4;line-height:1.15}
+  .bigCardR .rcw{font-size:11px;color:#9a9aa2;margin-top:4px}
+
+  /* verso agrandi (lisible !) */
+  .bigBackInner{position:relative;height:100%;border-radius:16px;padding:20px;display:flex;flex-direction:column;
+    background:radial-gradient(130% 100% at 50% 0%,#20202a 0%,#111116 60%,#0a0a0d 100%);border:3px solid #b8763f}
+  .bigBackInner::before{content:'';position:absolute;inset:0;opacity:.05;pointer-events:none;background:repeating-linear-gradient(90deg,#fff 0 3px,transparent 3px 8px,#fff 8px 10px,transparent 10px 17px);-webkit-mask:radial-gradient(60% 42% at 50% 42%,#000 40%,transparent 78%);mask:radial-gradient(60% 42% at 50% 42%,#000 40%,transparent 78%)}
+  .bb-tier{display:flex;justify-content:space-between;align-items:center}
+  .bb-tl{font-size:11px;font-weight:700;letter-spacing:.16em;color:#d5a441}
+  .bb-st{font-size:14px;color:#d5a441}
+  .bb-title{font-family:"Outfit",sans-serif;font-weight:700;font-size:21px;line-height:1.2;margin-top:14px;color:#e7c257}
+  .bb-year{font-size:11px;color:#8a8a94;margin-top:4px;letter-spacing:.08em}
+  .bb-story{flex:1;margin-top:14px;font-size:14.5px;line-height:1.62;color:#dcdce2;overflow-y:auto;padding-right:6px}
+  .bb-story .myth{color:#a0a0aa;font-style:italic}
+  .bb-sep{height:1px;margin:14px 0 12px;background:linear-gradient(90deg,transparent,#b8763f,transparent);opacity:.6}
+  .bb-perso{display:grid;grid-template-columns:1fr 1fr;gap:9px 16px}
+  .bb-k{font-size:9px;letter-spacing:.1em;color:#7a7a84;text-transform:uppercase}
+  .bb-v{font-size:15px;font-weight:700;color:#ececf1;margin-top:2px}
+  .bb-mark{position:absolute;bottom:12px;right:16px;font-family:"Outfit",sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;color:#4a4a54}
+
+  .hint{text-align:center;font-size:11.5px;color:#9a9aa4;margin-top:20px}
+</style>
+</head>
+<body>
+  <h1>Clic → la carte se détache, grandit et se retourne</h1>
+  <div class="sub">Vue Collection (fond clair). Clique n'importe quelle carte. ★ = a une histoire.</div>
+
+  <div class="page">
+    <div class="grid" id="grid"></div>
+  </div>
+  <div class="hint">Un seul geste : clic → agrandissement + retournement enchaînés. Reclique la carte agrandie pour revoir le recto, ✕ ou fond pour fermer.</div>
+
+  <!-- overlay -->
+  <div class="overlay" id="overlay">
+    <div class="big" id="big">
+      <button class="close" id="close">✕</button>
+      <div class="bigInner" id="bigInner">
+        <div class="bigFace" id="bigFront"></div>
+        <div class="bigFace bigBack" id="bigBack"></div>
+      </div>
+      <div class="tapinfo" id="tapinfo"></div>
+    </div>
+  </div>
+
+<script>
+  var cards=[
+    {r:'rare',stars:3,name:'Nike Air Max 1 Parra (2018)',cw:'White / Multi-Color',img:'https://images.stockx.com/360/Nike-Air-Max-1-Parra-2018/Images/Nike-Air-Max-1-Parra-2018/Lv2/img01.jpg',
+      story:{title:'Le peintre d’Amsterdam',year:'2018',text:'Piet Parra, artiste néerlandais, habille l’Air Max 1 de ses aplats de couleurs et de son fameux « faux Swoosh » en dégradé. Sortie pour l’Air Max Day 2018 en quantités très limitées, elle est devenue l’une des collabs AM1 les plus recherchées — un tableau qu’on porte aux pieds.'},
+      perso:{etat:'Porté',taille:'EU 44.5',portees:'8 fois',score:'55'}},
+    {r:'rare',stars:3,name:'Nike Air Max 1 Anniversary Green',cw:'White / Evergreen Aura',img:'https://images.stockx.com/360/Nike-Air-Max-1-Anniversary-Green-2017/Images/Nike-Air-Max-1-Anniversary-Green-2017/Lv2/img01.jpg',
+      story:{title:'30 ans d’Air visible',year:'1987 · 2017',text:'En 2017, Nike fête les 30 ans de l’Air Max 1 en ressortant les coloris OG de 1987 avec la bulle d’origine. Le vert « Evergreen » rend hommage à la toute première Air Max, celle dont Tinker Hatfield a osé rendre l’amorti visible — inspiré, dit la légende, par la tuyauterie apparente du Centre Pompidou à Paris.'},
+      perso:{etat:'DS',taille:'EU 44.5',portees:'Jamais',score:'40'}},
+    {r:'rare',stars:3,name:'Nike Air Max 1 Curry (2018)',cw:'Dark Curry / Sport Royal',img:'https://images.stockx.com/360/Nike-Air-Max-1-Curry-2018/Images/Nike-Air-Max-1-Curry-2018/Lv2/img01.jpg',story:null,
+      perso:{etat:'9/10',taille:'EU 44.5',portees:'3 fois',score:'42'}},
+    {r:'peu',stars:2,name:'Nike Air Max 1 SP Concepts Far Out',cw:'Wild Violet / Multi-Color',img:'https://images.stockx.com/360/Nike-Air-Max-1-Concepts-Far-Out/Images/Nike-Air-Max-1-Concepts-Far-Out/Lv2/img01.jpg',story:null,
+      perso:{etat:'9/10',taille:'EU 44.5',portees:'5 fois',score:'35'}},
+    {r:'peu',stars:2,name:"Nike Air Max 1 White University Blue",cw:'White / University Blue',img:'https://images.stockx.com/360/Nike-Air-Max-1-White-University-Blue/Images/Nike-Air-Max-1-White-University-Blue/Lv2/img01.jpg',story:null,
+      perso:{etat:'DS',taille:'EU 44.5',portees:'Jamais',score:'30'}},
+    {r:'peu',stars:2,name:"Nike Air Max 1 '87 Fuchsia Dream (W)",cw:'Neutral Grey / Fuchsia Dream',img:'https://images.stockx.com/360/Nike-Air-Max-1-87-Fuchsia-Dream-Womens/Images/Nike-Air-Max-1-87-Fuchsia-Dream-Womens/Lv2/img01.jpg',story:null,
+      perso:{etat:'9/10',taille:'EU 40',portees:'2 fois',score:'21'}}
+  ];
+
+  function metalClass(r){return r==='rare'||r==='ultra_rare'||r==='grail';}
+  function scol(r){return r==='rare'?'#c9824c':r==='peu'?'#2f9e44':'#8a8a8a';}
+  function stars(n){return '★'.repeat(n);}
+
+  var grid=document.getElementById('grid');
+  var html='';
+  cards.forEach(function(c,i){
+    var m=metalClass(c.r);
+    html+='<div class="pocket"><div class="card '+(c.r)+(m?' metal':'')+'" data-i="'+i+'">'
+      + (m?'<div class="m-frame"></div><div class="m-sheen"></div>':'')
+      + (c.story?'<span class="badgestory">★ HISTOIRE</span>':'')
+      + '<div class="c-top"><span class="badge" style="background:'+scol(c.r)+';color:'+(c.r==='peu'?'#fff':'#1a1206')+'">★ '+(c.r==='rare'?'RARE':'PEU COMMUNE')+'</span><span class="stars" style="color:'+scol(c.r)+'">'+stars(c.stars)+'</span></div>'
+      + '<div class="win"><img src="'+c.img+'" alt=""></div>'
+      + '<div class="plate"><div class="nm">'+c.name+'</div><div class="cwm">'+c.cw+'</div></div>'
+      + '</div></div>';
+  });
+  // poches vides pour compléter
+  for(var k=0;k<3;k++) html+='<div class="pocket empty"></div>';
+  grid.innerHTML=html;
+
+  var overlay=document.getElementById('overlay'), big=document.getElementById('big'),
+      bigFront=document.getElementById('bigFront'), bigBack=document.getElementById('bigBack'),
+      tapinfo=document.getElementById('tapinfo');
+
+  function buildFront(c){
+    return '<div class="bigCardR"><div class="rf"></div>'
+      +'<div class="rtop"><span class="rbadge">★ '+(c.r==='rare'?'RARE':'PEU COMMUNE')+'</span><span class="rstars">'+stars(c.stars)+'</span></div>'
+      +'<div class="rwin"><img src="'+c.img+'" alt=""></div>'
+      +'<div class="rplate"><div class="rnm">'+c.name+'</div><div class="rcw">'+c.cw+'</div></div></div>';
+  }
+  function buildBack(c){
+    var p=c.perso;
+    var persoBlock='<div class="bb-sep"></div><div class="bb-perso">'
+      +'<div><div class="bb-k">État</div><div class="bb-v">'+p.etat+'</div></div>'
+      +'<div><div class="bb-k">Taille</div><div class="bb-v">'+p.taille+'</div></div>'
+      +'<div><div class="bb-k">Portées</div><div class="bb-v">'+p.portees+'</div></div>'
+      +'<div><div class="bb-k">Rareté</div><div class="bb-v">Score '+p.score+'</div></div>'
+      +'</div><div class="bb-mark">SHOOSERIE</div>';
+    if(c.story){
+      return '<div class="bigBackInner"><div class="bb-tier"><span class="bb-tl">'+(c.r==='rare'?'RARE':'PEU COMMUNE')+'</span><span class="bb-st">'+stars(c.stars)+'</span></div>'
+        +'<div class="bb-title">'+c.story.title+'</div><div class="bb-year">'+c.story.year+'</div>'
+        +'<div class="bb-story">'+c.story.text+'</div>'+persoBlock+'</div>';
+    } else {
+      return '<div class="bigBackInner"><div class="bb-tier"><span class="bb-tl">'+(c.r==='rare'?'RARE':'PEU COMMUNE')+'</span><span class="bb-st">'+stars(c.stars)+'</span></div>'
+        +'<div class="bb-title" style="color:#ececf1">'+c.name+'</div><div class="bb-year">'+c.cw+'</div>'
+        +'<div style="flex:1"></div>'+persoBlock+'</div>';
+    }
+  }
+
+  var flipTimer=null;
+  function openCard(i){
+    var c=cards[i];
+    bigFront.innerHTML=buildFront(c);
+    bigBack.innerHTML=buildBack(c);
+    big.classList.remove('flipped');
+    tapinfo.textContent = c.story ? '' : 'Pas d’histoire éditoriale pour cette paire';
+    overlay.classList.add('open');
+    // geste enchaîné : grandit (.42s) puis se retourne automatiquement
+    clearTimeout(flipTimer);
+    flipTimer=setTimeout(function(){ big.classList.add('flipped'); }, 430);
+  }
+  function closeCard(){ overlay.classList.remove('open'); clearTimeout(flipTimer); }
+
+  grid.querySelectorAll('.card').forEach(function(el){
+    el.addEventListener('click',function(){ openCard(parseInt(el.dataset.i,10)); });
+  });
+  document.getElementById('close').addEventListener('click',function(e){e.stopPropagation();closeCard();});
+  overlay.addEventListener('click',function(e){ if(e.target===overlay) closeCard(); });
+  // reclic sur la carte agrandie = re-flip (revoir recto / verso)
+  big.addEventListener('click',function(e){ if(e.target===document.getElementById('close'))return; big.classList.toggle('flipped'); });
+</script>
+</body>
+</html>

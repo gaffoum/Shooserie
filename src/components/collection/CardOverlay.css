@@ -1,0 +1,209 @@
+/*
+ * Overlay « carte agrandie » — port fidèle de
+ * docs/mockups/shooserie_carte_agrandie_v2.html. Fond assombri + blur, carte
+ * au centre qui s'agrandit (rebond) puis se retourne. La carte reste un
+ * artefact sombre : couleurs fixes, indépendantes du thème clair/sombre.
+ */
+
+.tcg-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(8, 8, 10, 0.72);
+  -webkit-backdrop-filter: blur(4px);
+  backdrop-filter: blur(4px);
+  animation: tcg-ov-fade 0.28s ease both;
+}
+@keyframes tcg-ov-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Carte agrandie : ratio 63/88, ~360px (ou 86vw en mobile). Overflow visible
+   pour laisser dépasser le ✕ (au-dessus) et la note (en dessous). */
+.tcg-overlay-card {
+  position: relative;
+  width: min(360px, 86vw);
+  aspect-ratio: 63 / 88;
+  max-height: 88vh;
+  cursor: pointer;
+  transform: scale(0.6);
+  transition: transform 0.42s cubic-bezier(0.34, 1.3, 0.4, 1);
+  will-change: transform;
+}
+.tcg-overlay-card.entered { transform: scale(1); }
+
+.tcg-overlay-x {
+  position: absolute;
+  top: -42px;
+  right: 0;
+  z-index: 3;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.14);
+  color: #fff;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.tcg-overlay-x:hover { background: rgba(255, 255, 255, 0.24); }
+
+.tcg-overlay-tapinfo {
+  position: absolute;
+  bottom: -34px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 11px;
+  pointer-events: none;
+}
+
+/* Flip agrandi : perspective 1600, retournement .55s. */
+.tcg-flip.tcg-xl { perspective: 1600px; }
+.tcg-xl .tcg-flip-inner {
+  transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
+}
+.tcg-xl .tcg-face {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* ===== Recto agrandi : surcharge des tailles fixes ===== */
+.tcg-xl .tcg-card {
+  padding: 14px;
+  border-width: 3px;
+  border-radius: 16px;
+}
+.tcg-xl .tcg-card.tcg-metal { padding: 14px; }
+.tcg-xl .tcg-m-frame { inset: 5px; border-radius: 12px; }
+.tcg-xl .tcg-c-top { height: auto; }
+.tcg-xl .tcg-badge { font-size: 12px; padding: 5px 12px; gap: 4px; }
+.tcg-xl .tcg-stars { font-size: 15px; letter-spacing: 1px; }
+.tcg-xl .tcg-win { margin-top: 12px; border-radius: 10px; }
+.tcg-xl .tcg-plate {
+  height: auto;
+  margin-top: 12px;
+  padding: 11px 13px;
+  border-radius: 10px;
+}
+.tcg-xl .tcg-name { font-size: 18px; line-height: 1.15; }
+.tcg-xl .tcg-cw { font-size: 11px; margin-top: 4px; }
+
+/* ===== Verso agrandi (l'histoire de la paire) ===== */
+.tcg-bb {
+  position: relative;
+  height: 100%;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: radial-gradient(130% 100% at 50% 0%, #20202a 0%, #111116 60%, #0a0a0d 100%);
+  border: 3px solid #b8763f; /* couleur écrasée inline par le tier */
+}
+/* Filigrane code-barres, centré, très faible opacité. */
+.tcg-bb-fili {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  opacity: 0.05;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    90deg,
+    #fff 0 3px,
+    transparent 3px 8px,
+    #fff 8px 10px,
+    transparent 10px 17px
+  );
+  -webkit-mask: radial-gradient(60% 42% at 50% 42%, #000 40%, transparent 78%);
+  mask: radial-gradient(60% 42% at 50% 42%, #000 40%, transparent 78%);
+}
+.tcg-bb-tier {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.tcg-bb-tl { font-size: 11px; font-weight: 700; letter-spacing: 0.16em; }
+.tcg-bb-st { font-size: 14px; }
+.tcg-bb-title {
+  position: relative;
+  z-index: 1;
+  font-weight: 700;
+  font-size: 21px;
+  line-height: 1.2;
+  margin-top: 14px;
+}
+.tcg-bb-title--plain { color: #ececf1; }
+.tcg-bb-year {
+  position: relative;
+  z-index: 1;
+  font-size: 11px;
+  color: #8a8a94;
+  margin-top: 4px;
+  letter-spacing: 0.08em;
+}
+.tcg-bb-story {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  margin-top: 14px;
+  font-size: 14.5px;
+  line-height: 1.62;
+  color: #dcdce2;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.tcg-bb-story::-webkit-scrollbar { width: 4px; }
+.tcg-bb-story::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+.tcg-bb-spacer { flex: 1 1 auto; }
+.tcg-bb-sep {
+  position: relative;
+  z-index: 1;
+  height: 1px;
+  margin: 14px 0 12px;
+  opacity: 0.6;
+}
+.tcg-bb-perso {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 9px 16px;
+}
+.tcg-bb-k {
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  color: #7a7a84;
+  text-transform: uppercase;
+}
+.tcg-bb-v { font-size: 15px; font-weight: 700; color: #ececf1; margin-top: 2px; }
+.tcg-bb-mark {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  z-index: 1;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: #4a4a54;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tcg-overlay { animation: none; }
+  .tcg-overlay-card { transition: none; }
+}

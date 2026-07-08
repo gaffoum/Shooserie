@@ -12,9 +12,10 @@ import {
   type BrandGroup,
   type CollectionCard,
 } from '@/lib/collectionGrouping'
-import { useSneakerStories, matchStory } from '@/lib/stories'
+import { useSneakerStories, matchStory, type SneakerStory } from '@/lib/stories'
 import { SneakerPhoto } from '../SneakerPhoto'
 import { SneakerCard } from './SneakerCard'
+import { CardOverlay } from './CardOverlay'
 import './BinderView.css'
 
 /**
@@ -104,8 +105,13 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
   const [curModel, setCurModel] = useState<string | null>(null)
   const [cur, setCur] = useState(0)
   const [mode, setMode] = useState<'card' | 'table'>('card')
-  // Verso ouvert (un seul par page) — id de la carte retournée, sinon null.
-  const [flippedId, setFlippedId] = useState<string | null>(null)
+  // Carte ouverte en overlay plein écran (agrandie + flip), sinon null.
+  const [openCard, setOpenCard] = useState<{
+    card: CollectionCard
+    story: SneakerStory | null
+  } | null>(null)
+  // Afficher le badge « ★ HISTOIRE » sur les cartes à récit.
+  const [showBadges, setShowBadges] = useState(true)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [perPage, setPerPage] = useState<number>(computePerPage)
 
@@ -167,9 +173,6 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
       const target = cur + dir
       if (target < 0 || target >= pages.length) return
 
-      // Changer de page referme tout verso ouvert.
-      setFlippedId(null)
-
       const els = pageRefs.current
       // Réduction du mouvement : bascule instantanée, sans rotation.
       if (prefersReducedMotion()) {
@@ -230,13 +233,13 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
 
   const selectBrand = (brand: string) => {
     const g = groups.find((b) => b.brand === brand)
-    setFlippedId(null)
+    setOpenCard(null)
     setCurBrand(brand)
     setCurModel(g?.models[0]?.model ?? null)
     setCur(0)
   }
   const selectModel = (model: string) => {
-    setFlippedId(null)
+    setOpenCard(null)
     setCurModel(model)
     setCur(0)
     setDrawerOpen(false)
@@ -325,6 +328,17 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
                 ? `Page ${Math.min(cur + 1, pages.length)}/${pages.length}`
                 : `${activeModel.cards.length} carte${activeModel.cards.length > 1 ? 's' : ''}`}
             </span>
+            {mode === 'card' && (
+              <button
+                type="button"
+                className={`binder-badgetoggle${showBadges ? ' active' : ''}`}
+                aria-pressed={showBadges}
+                title="Badges histoire"
+                onClick={() => setShowBadges((v) => !v)}
+              >
+                ★
+              </button>
+            )}
             <div className="binder-viewtoggle" role="group" aria-label="Vue">
               <button
                 type="button"
@@ -373,10 +387,10 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
                             <div className="binder-pocket" key={c.id}>
                               <SneakerCard
                                 card={c}
-                                story={matchStory(c.name, stories)}
-                                flipped={flippedId === c.id}
-                                onToggle={() =>
-                                  setFlippedId((prev) => (prev === c.id ? null : c.id))
+                                hasStory={!!matchStory(c.name, stories)}
+                                showStoryBadge={showBadges}
+                                onOpen={() =>
+                                  setOpenCard({ card: c, story: matchStory(c.name, stories) })
                                 }
                               />
                             </div>
@@ -460,6 +474,15 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
         </h3>
         {modelsList(selectModel)}
       </aside>
+
+      {/* Overlay carte agrandie (agrandissement + flip vers le verso) */}
+      {openCard && (
+        <CardOverlay
+          card={openCard.card}
+          story={openCard.story}
+          onClose={() => setOpenCard(null)}
+        />
+      )}
     </div>
   )
 }
