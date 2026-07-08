@@ -4,11 +4,10 @@ import type { CollectionCard } from '@/lib/collectionGrouping'
 import './SneakerCard.css'
 
 /**
- * Carte TCG (mode « Collection »/classeur). Porte le design de la maquette :
- * 5 paliers avec métaux animés (or grail / argent ultra / bronze rare) et
- * paliers plats (peu commune vert, commune gris). Gabarit fixe → toutes les
- * cartes ont la même hauteur. La photo passe par `SneakerPhoto`
- * (StockX public + bucket privé signé + fallback silhouette).
+ * Carte TCG (mode « Collection »/classeur), à deux faces avec flip 3D.
+ * Recto : badge/étoiles + photo + nameplate. Verso : l'histoire de la paire
+ * (voir GuideRarities/BinderView pour l'alimentation). Gabarit fixe → toutes
+ * les cartes ont la même hauteur, recto comme verso.
  */
 
 type ClassedTier = Exclude<RarityTier, 'unknown'>
@@ -39,13 +38,66 @@ function badgeText(r: RarityTier): string {
   return r === 'grail' || r === 'rare' ? '#1a1206' : r === 'ultra_rare' ? '#1a1d22' : '#fff'
 }
 
-export function SneakerCard({ card }: { card: CollectionCard }) {
+interface SneakerCardProps {
+  card: CollectionCard
+  /** Verso affiché ? Piloté par le classeur (un seul verso ouvert par page). */
+  flipped?: boolean
+  /** Toggle recto/verso au tap/clic. */
+  onToggle?: () => void
+}
+
+export function SneakerCard({ card, flipped = false, onToggle }: SneakerCardProps) {
   const rarity: RarityTier = card.rarity ?? 'unknown'
   const isMetal = METAL_TIERS.includes(rarity)
-  const tier = rarity !== 'unknown' ? TIER[rarity] : null
+  const cardClass = `tcg-card tcg-${rarity}${isMetal ? ' tcg-metal' : ''}`
 
   return (
-    <div className={`tcg-card tcg-${rarity}${isMetal ? ' tcg-metal' : ''}`}>
+    <div
+      className={`tcg-flip${flipped ? ' flipped' : ''}`}
+      onClick={onToggle}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onToggle?.()
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      aria-pressed={flipped}
+      aria-label={card.name}
+    >
+      <div className="tcg-flip-inner">
+        <div className="tcg-face tcg-face-front">
+          <CardFront card={card} rarity={rarity} isMetal={isMetal} cardClass={cardClass} />
+        </div>
+        <div className="tcg-face tcg-face-back">
+          <div className={`${cardClass} tcg-cardback`}>
+            {/* Verso enrichi au Lot 3 ; pour l'instant : nom + colorway. */}
+            <div className="tcg-back-head">
+              <div className="tcg-back-name">{card.name}</div>
+              {card.colorway && <div className="tcg-cw">{card.colorway}</div>}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function CardFront({
+  card,
+  rarity,
+  isMetal,
+  cardClass,
+}: {
+  card: CollectionCard
+  rarity: RarityTier
+  isMetal: boolean
+  cardClass: string
+}) {
+  const tier = rarity !== 'unknown' ? TIER[rarity] : null
+  return (
+    <div className={cardClass}>
       {isMetal && <div className="tcg-m-frame" />}
       {rarity === 'grail' && <div className="tcg-holo" />}
       {isMetal && <div className="tcg-m-sheen" />}
@@ -69,11 +121,7 @@ export function SneakerCard({ card }: { card: CollectionCard }) {
       </div>
 
       <div className="tcg-win">
-        <SneakerPhoto
-          stockxUrl={card.stockx_image_url}
-          storagePath={card.photo_url}
-          alt={card.name}
-        />
+        <SneakerPhoto stockxUrl={card.stockx_image_url} storagePath={card.photo_url} alt={card.name} />
       </div>
 
       <div className="tcg-plate">

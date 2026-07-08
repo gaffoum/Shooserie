@@ -102,6 +102,8 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
   const [curModel, setCurModel] = useState<string | null>(null)
   const [cur, setCur] = useState(0)
   const [mode, setMode] = useState<'card' | 'table'>('card')
+  // Verso ouvert (un seul par page) — id de la carte retournée, sinon null.
+  const [flippedId, setFlippedId] = useState<string | null>(null)
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [perPage, setPerPage] = useState<number>(computePerPage)
 
@@ -163,6 +165,9 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
       const target = cur + dir
       if (target < 0 || target >= pages.length) return
 
+      // Changer de page referme tout verso ouvert.
+      setFlippedId(null)
+
       const els = pageRefs.current
       // Réduction du mouvement : bascule instantanée, sans rotation.
       if (prefersReducedMotion()) {
@@ -223,11 +228,13 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
 
   const selectBrand = (brand: string) => {
     const g = groups.find((b) => b.brand === brand)
+    setFlippedId(null)
     setCurBrand(brand)
     setCurModel(g?.models[0]?.model ?? null)
     setCur(0)
   }
   const selectModel = (model: string) => {
+    setFlippedId(null)
     setCurModel(model)
     setCur(0)
     setDrawerOpen(false)
@@ -362,7 +369,13 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
                         {pg.map((c, j) =>
                           c ? (
                             <div className="binder-pocket" key={c.id}>
-                              <SneakerCard card={c} />
+                              <SneakerCard
+                                card={c}
+                                flipped={flippedId === c.id}
+                                onToggle={() =>
+                                  setFlippedId((prev) => (prev === c.id ? null : c.id))
+                                }
+                              />
                             </div>
                           ) : (
                             <div className="binder-pocket empty" key={`e${j}`} />
