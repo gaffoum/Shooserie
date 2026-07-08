@@ -12,6 +12,7 @@ import {
   type BrandGroup,
   type CollectionCard,
 } from '@/lib/collectionGrouping'
+import { useSneakerStories, matchStory } from '@/lib/stories'
 import { SneakerPhoto } from '../SneakerPhoto'
 import { SneakerCard } from './SneakerCard'
 import './BinderView.css'
@@ -97,6 +98,7 @@ function prefersReducedMotion(): boolean {
 
 export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
   const groups = useMemo(() => groupByBrandModel(sneakers), [sneakers])
+  const { data: stories } = useSneakerStories()
 
   const [curBrand, setCurBrand] = useState<string | null>(null)
   const [curModel, setCurModel] = useState<string | null>(null)
@@ -371,6 +373,7 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
                             <div className="binder-pocket" key={c.id}>
                               <SneakerCard
                                 card={c}
+                                story={matchStory(c.name, stories)}
                                 flipped={flippedId === c.id}
                                 onToggle={() =>
                                   setFlippedId((prev) => (prev === c.id ? null : c.id))
