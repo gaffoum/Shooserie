@@ -7,7 +7,7 @@
  * table `sneakers` (StockX). Elles restent volontairement simples : point de
  * départ à affiner, avec un fallback « 2-3 premiers tokens » quand rien ne matche.
  */
-import type { Sneaker, RarityTier } from './types'
+import type { Sneaker, RarityTier, SneakerCondition } from './types'
 
 /* ------------------------------------------------------------------ */
 /* Marque                                                              */
@@ -171,6 +171,12 @@ export interface CollectionCard {
   rarity_score: number | null
   stockx_image_url: string | null
   photo_url: string | null
+  /* Données « perso » pour le verso (dos de carte). */
+  condition: SneakerCondition | null
+  wear_count: number
+  size_eu: string | null
+  size_us: string | null
+  purchase_date: string | null
 }
 
 export interface ModelGroup {
@@ -202,6 +208,11 @@ function toCard(s: Sneaker): CollectionCard {
     rarity_score: s.rarity_score ?? null,
     stockx_image_url: s.stockx_image_url,
     photo_url: s.photo_url,
+    condition: s.condition ?? null,
+    wear_count: s.wear_count ?? 0,
+    size_eu: s.size_eu,
+    size_us: s.size_us,
+    purchase_date: s.purchase_date,
   }
 }
 

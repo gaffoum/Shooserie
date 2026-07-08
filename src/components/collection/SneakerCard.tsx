@@ -1,6 +1,7 @@
 import { SneakerPhoto } from '../SneakerPhoto'
 import type { RarityTier } from '@/lib/types'
 import type { CollectionCard } from '@/lib/collectionGrouping'
+import type { SneakerStory } from '@/lib/stories'
 import './SneakerCard.css'
 
 /**
@@ -40,13 +41,15 @@ function badgeText(r: RarityTier): string {
 
 interface SneakerCardProps {
   card: CollectionCard
+  /** Histoire éditoriale du modèle (verso). Absente → bloc perso seul. */
+  story?: SneakerStory | null
   /** Verso affiché ? Piloté par le classeur (un seul verso ouvert par page). */
   flipped?: boolean
   /** Toggle recto/verso au tap/clic. */
   onToggle?: () => void
 }
 
-export function SneakerCard({ card, flipped = false, onToggle }: SneakerCardProps) {
+export function SneakerCard({ card, story, flipped = false, onToggle }: SneakerCardProps) {
   const rarity: RarityTier = card.rarity ?? 'unknown'
   const isMetal = METAL_TIERS.includes(rarity)
   const cardClass = `tcg-card tcg-${rarity}${isMetal ? ' tcg-metal' : ''}`
@@ -71,13 +74,7 @@ export function SneakerCard({ card, flipped = false, onToggle }: SneakerCardProp
           <CardFront card={card} rarity={rarity} isMetal={isMetal} cardClass={cardClass} />
         </div>
         <div className="tcg-face tcg-face-back">
-          <div className={`${cardClass} tcg-cardback`}>
-            {/* Verso enrichi au Lot 3 ; pour l'instant : nom + colorway. */}
-            <div className="tcg-back-head">
-              <div className="tcg-back-name">{card.name}</div>
-              {card.colorway && <div className="tcg-cw">{card.colorway}</div>}
-            </div>
-          </div>
+          <CardBack card={card} rarity={rarity} cardClass={cardClass} story={story} />
         </div>
       </div>
     </div>
@@ -127,6 +124,82 @@ function CardFront({
       <div className="tcg-plate">
         <div className="tcg-name">{card.name}</div>
         <div className="tcg-cw">{card.colorway ?? ''}</div>
+      </div>
+    </div>
+  )
+}
+
+/** Lignes du bloc « perso », depuis les données existantes de la paire. */
+function buildPerso(card: CollectionCard): Array<{ label: string; value: string }> {
+  const rows: Array<{ label: string; value: string }> = []
+  if (card.condition) rows.push({ label: 'État', value: card.condition })
+  if (card.wear_count > 0)
+    rows.push({ label: 'Portées', value: String(card.wear_count) })
+  const size = [
+    card.size_eu ? `EU ${card.size_eu}` : null,
+    card.size_us ? `US ${card.size_us}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ')
+  if (size) rows.push({ label: 'Taille', value: size })
+  if (card.purchase_date) {
+    const year = card.purchase_date.slice(0, 4)
+    if (/^\d{4}$/.test(year)) rows.push({ label: 'Depuis', value: year })
+  }
+  return rows
+}
+
+/**
+ * Verso : fond sombre + liseré métallique du tier, filigrane code-barres discret.
+ * Avec histoire → titre (couleur métal) + récit (scroll interne) + séparateur + perso.
+ * Sans histoire → en-tête nom/colorway + séparateur + perso. Aucun texte inventé.
+ */
+function CardBack({
+  card,
+  rarity,
+  cardClass,
+  story,
+}: {
+  card: CollectionCard
+  rarity: RarityTier
+  cardClass: string
+  story?: SneakerStory | null
+}) {
+  const metal = starColor(rarity)
+  const perso = buildPerso(card)
+
+  return (
+    <div className={`${cardClass} tcg-cardback`}>
+      <div className="tcg-filigree" aria-hidden="true" />
+      <div className="tcg-back-content">
+        {story ? (
+          <>
+            <div className="tcg-back-title" style={{ color: metal }}>
+              {story.title}
+            </div>
+            <div className="tcg-back-story">{story.story}</div>
+          </>
+        ) : (
+          <div className="tcg-back-head">
+            <div className="tcg-back-name">{card.name}</div>
+            {card.colorway && <div className="tcg-cw">{card.colorway}</div>}
+          </div>
+        )}
+
+        <div className="tcg-back-sep" style={{ background: metal }} />
+
+        <div className="tcg-back-perso">
+          {perso.length > 0 ? (
+            perso.map((p) => (
+              <div className="tcg-perso-row" key={p.label}>
+                <span className="tcg-perso-label">{p.label}</span>
+                <span className="tcg-perso-val">{p.value}</span>
+              </div>
+            ))
+          ) : (
+            <div className="tcg-perso-empty">—</div>
+          )}
+        </div>
       </div>
     </div>
   )

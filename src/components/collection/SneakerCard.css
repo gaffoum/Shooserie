@@ -129,28 +129,6 @@
   text-overflow: ellipsis;
 }
 
-/* ===== Verso (fond sombre + liseré métallique du tier ; enrichi au Lot 3) ===== */
-.tcg-cardback {
-  background: #0d0d10;
-  padding: 6px;
-  justify-content: flex-start;
-  overflow: hidden;
-}
-.tcg-back-head {
-  position: relative;
-  z-index: 6;
-}
-.tcg-back-name {
-  color: #f4f4f4;
-  font-weight: 700;
-  font-size: 9px;
-  line-height: 1.15;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
 /* ===== Métaux ===== */
 .tcg-card.tcg-metal .tcg-m-frame {
   position: absolute;
@@ -241,4 +219,136 @@
 @media (prefers-reduced-motion: reduce) {
   .tcg-m-sheen,
   .tcg-holo { animation: none !important; }
+}
+
+/* ===== Verso : l'histoire de la paire =====================================
+ * Même gabarit que le recto (hauteur fixe). Fond sombre profond, liseré
+ * métallique du tier hérité de .tcg-card.tcg-<tier>, filigrane code-barres
+ * discret au centre. Placé en fin de fichier : le padding l'emporte sur
+ * .tcg-card.tcg-metal (spécificité égale, source postérieure).
+ * ------------------------------------------------------------------------- */
+.tcg-card.tcg-cardback {
+  background: #0d0d10;
+  padding: 6px;
+  justify-content: flex-start;
+  overflow: hidden;
+}
+
+/* Filigrane : code-barres en très faible opacité, centré. */
+.tcg-filigree {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 72%;
+  height: 44%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0.5;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.07) 0 2px,
+    transparent 2px 6px
+  );
+  -webkit-mask-image: radial-gradient(closest-side, #000 60%, transparent);
+  mask-image: radial-gradient(closest-side, #000 60%, transparent);
+}
+
+.tcg-back-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Titre éditorial (couleur métal appliquée inline). */
+.tcg-back-title {
+  flex: 0 0 auto;
+  font-weight: 800;
+  font-size: 8.5px;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Récit : texte clair lisible, scroll interne si dépassement. */
+.tcg-back-story {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  color: #d7d7dc;
+  font-size: 7px;
+  line-height: 1.4;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.25) transparent;
+}
+.tcg-back-story::-webkit-scrollbar { width: 3px; }
+.tcg-back-story::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.22);
+  border-radius: 3px;
+}
+
+/* Sans histoire : en-tête nom + colorway occupe l'espace du récit. */
+.tcg-back-head {
+  flex: 1 1 auto;
+  min-height: 0;
+}
+.tcg-back-name {
+  color: #f4f4f4;
+  font-weight: 700;
+  font-size: 9px;
+  line-height: 1.15;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Séparateur fin métallique (couleur appliquée inline). */
+.tcg-back-sep {
+  flex: 0 0 auto;
+  height: 1px;
+  margin: 2px 0;
+  opacity: 0.75;
+  border-radius: 1px;
+}
+
+/* Bloc « perso » depuis les données existantes. */
+.tcg-back-perso {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tcg-perso-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 6px;
+}
+.tcg-perso-label {
+  color: #8a8a92;
+  font-size: 6.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+.tcg-perso-val {
+  color: #e9e9ee;
+  font-size: 7px;
+  font-weight: 600;
+  text-align: right;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tcg-perso-empty {
+  color: #6a6a72;
+  font-size: 7px;
+  text-align: center;
 }
