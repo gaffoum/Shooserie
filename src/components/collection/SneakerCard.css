@@ -6,10 +6,15 @@
  * du thème clair/sombre de l'app.
  */
 
-/* ===== Flip 3D recto/verso ===== */
+/* ===== Flip 3D recto/verso =====
+ * iOS/Safari : les préfixes -webkit- sont INDISPENSABLES. Sans
+ * -webkit-transform-style: preserve-3d, Safari aplatit le 3D et laisse voir
+ * le recto en miroir au lieu du verso. On double donc TOUTES les propriétés
+ * 3D (transform-style, transform, perspective, backface-visibility). */
 .tcg-flip {
   position: relative;
   height: 100%;
+  -webkit-perspective: 700px;
   perspective: 700px;
   cursor: pointer;
   outline: none;
@@ -18,23 +23,30 @@
   position: relative;
   width: 100%;
   height: 100%;
+  -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
+  transition: -webkit-transform 0.45s ease;
   transition: transform 0.45s ease;
 }
 .tcg-flip.flipped .tcg-flip-inner {
+  -webkit-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
 .tcg-face {
   position: absolute;
   inset: 0;
-  backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
 }
 .tcg-face-back {
+  -webkit-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
 @media (prefers-reduced-motion: reduce) {
-  .tcg-flip-inner { transition: none; }
+  .tcg-flip-inner {
+    -webkit-transition: none;
+    transition: none;
+  }
 }
 
 /* ===== Carte ouvrable en grille (recto seul, tap → overlay) ===== */

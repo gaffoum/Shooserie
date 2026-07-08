@@ -65,9 +65,14 @@
   pointer-events: none;
 }
 
-/* Flip agrandi : perspective 1600, retournement .55s. */
-.tcg-flip.tcg-xl { perspective: 1600px; }
+/* Flip agrandi : perspective 1600, retournement .55s. Préfixes -webkit-
+   indispensables pour iOS/Safari (sinon recto en miroir au flip). */
+.tcg-flip.tcg-xl {
+  -webkit-perspective: 1600px;
+  perspective: 1600px;
+}
 .tcg-xl .tcg-flip-inner {
+  -webkit-transition: -webkit-transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
   transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
 }
 .tcg-xl .tcg-face {
