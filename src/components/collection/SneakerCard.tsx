@@ -1,14 +1,13 @@
 import { SneakerPhoto } from '../SneakerPhoto'
 import type { RarityTier } from '@/lib/types'
 import type { CollectionCard } from '@/lib/collectionGrouping'
-import type { SneakerStory } from '@/lib/stories'
 import './SneakerCard.css'
 
 /**
- * Carte TCG (mode « Collection »/classeur), à deux faces avec flip 3D.
- * Recto : badge/étoiles + photo + nameplate. Verso : l'histoire de la paire
- * (voir GuideRarities/BinderView pour l'alimentation). Gabarit fixe → toutes
- * les cartes ont la même hauteur, recto comme verso.
+ * Carte TCG (mode « Collection »/classeur). Dans la grille, la carte affiche
+ * le RECTO seul ; taper/cliquer l'ouvre en grand dans un overlay (CardOverlay)
+ * qui gère l'agrandissement puis le flip vers le verso (l'histoire de la paire).
+ * Les faces (CardFront/CardBack) sont exportées pour être réutilisées agrandies.
  */
 
 type ClassedTier = Exclude<RarityTier, 'unknown'>
@@ -21,9 +20,10 @@ const TIER: Record<ClassedTier, { stars: number; label: string }> = {
   grail: { stars: 5, label: 'Grail' },
 }
 
-const METAL_TIERS: RarityTier[] = ['rare', 'ultra_rare', 'grail']
+export const METAL_TIERS: RarityTier[] = ['rare', 'ultra_rare', 'grail']
 
-function starColor(r: RarityTier): string {
+/** Couleur du métal/accent du tier (titre, séparateur, étoiles). */
+export function starColor(r: RarityTier): string {
   return r === 'grail'
     ? '#e7c257'
     : r === 'ultra_rare'
@@ -39,49 +39,52 @@ function badgeText(r: RarityTier): string {
   return r === 'grail' || r === 'rare' ? '#1a1206' : r === 'ultra_rare' ? '#1a1d22' : '#fff'
 }
 
-interface SneakerCardProps {
-  card: CollectionCard
-  /** Histoire éditoriale du modèle (verso). Absente → bloc perso seul. */
-  story?: SneakerStory | null
-  /** Verso affiché ? Piloté par le classeur (un seul verso ouvert par page). */
-  flipped?: boolean
-  /** Toggle recto/verso au tap/clic. */
-  onToggle?: () => void
+/** Classe CSS + flag métal d'une carte selon son tier. */
+export function tierClass(rarity: RarityTier): { cardClass: string; isMetal: boolean } {
+  const isMetal = METAL_TIERS.includes(rarity)
+  return { cardClass: `tcg-card tcg-${rarity}${isMetal ? ' tcg-metal' : ''}`, isMetal }
 }
 
-export function SneakerCard({ card, story, flipped = false, onToggle }: SneakerCardProps) {
+interface SneakerCardProps {
+  card: CollectionCard
+  /** La paire a-t-elle une histoire ? → badge « ★ HISTOIRE » en coin. */
+  hasStory?: boolean
+  /** Afficher le badge histoire (togglable depuis le classeur). */
+  showStoryBadge?: boolean
+  /** Ouverture en overlay au tap/clic. */
+  onOpen?: () => void
+}
+
+export function SneakerCard({
+  card,
+  hasStory = false,
+  showStoryBadge = true,
+  onOpen,
+}: SneakerCardProps) {
   const rarity: RarityTier = card.rarity ?? 'unknown'
-  const isMetal = METAL_TIERS.includes(rarity)
-  const cardClass = `tcg-card tcg-${rarity}${isMetal ? ' tcg-metal' : ''}`
+  const { cardClass, isMetal } = tierClass(rarity)
 
   return (
     <div
-      className={`tcg-flip${flipped ? ' flipped' : ''}`}
-      onClick={onToggle}
+      className="tcg-openable"
+      onClick={onOpen}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {
           e.preventDefault()
-          onToggle?.()
+          onOpen?.()
         }
       }}
       role="button"
       tabIndex={0}
-      aria-pressed={flipped}
-      aria-label={card.name}
+      aria-label={`${card.name} — ouvrir`}
     >
-      <div className="tcg-flip-inner">
-        <div className="tcg-face tcg-face-front">
-          <CardFront card={card} rarity={rarity} isMetal={isMetal} cardClass={cardClass} />
-        </div>
-        <div className="tcg-face tcg-face-back">
-          <CardBack card={card} rarity={rarity} cardClass={cardClass} story={story} />
-        </div>
-      </div>
+      <CardFront card={card} rarity={rarity} isMetal={isMetal} cardClass={cardClass} />
+      {hasStory && showStoryBadge && <span className="tcg-story-badge">★ HISTOIRE</span>}
     </div>
   )
 }
 
-function CardFront({
+export function CardFront({
   card,
   rarity,
   isMetal,
@@ -129,12 +132,10 @@ function CardFront({
   )
 }
 
-/** Lignes du bloc « perso », depuis les données existantes de la paire. */
-function buildPerso(card: CollectionCard): Array<{ label: string; value: string }> {
+/** Cellules du bloc « perso », depuis les données existantes de la paire. */
+export function buildPerso(card: CollectionCard): Array<{ label: string; value: string }> {
   const rows: Array<{ label: string; value: string }> = []
   if (card.condition) rows.push({ label: 'État', value: card.condition })
-  if (card.wear_count > 0)
-    rows.push({ label: 'Portées', value: String(card.wear_count) })
   const size = [
     card.size_eu ? `EU ${card.size_eu}` : null,
     card.size_us ? `US ${card.size_us}` : null,
@@ -142,65 +143,81 @@ function buildPerso(card: CollectionCard): Array<{ label: string; value: string 
     .filter(Boolean)
     .join(' · ')
   if (size) rows.push({ label: 'Taille', value: size })
+  rows.push({
+    label: 'Portées',
+    value: card.wear_count > 0 ? `${card.wear_count} fois` : 'Jamais',
+  })
   if (card.purchase_date) {
     const year = card.purchase_date.slice(0, 4)
     if (/^\d{4}$/.test(year)) rows.push({ label: 'Depuis', value: year })
+  }
+  if (card.rarity_score != null && card.rarity !== 'unknown') {
+    rows.push({ label: 'Rareté', value: `Score ${card.rarity_score}` })
   }
   return rows
 }
 
 /**
- * Verso : fond sombre + liseré métallique du tier, filigrane code-barres discret.
- * Avec histoire → titre (couleur métal) + récit (scroll interne) + séparateur + perso.
- * Sans histoire → en-tête nom/colorway + séparateur + perso. Aucun texte inventé.
+ * Verso agrandi (rendu dans l'overlay). Fond radial sombre + liseré métallique
+ * du tier + filigrane code-barres. Avec histoire → tier/étoiles, titre (métal),
+ * année, récit (scroll interne). Sans histoire → nom + colorway, pas de texte
+ * inventé. Suivi d'un séparateur métallique, du bloc perso (grille 2 colonnes)
+ * et du filigrane « SHOOSERIE ». Porte docs/mockups/shooserie_carte_agrandie_v2.html.
  */
-function CardBack({
+export function CardBack({
   card,
   rarity,
-  cardClass,
   story,
 }: {
   card: CollectionCard
   rarity: RarityTier
-  cardClass: string
-  story?: SneakerStory | null
+  story?: { title: string; story: string; year_context: string | null } | null
 }) {
   const metal = starColor(rarity)
+  const tier = rarity !== 'unknown' ? TIER[rarity] : null
+  const tierLabel = tier ? tier.label.toUpperCase() : '—'
+  const starStr = tier ? '★'.repeat(tier.stars) : ''
   const perso = buildPerso(card)
 
   return (
-    <div className={`${cardClass} tcg-cardback`}>
-      <div className="tcg-filigree" aria-hidden="true" />
-      <div className="tcg-back-content">
-        {story ? (
-          <>
-            <div className="tcg-back-title" style={{ color: metal }}>
-              {story.title}
-            </div>
-            <div className="tcg-back-story">{story.story}</div>
-          </>
-        ) : (
-          <div className="tcg-back-head">
-            <div className="tcg-back-name">{card.name}</div>
-            {card.colorway && <div className="tcg-cw">{card.colorway}</div>}
-          </div>
-        )}
-
-        <div className="tcg-back-sep" style={{ background: metal }} />
-
-        <div className="tcg-back-perso">
-          {perso.length > 0 ? (
-            perso.map((p) => (
-              <div className="tcg-perso-row" key={p.label}>
-                <span className="tcg-perso-label">{p.label}</span>
-                <span className="tcg-perso-val">{p.value}</span>
-              </div>
-            ))
-          ) : (
-            <div className="tcg-perso-empty">—</div>
-          )}
-        </div>
+    <div className="tcg-bb" style={{ borderColor: metal }}>
+      <div className="tcg-bb-fili" aria-hidden="true" />
+      <div className="tcg-bb-tier" style={{ color: metal }}>
+        <span className="tcg-bb-tl">{tierLabel}</span>
+        <span className="tcg-bb-st">{starStr}</span>
       </div>
+
+      {story ? (
+        <>
+          <div className="tcg-bb-title" style={{ color: metal }}>
+            {story.title}
+          </div>
+          {story.year_context && <div className="tcg-bb-year">{story.year_context}</div>}
+          <div className="tcg-bb-story">{story.story}</div>
+        </>
+      ) : (
+        <>
+          <div className="tcg-bb-title tcg-bb-title--plain">{card.name}</div>
+          {card.colorway && <div className="tcg-bb-year">{card.colorway}</div>}
+          <div className="tcg-bb-spacer" />
+        </>
+      )}
+
+      <div
+        className="tcg-bb-sep"
+        style={{ background: `linear-gradient(90deg, transparent, ${metal}, transparent)` }}
+      />
+
+      <div className="tcg-bb-perso">
+        {perso.map((p) => (
+          <div className="tcg-bb-cell" key={p.label}>
+            <div className="tcg-bb-k">{p.label}</div>
+            <div className="tcg-bb-v">{p.value}</div>
+          </div>
+        ))}
+      </div>
+
+      <div className="tcg-bb-mark">SHOOSERIE</div>
     </div>
   )
 }
