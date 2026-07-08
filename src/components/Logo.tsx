@@ -23,11 +23,12 @@ interface LogoProps {
  */
 
 const HEIGHT: Record<NonNullable<LogoProps['size']>, number> = {
-  sm: 32,
-  md: 44,
-  lg: 64,
+  sm: 48,
+  md: 88,
+  lg: 120,
 }
-const ICON_PX = 36
+// Sur mobile on affiche l'icône seule, à 48px, pour ne pas écraser l'écran.
+const ICON_PX = 48
 const MOBILE_QUERY = '(max-width: 639px)'
 
 function useIsMobile(): boolean {
