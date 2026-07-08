@@ -404,8 +404,8 @@ export function Dashboard() {
               </button>
             </div>
 
-            <div style={toolbarStyle}>
-              {pageMode === 'portfolio' ? (
+            <div className="dash-toolbar">
+              {pageMode === 'portfolio' && (
                 <div style={countLabelStyle}>
                   {t(
                     sorted.length > 1
@@ -419,10 +419,9 @@ export function Dashboard() {
                     </span>
                   )}
                 </div>
-              ) : (
-                <div />
               )}
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+              <div className="dash-controls">
+                <div className="dash-actions">
                 <Link
                   to="/ventes"
                   style={listingsBtnStyle}
@@ -491,6 +490,8 @@ export function Dashboard() {
                     {t('dashboard.share.button')}
                   </span>
                 </button>
+                </div>
+                <div className="dash-views">
                 {/* Toggle niveau 1 : Portfolio / Collection (persisté) */}
                 <div
                   style={{
@@ -544,6 +545,7 @@ export function Dashboard() {
                     <ViewToggle value={view} onChange={setView} />
                   </>
                 )}
+                </div>
               </div>
             </div>
 
@@ -648,14 +650,6 @@ const kpiGridStyle: CSSProperties = {
   gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
   gap: 10,
   marginBottom: 24,
-}
-const toolbarStyle: CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 12,
-  marginBottom: 14,
-  flexWrap: 'wrap',
 }
 const countLabelStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',

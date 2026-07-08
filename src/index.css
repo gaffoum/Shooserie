@@ -98,6 +98,38 @@ img {
   .app-header-badge { display: none !important; }
 }
 
+/* Barre de contrôles du Dashboard (au-dessus de la collection).
+ * Desktop (>=640px) : cluster centré horizontalement sur la page (une rangée
+ * qui wrappe au centre). Mobile (<640px) : deux rangées empilées — actions
+ * puis contrôles de vue — chacune centrée. */
+.dash-toolbar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.dash-controls {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+.dash-actions,
+.dash-views {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+@media (max-width: 639px) {
+  .dash-controls { flex-direction: column; align-items: stretch; }
+}
+
 @keyframes shooserie-spin {
   to { transform: rotate(360deg); }
 }

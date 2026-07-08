@@ -79,6 +79,14 @@ function buildPages(cards: CollectionCard[], per: number): Array<Array<Collectio
   return pages
 }
 
+/** Poches par page selon la largeur : 6 (<640, 2×3), 9 (<820, 3×3), 12 (4×3). */
+function computePerPage(): number {
+  if (typeof window === 'undefined') return 9
+  if (window.matchMedia('(min-width:820px)').matches) return 12
+  if (window.matchMedia('(min-width:640px)').matches) return 9
+  return 6
+}
+
 function prefersReducedMotion(): boolean {
   return (
     typeof window !== 'undefined' &&
@@ -95,9 +103,7 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
   const [cur, setCur] = useState(0)
   const [mode, setMode] = useState<'card' | 'table'>('card')
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const [perPage, setPerPage] = useState<number>(() =>
-    typeof window !== 'undefined' && window.matchMedia('(min-width:820px)').matches ? 12 : 9,
-  )
+  const [perPage, setPerPage] = useState<number>(computePerPage)
 
   // Résolution robuste : si la sélection n'existe plus (données arrivées après
   // coup, marque vidée…), on retombe sur le premier élément disponible.
@@ -115,13 +121,18 @@ export function BinderView({ sneakers }: { sneakers: Sneaker[] }) {
   const animatingRef = useRef(false)
   const swipeX = useRef<number | null>(null)
 
-  // Pagination responsive (9 mobile / 12 desktop) — synchronisée avec la
-  // grille CSS (même breakpoint 820px).
+  // Pagination responsive (6 mobile 2×3 / 9 tablette 3×3 / 12 desktop 4×3) —
+  // synchronisée avec les colonnes de la grille CSS (mêmes breakpoints 640/820).
   useEffect(() => {
-    const mq = window.matchMedia('(min-width:820px)')
-    const onChange = () => setPerPage(mq.matches ? 12 : 9)
-    mq.addEventListener('change', onChange)
-    return () => mq.removeEventListener('change', onChange)
+    const q640 = window.matchMedia('(min-width:640px)')
+    const q820 = window.matchMedia('(min-width:820px)')
+    const onChange = () => setPerPage(computePerPage())
+    q640.addEventListener('change', onChange)
+    q820.addEventListener('change', onChange)
+    return () => {
+      q640.removeEventListener('change', onChange)
+      q820.removeEventListener('change', onChange)
+    }
   }, [])
 
   // Clamp la page courante quand le nombre de pages diminue (changement de
