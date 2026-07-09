@@ -25,22 +25,28 @@
   height: 100%;
   -webkit-transform-style: preserve-3d;
   transform-style: preserve-3d;
-  transition: -webkit-transform 0.45s ease;
+  -webkit-transition: -webkit-transform 0.45s ease;
   transition: transform 0.45s ease;
+  will-change: transform;
 }
 .tcg-flip.flipped .tcg-flip-inner {
   -webkit-transform: rotateY(180deg);
   transform: rotateY(180deg);
 }
+/* Faces : aucun overflow/clip ici (WebKit aplatirait le 3D). translateZ(0)
+   force WebKit à garder les couches séparées. Le clip + fond opaque vivent
+   sur le contenu (.tcg-card / .tcg-bb), qui joue le rôle de .face-inner. */
 .tcg-face {
   position: absolute;
   inset: 0;
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  -webkit-transform: translateZ(0);
+  transform: translateZ(0);
 }
 .tcg-face-back {
-  -webkit-transform: rotateY(180deg);
-  transform: rotateY(180deg);
+  -webkit-transform: rotateY(180deg) translateZ(0);
+  transform: rotateY(180deg) translateZ(0);
 }
 @media (prefers-reduced-motion: reduce) {
   .tcg-flip-inner {
