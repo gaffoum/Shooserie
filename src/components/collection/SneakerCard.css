@@ -66,11 +66,12 @@
   box-shadow: 0 0 0 2px var(--color-bred, #ce1141);
   border-radius: 7px;
 }
-/* Badge « ★ HISTOIRE » — repère les paires à récit (cf. mockup : pilule
-   sombre, texte or, coin haut-gauche). */
+/* Badge « ★ HISTOIRE » — repère les paires à récit (pilule sombre, texte or).
+   Placé SOUS le badge de rareté (barre du haut, ~14px + padding 5px) pour ne
+   jamais le recouvrir ; le badge de rareté reste prioritaire en haut. */
 .tcg-story-badge {
   position: absolute;
-  top: 5px;
+  top: 23px;
   left: 5px;
   z-index: 10;
   display: inline-flex;

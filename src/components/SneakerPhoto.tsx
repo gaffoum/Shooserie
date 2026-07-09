@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useSignedPhotoUrl } from '@/lib/queries'
 import { PhotoPlaceholder } from './PhotoPlaceholder'
 
@@ -9,19 +10,24 @@ interface SneakerPhotoProps {
   alt?: string
   /** Couleur de fond du placeholder */
   placeholderBg?: string
+  /** Couleur de la silhouette du placeholder */
+  placeholderColor?: string
 }
 
 /**
  * Affiche la photo d'une sneaker.
  * - Priorité 1 : URL StockX directe (publique, pas de signed URL needed)
  * - Priorité 2 : photo uploadée dans Storage (signed URL générée à la volée)
- * - Fallback : silhouette SVG sur fond neutre
+ * - Fallback : silhouette Shooserie (PhotoPlaceholder), quand aucune URL n'est
+ *   dispo OU quand l'image échoue à charger (URL morte / erronée, ex. « Jodan »).
+ *   → plus jamais le carré « ? » natif du navigateur.
  */
 export function SneakerPhoto({
   stockxUrl,
   storagePath,
   alt = 'Sneaker',
   placeholderBg,
+  placeholderColor,
 }: SneakerPhotoProps) {
   // Si une URL StockX est dispo, on l'utilise direct
   const directUrl = stockxUrl || null
@@ -30,8 +36,13 @@ export function SneakerPhoto({
   const { data: signedUrl } = useSignedPhotoUrl(directUrl ? null : storagePath)
   const url = directUrl || signedUrl
 
-  if (!url) {
-    return <PhotoPlaceholder background={placeholderBg} />
+  // Erreur de chargement (URL morte/erronée) → bascule sur le placeholder.
+  const [broken, setBroken] = useState(false)
+  // Réinitialise si l'URL change (nouvelle carte, signed URL fraîche…).
+  useEffect(() => setBroken(false), [url])
+
+  if (!url || broken) {
+    return <PhotoPlaceholder background={placeholderBg} color={placeholderColor} />
   }
 
   return (
@@ -39,6 +50,7 @@ export function SneakerPhoto({
       src={url}
       alt={alt}
       loading="lazy"
+      onError={() => setBroken(true)}
       style={{
         position: 'absolute',
         inset: 0,

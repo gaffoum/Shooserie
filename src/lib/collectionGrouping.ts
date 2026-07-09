@@ -177,6 +177,7 @@ export interface CollectionCard {
   size_eu: string | null
   size_us: string | null
   purchase_date: string | null
+  release_date: string | null
 }
 
 export interface ModelGroup {
@@ -213,6 +214,7 @@ function toCard(s: Sneaker): CollectionCard {
     size_eu: s.size_eu,
     size_us: s.size_us,
     purchase_date: s.purchase_date,
+    release_date: s.release_date,
   }
 }
 

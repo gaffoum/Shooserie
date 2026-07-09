@@ -122,7 +122,13 @@ export function CardFront({
       </div>
 
       <div className="tcg-win">
-        <SneakerPhoto stockxUrl={card.stockx_image_url} storagePath={card.photo_url} alt={card.name} />
+        <SneakerPhoto
+          stockxUrl={card.stockx_image_url}
+          storagePath={card.photo_url}
+          alt={card.name}
+          placeholderBg="transparent"
+          placeholderColor="#3f3f46"
+        />
       </div>
 
       <div className="tcg-plate">
@@ -150,9 +156,13 @@ export function buildPerso(card: CollectionCard): Array<{ label: string; value: 
     label: 'Portées',
     value: card.wear_count > 0 ? `${card.wear_count} fois` : 'Jamais',
   })
-  if (card.purchase_date) {
-    const year = card.purchase_date.slice(0, 4)
-    if (/^\d{4}$/.test(year)) rows.push({ label: 'Depuis', value: year })
+  // « Sortie » = année de la date de sortie réelle (release_date). Masquée si
+  // absente ou invalide (jamais de date vide, « 1970 » ou « Invalid Date »).
+  if (card.release_date) {
+    const year = card.release_date.slice(0, 4)
+    if (/^\d{4}$/.test(year) && year !== '1970') {
+      rows.push({ label: 'Sortie', value: year })
+    }
   }
   if (card.rarity_score != null && card.rarity !== 'unknown') {
     rows.push({ label: 'Rareté', value: `Score ${card.rarity_score}` })
