@@ -75,10 +75,9 @@
   -webkit-transition: -webkit-transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
   transition: transform 0.55s cubic-bezier(0.4, 0.1, 0.2, 1);
 }
-.tcg-xl .tcg-face {
-  border-radius: 16px;
-  overflow: hidden;
-}
+/* Aucun clip sur les éléments 3D (inner + faces) : sur WebKit, overflow/clip
+   sur une face à backface-visibility casse le rendu. Les coins arrondis sont
+   portés par le contenu non-3D (.tcg-card / .tcg-bb) à l'intérieur des faces. */
 
 /* ===== Recto agrandi : surcharge des tailles fixes ===== */
 .tcg-xl .tcg-card {
