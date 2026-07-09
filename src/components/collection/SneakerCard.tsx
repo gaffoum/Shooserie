@@ -1,6 +1,7 @@
 import { SneakerPhoto } from '../SneakerPhoto'
 import type { RarityTier } from '@/lib/types'
 import type { CollectionCard } from '@/lib/collectionGrouping'
+import { wearStatus } from '@/lib/wears'
 import './SneakerCard.css'
 
 /**
@@ -135,7 +136,9 @@ export function CardFront({
 /** Cellules du bloc « perso », depuis les données existantes de la paire. */
 export function buildPerso(card: CollectionCard): Array<{ label: string; value: string }> {
   const rows: Array<{ label: string; value: string }> = []
-  if (card.condition) rows.push({ label: 'État', value: card.condition })
+  // « État » = statut dérivé du wear_count (comme partout dans l'app, cf.
+  // SneakerDetail). Le champ brut `condition` est legacy et reste figé à « DS ».
+  rows.push({ label: 'État', value: wearStatus(card.wear_count) })
   const size = [
     card.size_eu ? `EU ${card.size_eu}` : null,
     card.size_us ? `US ${card.size_us}` : null,
