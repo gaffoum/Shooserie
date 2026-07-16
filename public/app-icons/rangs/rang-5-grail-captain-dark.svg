@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 97" width="88" height="97">
+<path d="M44 5 L80 18 V47 C80 71 62 87 44 92 C26 87 8 71 8 47 V18 Z" fill="#EFEDE8"></path>
+<path d="M44 5 L80 18 V47 C80 71 62 87 44 92 C26 87 8 71 8 47 V18 Z" fill="none" stroke="#CE1141" stroke-width="2.4"></path>
+<path d="M44 12 L73 22 V46 C73 66 58 79 44 84 C30 79 15 66 15 46 V22 Z" fill="none" stroke="rgba(0,0,0,0.12)" stroke-width="1.6"></path><polygon points="44.00,25.00 46.12,31.09 52.56,31.22 47.42,35.11 49.29,41.28 44.00,37.60 38.71,41.28 40.58,35.11 35.44,31.22 41.88,31.09" fill="#CE1141"></polygon><path d="M29 62 L44 50 L59 62" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path><path d="M29 73 L44 61 L59 73" fill="none" stroke="#0A0A0A" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>

@@ -761,6 +761,9 @@ export interface Profile {
   pseudo_configured: boolean
   created_at: string
   updated_at: string
+  /** Moteur d'Ã©toiles â€” absents si la migration n'est pas appliquÃ©e (fallback front) */
+  stars_total?: number | null
+  rank?: string | null
 }
 
 const PROFILE_KEY = ['profile'] as const
@@ -1138,7 +1141,7 @@ export function useDeleteConversation() {
 }
 
 // =====================================================
-// PSEUDO — Check disponibilité (RPC)
+// PSEUDO ï¿½ Check disponibilitï¿½ (RPC)
 // =====================================================
 export function useCheckPseudoAvailability(pseudo: string, enabled: boolean) {
   return useQuery({
@@ -1160,7 +1163,7 @@ export function useCheckPseudoAvailability(pseudo: string, enabled: boolean) {
 
 
 // =====================================================
-// PSEUDO — Sauvegarder + marquer configuré
+// PSEUDO ï¿½ Sauvegarder + marquer configurï¿½
 // =====================================================
 export function useSetMyPseudo() {
   const queryClient = useQueryClient()

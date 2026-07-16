@@ -98,6 +98,9 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Étoiles / rangs ===
+  'stars.badge.aria': 'Rang {rank}, {n} étoiles',
+
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Paires',
   'dashboard.kpi.investment': 'Investissement',
@@ -540,6 +543,9 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Stars / ranks ===
+  'stars.badge.aria': '{rank} rank, {n} stars',
 
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Pairs',

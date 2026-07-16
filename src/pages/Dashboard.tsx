@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations } from '@/lib/queries'
+import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations, useMyProfile } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -24,6 +24,7 @@ import type { DictKey } from '@/i18n/dictionaries'
 import { WelcomeHeader } from '../components/WelcomeHeader'
 import { LabelsButton } from '@/components/LabelsButton'
 import { BinderView } from '@/components/collection/BinderView'
+import { StarRankBadge } from '@/components/StarRankBadge'
 
 /* =====================================================
  * Sort keys — labels are dictionary keys, comparators below.
@@ -239,6 +240,11 @@ export function Dashboard() {
   const kpis = useMemo(() => aggregateKpis(allSneakers), [allSneakers])
   const timeline = useMemo(() => portfolioTimeline(allSneakers), [allSneakers])
 
+  // Étoiles / rang — emplacement temporaire sur le Portfolio, migrera vers la
+  // partie sociale (profil / leaderboard). Toute la logique vit dans
+  // StarRankBadge + lib/ranks.ts.
+  const { data: myProfile } = useMyProfile()
+
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <WelcomeHeader />
@@ -260,6 +266,16 @@ export function Dashboard() {
         {error && (
           <div style={errorBoxStyle}>
             {t('dashboard.errorLoad', { msg: (error as Error).message })}
+          </div>
+        )}
+
+        {/* Étoiles + rang — visible en vue Portfolio uniquement */}
+        {pageMode === 'portfolio' && (
+          <div style={{ display: 'flex', marginBottom: 10 }}>
+            <StarRankBadge
+              starsTotal={myProfile?.stars_total}
+              rank={myProfile?.rank}
+            />
           </div>
         )}
 
