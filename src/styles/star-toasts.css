@@ -24,7 +24,8 @@
   border-radius: var(--radius-lg);
   padding: 10px 12px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
-  animation: star-toast-in 0.28s ease both;
+  /* Niveau 2 — pop avec léger rebond (overshoot back-out). */
+  animation: star-toast-pop 0.34s cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
 .star-toast.leaving {
@@ -86,14 +87,14 @@
   color: var(--color-text);
 }
 
-@keyframes star-toast-in {
-  from { opacity: 0; transform: translateY(8px) scale(0.98); }
-  to { opacity: 1; transform: none; }
+@keyframes star-toast-pop {
+  0% { opacity: 0; transform: scale(0.8); }
+  100% { opacity: 1; transform: scale(1); }
 }
 
 @keyframes star-toast-out {
   from { opacity: 1; transform: none; }
-  to { opacity: 0; transform: translateY(8px) scale(0.98); }
+  to { opacity: 0; transform: translateY(8px) scale(0.96); }
 }
 
 @keyframes star-toast-rank-in {
@@ -102,9 +103,199 @@
   100% { opacity: 1; transform: none; }
 }
 
+/* ============================================================
+   Niveau 3 — Carte de célébration (overlay + holo façon grail)
+   ============================================================ */
+
+.star-cel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  animation: star-cel-overlay-in 0.3s ease both;
+  cursor: pointer;
+}
+.star-cel-overlay.leaving {
+  animation: star-cel-overlay-out 0.3s ease both;
+}
+
+.star-cel-card {
+  position: relative;
+  width: min(88vw, 320px);
+  border-radius: var(--radius-xl);
+  padding: 28px 24px;
+  overflow: hidden;
+  text-align: center;
+  color: #fff;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+  /* Grandit avec rebond marqué (déblocage). */
+  animation: star-cel-card-in 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.2) both,
+    star-cel-glow 2.4s ease-in-out 0.5s infinite;
+}
+.star-cel-card.leaving {
+  animation: star-cel-card-out 0.28s ease both;
+}
+
+/* Fond métal : prestige = doré grail, rang = Bred/royal. */
+.star-cel-card--prestige {
+  background: linear-gradient(150deg, #3a2c0c, #150f04 55%, #2a2008);
+  border: 1.5px solid #c9a227;
+}
+.star-cel-card--rank {
+  background: linear-gradient(150deg, #2a0a12, #12060a 55%, #1d0710);
+  border: 1.5px solid var(--color-bred);
+}
+
+/* Nappe holographique iridescente (reprise de l'esthétique grail TCG). */
+.star-cel-holo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: color-dodge;
+  opacity: 0.45;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(255, 0, 120, 0.18),
+    rgba(74, 214, 255, 0.18) 10px,
+    rgba(255, 209, 102, 0.18) 18px,
+    rgba(155, 107, 255, 0.18) 28px,
+    rgba(87, 227, 154, 0.18) 38px
+  );
+  background-size: 220% 220%;
+  animation: star-cel-holo 7s linear infinite;
+}
+
+/* Reflet qui balaie la carte. */
+.star-cel-sheen {
+  position: absolute;
+  top: 0;
+  left: -60%;
+  width: 45%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(105deg, transparent, rgba(255, 255, 255, 0.5), transparent);
+  transform: skewX(-12deg);
+  animation: star-cel-sheen 3.2s ease-in-out 0.4s infinite;
+}
+
+.star-cel-content {
+  position: relative;
+  z-index: 3;
+}
+
+.star-cel-icon,
+.star-cel-icon-img {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 12px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.55));
+  animation: star-cel-icon-glow 2s ease-in-out infinite;
+}
+.star-cel-icon {
+  font-size: 56px;
+  line-height: 72px;
+}
+
+.star-cel-eyebrow {
+  font-family: var(--font-display);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: var(--tracking-widest);
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.star-cel-title {
+  margin-top: 6px;
+  font-family: var(--font-display);
+  font-size: 26px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5);
+}
+
+.star-cel-points {
+  margin-top: 12px;
+  display: inline-block;
+  font-family: var(--font-display);
+  font-size: 16px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #fff;
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+}
+
+@keyframes star-cel-overlay-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes star-cel-overlay-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+@keyframes star-cel-card-in {
+  0% { opacity: 0; transform: scale(0.3); }
+  100% { opacity: 1; transform: scale(1); }
+}
+@keyframes star-cel-card-out {
+  from { opacity: 1; transform: scale(1); }
+  to { opacity: 0; transform: scale(0.85); }
+}
+@keyframes star-cel-glow {
+  0%, 100% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 22px rgba(206, 17, 65, 0.35); }
+  50% { box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(206, 17, 65, 0.65); }
+}
+@keyframes star-cel-holo {
+  0% { background-position: 0 0; }
+  100% { background-position: 200% 100%; }
+}
+@keyframes star-cel-sheen {
+  0% { left: -60%; }
+  55% { left: 130%; }
+  100% { left: 130%; }
+}
+@keyframes star-cel-icon-glow {
+  0%, 100% { filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4)); }
+  50% { filter: drop-shadow(0 0 16px rgba(255, 255, 255, 0.75)); }
+}
+
+/* ============================================================
+   Accessibilité — prefers-reduced-motion : simple fade, pas de
+   gros scale / shimmer / holo animés.
+   ============================================================ */
 @media (prefers-reduced-motion: reduce) {
-  .star-toast,
-  .star-toast--rank {
-    animation-duration: 0.01ms;
+  .star-toast {
+    animation: star-toast-fade-in 0.2s ease both;
   }
+  .star-cel-overlay {
+    animation: star-cel-overlay-in 0.2s ease both;
+  }
+  .star-cel-card {
+    animation: star-cel-overlay-in 0.2s ease both;
+  }
+  .star-cel-holo,
+  .star-cel-sheen,
+  .star-cel-icon,
+  .star-cel-icon-img {
+    animation: none !important;
+  }
+}
+@keyframes star-toast-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

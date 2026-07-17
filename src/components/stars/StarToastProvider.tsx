@@ -10,17 +10,20 @@ import {
   fetchLatestStarEventAt,
   fetchProfileStars,
   isToastable,
+  getTier,
   getRuleLabelKey,
 } from '@/lib/stars'
 import { StarToast, type ToastItem } from './StarToast'
+import { StarCelebration, type CelebrationItem } from './StarCelebration'
 import '@/styles/star-toasts.css'
 
 /** Nb max de toasts affichés simultanément (le reste attend en file). */
 const MAX_VISIBLE = 3
-/** Au-delà, on regroupe les gains en un seul toast (anti-spam). */
+/** Au-delà, on regroupe les gains pop en un seul toast (anti-spam). */
 const GROUP_THRESHOLD = 3
 const DURATION_GAIN = 3200
-const DURATION_RANK = 4200
+/** Niveau 3 — carte célébration : reste plus longtemps (ou tap-to-close). */
+const DURATION_CELEBRATION = 4500
 
 function cursorStorageKey(uid: string) {
   return `shooserie:stars:cursor:${uid}`
@@ -63,6 +66,13 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
   const [toasts, setToasts] = useState<ToastItem[]>([])
   const pendingRef = useRef<ToastItem[]>([])
   const counterRef = useRef(0)
+
+  // Niveau 3 — file des célébrations (une seule affichée à la fois, jamais
+  // superposées). L'élément [0] est la célébration en cours.
+  const [celebrations, setCelebrations] = useState<CelebrationItem[]>([])
+  const closeCelebration = useCallback((id: number) => {
+    setCelebrations((prev) => prev.filter((c) => c.id !== id))
+  }, [])
 
   const cursorRef = useRef<string | null>(null)
   const prevRankRef = useRef<string>('rookie')
@@ -151,19 +161,23 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
       writeCursor(uid, maxCreated)
 
       const gains = events.filter((e) => isToastable(e.rule_key))
-      const items: ToastItem[] = []
+      // Séparation par niveau d'intensité.
+      const popGains = gains.filter((e) => getTier(e.rule_key) === 'pop')
+      const celGains = gains.filter((e) => getTier(e.rule_key) === 'celebration')
 
-      if (gains.length > GROUP_THRESHOLD) {
-        const pts = gains.reduce((s, e) => s + e.points, 0)
-        items.push({
+      // --- Niveau 2 : toasts pop (coin), regroupés si trop nombreux ---
+      const popItems: ToastItem[] = []
+      if (popGains.length > GROUP_THRESHOLD) {
+        const pts = popGains.reduce((s, e) => s + e.points, 0)
+        popItems.push({
           id: ++counterRef.current,
           kind: 'group',
-          label: t('stars.toast.group', { n: gains.length }),
+          label: t('stars.toast.group', { n: popGains.length }),
           pointsText: t('stars.toast.points', { n: fmt(pts) }),
         })
       } else {
-        for (const e of gains) {
-          items.push({
+        for (const e of popGains) {
+          popItems.push({
             id: ++counterRef.current,
             kind: 'gain',
             label: t(getRuleLabelKey(e.rule_key)),
@@ -172,22 +186,34 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
         }
       }
 
-      // Montée de rang : toast prioritaire (climax), ajouté en dernier.
+      // --- Niveau 3 : cartes célébration (prestige/gros jalons) ---
+      const celItems: CelebrationItem[] = celGains.map((e) => ({
+        id: ++counterRef.current,
+        variant: 'prestige',
+        eyebrow: t('stars.cel.exploit'),
+        title: t(getRuleLabelKey(e.rule_key)),
+        pointsText: t('stars.toast.points', { n: fmt(e.points) }),
+      }))
+
+      // Montée de rang : célébration prioritaire, ajoutée EN DERNIER (climax absolu).
       const fresh = qc.getQueryData<Profile | null>(PROFILE_KEY)
       const newRank = fresh?.rank ?? (await fetchProfileStars(uid))?.rank ?? prevRankRef.current
       if (getRankIndex(newRank) > getRankIndex(prevRankRef.current)) {
         const disp = getRankDisplay(newRank)
-        items.push({
+        celItems.push({
           id: ++counterRef.current,
-          kind: 'rank',
-          label: disp.label,
-          rankTitle: t('stars.toast.rankTitle'),
+          variant: 'rank',
+          eyebrow: t('stars.toast.rankTitle'),
+          title: disp.label,
           iconSrc: resolved === 'dark' ? disp.iconDark : disp.iconLight,
         })
       }
       prevRankRef.current = newRank
 
-      enqueue(items)
+      enqueue(popItems)
+      if (celItems.length > 0) {
+        setCelebrations((prev) => [...prev, ...celItems])
+      }
     } catch {
       // Lecture best-effort : un échec ne doit jamais casser l'app.
     } finally {
@@ -212,14 +238,17 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
       {children}
       <div className="star-toasts" aria-live="polite" aria-atomic="false">
         {toasts.map((item) => (
-          <StarToast
-            key={item.id}
-            item={item}
-            duration={item.kind === 'rank' ? DURATION_RANK : DURATION_GAIN}
-            onDone={remove}
-          />
+          <StarToast key={item.id} item={item} duration={DURATION_GAIN} onDone={remove} />
         ))}
       </div>
+      {celebrations[0] && (
+        <StarCelebration
+          key={celebrations[0].id}
+          item={celebrations[0]}
+          duration={DURATION_CELEBRATION}
+          onClose={closeCelebration}
+        />
+      )}
     </>
   )
 }

@@ -17,62 +17,77 @@ export interface StarEvent {
   created_at: string
 }
 
+/**
+ * Niveau d'intensité visuelle d'un gain :
+ *  - 'silent'      : aucun toast (routine trop fréquente).
+ *  - 'pop'         : toast coin bas-droit avec animation de pop (gains normaux).
+ *  - 'celebration' : carte plein premier plan holographique (les sommets).
+ */
+export type StarTier = 'silent' | 'pop' | 'celebration'
+
 interface RuleMeta {
-  /** true → affiche un toast ; false → gain silencieux (trop fréquent). */
-  toastable: boolean
-  /** Clé i18n du libellé lisible (présente seulement si toastable). */
+  /** Niveau d'affichage ; 'silent' = pas de toast. */
+  tier: StarTier
+  /** Clé i18n du libellé lisible (présente sauf pour 'silent'). */
   labelKey?: DictKey
 }
 
 /**
- * Mapping central rule_key → { toastable, labelKey }.
- * 🔔 toastable : jalons, prestige, diversité, activation, parrainage.
- * 🔕 silencieux : actions de routine (add_pair, wear, daily_login…).
- * Une clé absente est traitée comme silencieuse (fail-safe).
+ * Mapping central rule_key → { tier, labelKey }.
+ * 🔕 silent : routine (add_pair, wear, daily_login…).
+ * 🔔 pop : petits/moyens jalons, prestige bas, diversité, activation, parrainage.
+ * 🎉 celebration : gros jalons (m_50+), prestige haut, full_metal. Le changement
+ *    de rang est TOUJOURS celebration (géré à part, pas via un rule_key).
+ * Une clé absente est traitée comme 'silent' (fail-safe).
  */
 export const STAR_RULES: Record<string, RuleMeta> = {
-  // Jalons collection
-  m_5: { toastable: true, labelKey: 'stars.rule.m_5' },
-  m_10: { toastable: true, labelKey: 'stars.rule.m_10' },
-  m_25: { toastable: true, labelKey: 'stars.rule.m_25' },
-  m_50: { toastable: true, labelKey: 'stars.rule.m_50' },
-  m_100: { toastable: true, labelKey: 'stars.rule.m_100' },
-  m_250: { toastable: true, labelKey: 'stars.rule.m_250' },
-  // Prestige / rareté
-  first_rare: { toastable: true, labelKey: 'stars.rule.first_rare' },
-  first_ultra: { toastable: true, labelKey: 'stars.rule.first_ultra' },
-  first_grail: { toastable: true, labelKey: 'stars.rule.first_grail' },
-  grail_5: { toastable: true, labelKey: 'stars.rule.grail_5' },
-  full_metal: { toastable: true, labelKey: 'stars.rule.full_metal' },
+  // Jalons collection — petits/moyens = pop, gros = celebration
+  m_5: { tier: 'pop', labelKey: 'stars.rule.m_5' },
+  m_10: { tier: 'pop', labelKey: 'stars.rule.m_10' },
+  m_25: { tier: 'pop', labelKey: 'stars.rule.m_25' },
+  m_50: { tier: 'celebration', labelKey: 'stars.rule.m_50' },
+  m_100: { tier: 'celebration', labelKey: 'stars.rule.m_100' },
+  m_250: { tier: 'celebration', labelKey: 'stars.rule.m_250' },
+  // Prestige / rareté — première rare = pop, le reste = celebration
+  first_rare: { tier: 'pop', labelKey: 'stars.rule.first_rare' },
+  first_ultra: { tier: 'celebration', labelKey: 'stars.rule.first_ultra' },
+  first_grail: { tier: 'celebration', labelKey: 'stars.rule.first_grail' },
+  grail_5: { tier: 'celebration', labelKey: 'stars.rule.grail_5' },
+  full_metal: { tier: 'celebration', labelKey: 'stars.rule.full_metal' },
   // Diversité
-  brand_3: { toastable: true, labelKey: 'stars.rule.brand_3' },
-  brand_5: { toastable: true, labelKey: 'stars.rule.brand_5' },
-  models_10: { toastable: true, labelKey: 'stars.rule.models_10' },
+  brand_3: { tier: 'pop', labelKey: 'stars.rule.brand_3' },
+  brand_5: { tier: 'pop', labelKey: 'stars.rule.brand_5' },
+  models_10: { tier: 'pop', labelKey: 'stars.rule.models_10' },
   // Activation
-  first_pair: { toastable: true, labelKey: 'stars.rule.first_pair' },
+  first_pair: { tier: 'pop', labelKey: 'stars.rule.first_pair' },
   // Parrainage
-  referral_signup: { toastable: true, labelKey: 'stars.rule.referral_signup' },
-  referral_activated: { toastable: true, labelKey: 'stars.rule.referral_activated' },
-  ref_3: { toastable: true, labelKey: 'stars.rule.ref_3' },
-  ref_10: { toastable: true, labelKey: 'stars.rule.ref_10' },
+  referral_signup: { tier: 'pop', labelKey: 'stars.rule.referral_signup' },
+  referral_activated: { tier: 'pop', labelKey: 'stars.rule.referral_activated' },
+  ref_3: { tier: 'pop', labelKey: 'stars.rule.ref_3' },
+  ref_10: { tier: 'pop', labelKey: 'stars.rule.ref_10' },
   // Silencieux (routine)
-  add_pair: { toastable: false },
-  complete_pair: { toastable: false },
-  price_pair: { toastable: false },
-  daily_login: { toastable: false },
-  wear: { toastable: false },
-  read_story: { toastable: false },
-  list_pair: { toastable: false },
-  set_pseudo: { toastable: false },
-  set_avatar: { toastable: false },
-  make_public: { toastable: false },
-  profile_complete: { toastable: false },
-  share_app: { toastable: false },
+  add_pair: { tier: 'silent' },
+  complete_pair: { tier: 'silent' },
+  price_pair: { tier: 'silent' },
+  daily_login: { tier: 'silent' },
+  wear: { tier: 'silent' },
+  read_story: { tier: 'silent' },
+  list_pair: { tier: 'silent' },
+  set_pseudo: { tier: 'silent' },
+  set_avatar: { tier: 'silent' },
+  make_public: { tier: 'silent' },
+  profile_complete: { tier: 'silent' },
+  share_app: { tier: 'silent' },
+}
+
+/** Niveau d'affichage d'une règle (fail-safe → 'silent'). */
+export function getTier(ruleKey: string): StarTier {
+  return STAR_RULES[ruleKey]?.tier ?? 'silent'
 }
 
 /** Un gain sur cette règle doit-il déclencher un toast ? */
 export function isToastable(ruleKey: string): boolean {
-  return STAR_RULES[ruleKey]?.toastable ?? false
+  return getTier(ruleKey) !== 'silent'
 }
 
 /** Clé i18n du libellé lisible d'une règle (fallback générique si absente). */
