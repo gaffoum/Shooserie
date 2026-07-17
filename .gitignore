@@ -12,6 +12,7 @@ build/
 # Artefacts tsc -b (projet composite) — regeneres au build
 vite.config.js
 vite.config.d.ts
+tsconfig.tsbuildinfo
 
 # Environment variables
 .env
