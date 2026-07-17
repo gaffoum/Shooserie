@@ -17,11 +17,12 @@ import { StarToast, type ToastItem } from './StarToast'
 import { StarCelebration, type CelebrationItem } from './StarCelebration'
 import '@/styles/star-toasts.css'
 
-/** Nb max de toasts affichés simultanément (le reste attend en file). */
+/** Nb max de mini-cartes N2 affichées simultanément (le reste attend en file). */
 const MAX_VISIBLE = 3
 /** Au-delà, on regroupe les gains pop en un seul toast (anti-spam). */
 const GROUP_THRESHOLD = 3
-const DURATION_GAIN = 3200
+/** Niveau 2 — mini-carte centrale : brève. */
+const DURATION_GAIN = 2300
 /** Niveau 3 — carte célébration : reste plus longtemps (ou tap-to-close). */
 const DURATION_CELEBRATION = 4500
 
@@ -85,19 +86,22 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
     [lang],
   )
 
-  /* ---- File d'affichage (plafond + overflow en attente) ---- */
+  /* ---- File d'affichage (plafond + overflow en attente) ----
+   * IMPORTANT : la mutation de pendingRef se fait HORS de l'updater setState,
+   * et l'updater reste PUR ([...prev, ...moving]). Sinon, en <StrictMode> React
+   * invoque l'updater deux fois → un shift() interne « mangerait » les items. */
+  const visibleCountRef = useRef(0)
   const pump = useCallback(() => {
-    setToasts((prev) => {
-      const next = [...prev]
-      while (next.length < MAX_VISIBLE && pendingRef.current.length > 0) {
-        next.push(pendingRef.current.shift()!)
-      }
-      return next
-    })
+    const room = MAX_VISIBLE - visibleCountRef.current
+    if (room <= 0 || pendingRef.current.length === 0) return
+    const moving = pendingRef.current.splice(0, room)
+    visibleCountRef.current += moving.length
+    setToasts((prev) => [...prev, ...moving])
   }, [])
 
   const remove = useCallback(
     (id: number) => {
+      visibleCountRef.current = Math.max(0, visibleCountRef.current - 1)
       setToasts((prev) => prev.filter((tItem) => tItem.id !== id))
       pump()
     },
@@ -124,20 +128,24 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
     }
     let cancelled = false
     ;(async () => {
-      const stored = readCursor(uid)
-      if (stored) {
-        cursorRef.current = stored
-      } else {
-        // Premier usage : caler le curseur sur le dernier event existant pour
-        // ne PAS rejouer l'historique en toasts.
-        const latest = await fetchLatestStarEventAt(uid)
-        const iso = latest ?? new Date(0).toISOString()
-        cursorRef.current = iso
-        writeCursor(uid, iso)
+      try {
+        const stored = readCursor(uid)
+        if (stored) {
+          cursorRef.current = stored
+        } else {
+          // Premier usage : caler le curseur sur le dernier event existant pour
+          // ne PAS rejouer l'historique en toasts.
+          const latest = await fetchLatestStarEventAt(uid)
+          const iso = latest ?? new Date(0).toISOString()
+          cursorRef.current = iso
+          writeCursor(uid, iso)
+        }
+        const prof = await fetchProfileStars(uid)
+        prevRankRef.current = prof?.rank ?? 'rookie'
+        if (!cancelled) setBaselineReady(true)
+      } catch {
+        // Best-effort : un échec de baseline ne doit pas casser l'app.
       }
-      const prof = await fetchProfileStars(uid)
-      prevRankRef.current = prof?.rank ?? 'rookie'
-      if (!cancelled) setBaselineReady(true)
     })()
     return () => {
       cancelled = true
@@ -236,7 +244,7 @@ export function StarToastProvider({ children }: { children: ReactNode }) {
   return (
     <>
       {children}
-      <div className="star-toasts" aria-live="polite" aria-atomic="false">
+      <div className="star-minis" aria-live="polite" aria-atomic="false">
         {toasts.map((item) => (
           <StarToast key={item.id} item={item} duration={DURATION_GAIN} onDone={remove} />
         ))}

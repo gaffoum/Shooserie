@@ -1,4 +1,42 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type CSSProperties } from 'react'
+
+/** Teintes dorées cohérentes avec le rendu grail holographique. */
+const GOLD_COLORS = ['#f7e392', '#e7c257', '#d8b24a', '#fff3c4', '#f0c948']
+const PARTICLE_COUNT = 24
+
+interface Particle {
+  tx: number
+  ty: number
+  color: string
+  dur: number
+  delay: number
+}
+
+/** Génère un burst radial doré (positions figées au montage). */
+function makeParticles(): Particle[] {
+  const parts: Particle[] = []
+  for (let i = 0; i < PARTICLE_COUNT; i++) {
+    // Angle réparti sur le cercle + léger jitter pour un rendu organique.
+    const angle = (i / PARTICLE_COUNT) * Math.PI * 2 + (Math.random() - 0.5) * 0.4
+    const dist = 90 + Math.random() * 120
+    parts.push({
+      tx: Math.round(Math.cos(angle) * dist),
+      ty: Math.round(Math.sin(angle) * dist),
+      color: GOLD_COLORS[i % GOLD_COLORS.length],
+      dur: 800 + Math.round(Math.random() * 500),
+      delay: Math.round(Math.random() * 120),
+    })
+  }
+  return parts
+}
+
+function prefersReducedMotion(): boolean {
+  return (
+    typeof window !== 'undefined' &&
+    !!window.matchMedia &&
+    window.matchMedia('(prefers-reduced-motion: reduce)').matches
+  )
+}
 
 /** Carte de célébration (Niveau 3) prête à afficher. */
 export interface CelebrationItem {
@@ -33,6 +71,8 @@ export function StarCelebration({ item, duration, onClose }: StarCelebrationProp
   const closedRef = useRef(false)
   const onCloseRef = useRef(onClose)
   onCloseRef.current = onClose
+  // Burst figé au montage ; vide sous reduced-motion (pas de feu d'artifice).
+  const particlesRef = useRef<Particle[]>(prefersReducedMotion() ? [] : makeParticles())
 
   // Ferme une seule fois (auto-dismiss ou tap), avec l'anim de sortie.
   const close = useRef(() => {
@@ -59,6 +99,25 @@ export function StarCelebration({ item, duration, onClose }: StarCelebrationProp
       aria-label={`${item.eyebrow} — ${item.title}`}
       onClick={close}
     >
+      {particlesRef.current.length > 0 && (
+        <div className="star-cel-burst" aria-hidden>
+          {particlesRef.current.map((p, i) => (
+            <span
+              key={i}
+              className="star-cel-particle"
+              style={
+                {
+                  '--p-tx': `${p.tx}px`,
+                  '--p-ty': `${p.ty}px`,
+                  '--p-color': p.color,
+                  '--p-dur': `${p.dur}ms`,
+                  '--p-delay': `${p.delay}ms`,
+                } as CSSProperties
+              }
+            />
+          ))}
+        </div>
+      )}
       <div
         className={
           'star-cel-card' +
