@@ -1,0 +1,87 @@
+/*
+ * Barre de navigation basse (handoff Niveau 2). Mobile-first ; sur desktop la
+ * barre est centrée et plafonnée en largeur (adaptation raisonnable — une
+ * sidebar viendra si besoin dans une vague ultérieure).
+ */
+
+.bottom-nav {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 900;
+  height: calc(var(--nav-height) + var(--safe-bottom, 0px));
+  padding: 0 12px calc(8px + var(--safe-bottom, 0px));
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 4px;
+  margin: 0 auto;
+  max-width: 480px;
+  /* Fond clair par défaut (thème Light) */
+  background: rgba(255, 255, 255, 0.92);
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+[data-theme='dark'] .bottom-nav {
+  background: rgba(12, 12, 12, 0.94);
+  border-top: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.bottom-nav__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  flex: 1;
+  min-width: 44px;
+  min-height: 44px;
+  color: var(--nav-inactive, #6c6c6c);
+  transition: color var(--transition-fast, 0.15s ease);
+}
+.bottom-nav__item.is-active {
+  color: var(--color-bred);
+}
+
+.bottom-nav__label {
+  font-size: 9px;
+  letter-spacing: 1px;
+  line-height: 1;
+}
+
+/* FAB central rouge — se détache vers le haut (margin-top négatif). */
+.bottom-nav__fab {
+  flex: 0 0 auto;
+  width: 50px;
+  height: 50px;
+  border-radius: 16px;
+  margin-top: -16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  background: var(--color-bred);
+  box-shadow: 0 8px 20px rgba(206, 17, 65, 0.5);
+  transition: background var(--transition-fast, 0.15s ease), transform var(--transition-fast, 0.15s ease);
+}
+.bottom-nav__fab:hover {
+  background: var(--color-bred-hover);
+}
+.bottom-nav__fab:active {
+  transform: scale(0.94);
+}
+
+/* Réserve d'espace pour que le contenu scrollable ne passe pas sous la nav. */
+body.has-bottom-nav {
+  padding-bottom: var(--nav-safe-pad);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bottom-nav__item,
+  .bottom-nav__fab {
+    transition: none;
+  }
+}

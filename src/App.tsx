@@ -29,6 +29,7 @@ import { GuidePage } from './pages/GuidePage';
 import Progression from './pages/Progression';
 import { StarToastProvider } from './components/stars/StarToastProvider';
 import { EngagementAwards } from './components/EngagementAwards';
+import { BottomNav } from './components/BottomNav';
 
 
 export default function App() {
@@ -209,6 +210,7 @@ export default function App() {
           }
         />
       </Routes>
+      <BottomNav />
       </BrowserRouter>
       </StarToastProvider>
     </AuthProvider>

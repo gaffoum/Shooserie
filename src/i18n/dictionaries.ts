@@ -98,6 +98,14 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Navigation basse (5 destinations) ===
+  'nav.aria': 'Navigation principale',
+  'nav.collection': 'Collec',
+  'nav.community': 'Commu',
+  'nav.marketplace': 'Marché',
+  'nav.profile': 'Profil',
+  'nav.add': 'Ajouter une paire',
+
   // === Étoiles / rangs ===
   'stars.badge.aria': 'Rang {rank}, {n} étoiles',
   'stars.progress.remaining': 'encore {n} ⭐ pour {rank}',
@@ -591,6 +599,14 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Bottom navigation (5 destinations) ===
+  'nav.aria': 'Main navigation',
+  'nav.collection': 'Collec',
+  'nav.community': 'Commu',
+  'nav.marketplace': 'Market',
+  'nav.profile': 'Profile',
+  'nav.add': 'Add a pair',
 
   // === Stars / ranks ===
   'stars.badge.aria': '{rank} rank, {n} stars',
