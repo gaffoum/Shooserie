@@ -2,6 +2,7 @@ import { useState, type CSSProperties } from 'react'
 import { getRankDisplay } from '@/lib/ranks'
 import { useTheme } from '@/contexts/ThemeContext'
 import { useT } from '@/i18n/I18nContext'
+import { RankProgressBar } from './RankProgressBar'
 
 interface StarRankBadgeProps {
   /** profiles.stars_total — null/undefined toléré (fallback 0) */
@@ -26,38 +27,51 @@ export function StarRankBadge({ starsTotal, rank }: StarRankBadgeProps) {
   const formattedTotal = total.toLocaleString(lang === 'fr' ? 'fr-FR' : 'en-US')
 
   return (
-    <div style={cardStyle} aria-label={t('stars.badge.aria', { rank: display.label, n: total })}>
-      {iconFailed ? (
-        <span style={iconFallbackStyle} aria-hidden>
-          ⭐
-        </span>
-      ) : (
-        <img
-          src={iconSrc}
-          alt=""
-          aria-hidden
-          style={iconStyle}
-          onError={() => setIconFailed(true)}
-        />
-      )}
-      <div style={textColStyle}>
-        <div style={rankLabelStyle}>{display.label}</div>
-        <div style={starsStyle}>
-          <span aria-hidden>⭐</span> {formattedTotal}
+    <div style={cardStyle}>
+      <div
+        style={rowStyle}
+        aria-label={t('stars.badge.aria', { rank: display.label, n: total })}
+      >
+        {iconFailed ? (
+          <span style={iconFallbackStyle} aria-hidden>
+            ⭐
+          </span>
+        ) : (
+          <img
+            src={iconSrc}
+            alt=""
+            aria-hidden
+            style={iconStyle}
+            onError={() => setIconFailed(true)}
+          />
+        )}
+        <div style={textColStyle}>
+          <div style={rankLabelStyle}>{display.label}</div>
+          <div style={starsStyle}>
+            <span aria-hidden>⭐</span> {formattedTotal}
+          </div>
         </div>
       </div>
+      <RankProgressBar starsTotal={total} />
     </div>
   )
 }
 
 const cardStyle: CSSProperties = {
   display: 'flex',
-  alignItems: 'center',
+  flexDirection: 'column',
   gap: 12,
   background: 'var(--color-surface)',
   border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-lg)',
   padding: 14,
+  minWidth: 0,
+}
+
+const rowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 12,
   minWidth: 0,
 }
 

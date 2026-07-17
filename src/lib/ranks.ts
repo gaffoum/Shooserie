@@ -57,3 +57,49 @@ export const RANKS: readonly RankDisplay[] = [
 export function getRankDisplay(rank: string | null | undefined): RankDisplay {
   return RANKS.find((r) => r.key === rank) ?? RANKS[0]
 }
+
+export interface RankProgress {
+  /** Rang courant dérivé du total d'étoiles */
+  current: RankDisplay
+  /** Rang suivant, ou null si rang maximal atteint */
+  next: RankDisplay | null
+  /** Étoiles restantes avant le rang suivant (0 si rang max) */
+  reste: number
+  /** Progression vers le rang suivant, borné 0–100 (100 si rang max) */
+  pct: number
+  /** true si l'utilisateur est au rang maximal (General OG) */
+  isMax: boolean
+}
+
+/**
+ * Calcule la progression vers le rang suivant à partir du total d'étoiles.
+ * Dérive le rang courant des seuils (source de vérité = RANKS), indépendamment
+ * de profiles.rank. Centralisé ici pour être réutilisé (badge, Guide, page
+ * progression à venir).
+ *
+ * Fallback gracieux : total null/undefined → traité comme 0 (Rookie, barre à 0).
+ * Cas rang max (legend / ≥ 12000) : next=null, reste=0, pct=100, isMax=true.
+ */
+export function getRankProgress(starsTotal: number | null | undefined): RankProgress {
+  const total = Math.max(0, starsTotal ?? 0)
+
+  // Rang courant = dernier palier dont le seuil est atteint.
+  let currentIndex = 0
+  for (let i = 0; i < RANKS.length; i++) {
+    if (total >= RANKS[i].threshold) currentIndex = i
+  }
+
+  const current = RANKS[currentIndex]
+  const next = RANKS[currentIndex + 1] ?? null
+
+  if (!next) {
+    return { current, next: null, reste: 0, pct: 100, isMax: true }
+  }
+
+  const span = next.threshold - current.threshold
+  const rawPct = span > 0 ? ((total - current.threshold) / span) * 100 : 0
+  const pct = Math.min(100, Math.max(0, rawPct))
+  const reste = Math.max(0, next.threshold - total)
+
+  return { current, next, reste, pct, isMax: false }
+}

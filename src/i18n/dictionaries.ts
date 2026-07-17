@@ -100,6 +100,8 @@ const fr = {
 
   // === Étoiles / rangs ===
   'stars.badge.aria': 'Rang {rank}, {n} étoiles',
+  'stars.progress.remaining': 'encore {n} ⭐ pour {rank}',
+  'stars.progress.max': 'Rang maximal atteint — sommet de la hiérarchie',
 
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Paires',
@@ -546,6 +548,8 @@ const en: typeof fr = {
 
   // === Stars / ranks ===
   'stars.badge.aria': '{rank} rank, {n} stars',
+  'stars.progress.remaining': '{n} ⭐ to go for {rank}',
+  'stars.progress.max': 'Top rank reached — peak of the hierarchy',
 
   // === Dashboard ===
   'dashboard.kpi.pairs': 'Pairs',
