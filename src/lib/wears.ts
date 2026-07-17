@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
+import { awardWear } from './engagement'
 
 // =============================================================
 // Statuts dérivés du compteur de wears.
@@ -66,7 +67,11 @@ export function useIncrementWear() {
       if (error) throw error
       return data
     },
-    onSuccess: (_data, sneakerId) => invalidateAll(qc, sneakerId),
+    onSuccess: (_data, sneakerId) => {
+      invalidateAll(qc, sneakerId)
+      // Gain d'engagement « paire portée » (+2, plafond 10/jour côté SQL).
+      awardWear(sneakerId)
+    },
   })
 }
 

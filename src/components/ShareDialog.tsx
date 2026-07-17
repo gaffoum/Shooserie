@@ -6,6 +6,7 @@ import {
   useDeleteShareLink,
 } from '@/lib/queries'
 import { useT } from '@/i18n/I18nContext'
+import { awardShareApp } from '@/lib/engagement'
 
 interface ShareDialogProps {
   open: boolean
@@ -78,6 +79,10 @@ export function ShareDialog({ open, onClose }: ShareDialogProps) {
     try {
       await navigator.clipboard.writeText(url)
       setCopiedToken(token)
+      // Gain « partage » (+10 one-shot côté SQL). Proxy : le partage de l'app
+      // n'a pas d'action dédiée ; copier un lien de collection est l'action de
+      // partage la plus proche existante.
+      awardShareApp()
       // Reset the "Copié !" feedback after 2s so a second copy gives feedback again.
       setTimeout(() => setCopiedToken((curr) => (curr === token ? null : curr)), 2000)
     } catch {

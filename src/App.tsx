@@ -28,12 +28,14 @@ import { AdminGuard } from './components/AdminGuard';
 import { GuidePage } from './pages/GuidePage';
 import Progression from './pages/Progression';
 import { StarToastProvider } from './components/stars/StarToastProvider';
+import { EngagementAwards } from './components/EngagementAwards';
 
 
 export default function App() {
   return (
     <AuthProvider>
       <StarToastProvider>
+      <EngagementAwards />
       <BrowserRouter>
 	<PseudoSetupGuard />
         <Routes>

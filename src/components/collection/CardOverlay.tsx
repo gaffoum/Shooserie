@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { CollectionCard } from '@/lib/collectionGrouping'
 import type { SneakerStory } from '@/lib/stories'
 import type { RarityTier } from '@/lib/types'
 import { CardFront, CardBack, tierClass } from './SneakerCard'
+import { awardReadStory } from '@/lib/engagement'
 import './CardOverlay.css'
 
 /**
@@ -45,6 +46,16 @@ export function CardOverlay({ card, story, onClose }: CardOverlayProps) {
       window.clearTimeout(t)
     }
   }, [rm])
+
+  // Lecture d'histoire : crédite +2 (plafond 20/jour, dédup par pattern côté
+  // SQL) une seule fois par ouverture, quand le verso à récit est révélé.
+  const storyAwardedRef = useRef(false)
+  useEffect(() => {
+    if (flipped && story?.match_pattern && !storyAwardedRef.current) {
+      storyAwardedRef.current = true
+      awardReadStory(story.match_pattern)
+    }
+  }, [flipped, story])
 
   // Échap ferme.
   useEffect(() => {
