@@ -65,19 +65,20 @@ export const STAR_RULES: Record<string, RuleMeta> = {
   referral_activated: { tier: 'pop', labelKey: 'stars.rule.referral_activated' },
   ref_3: { tier: 'pop', labelKey: 'stars.rule.ref_3' },
   ref_10: { tier: 'pop', labelKey: 'stars.rule.ref_10' },
-  // Silencieux (routine)
-  add_pair: { tier: 'silent' },
-  complete_pair: { tier: 'silent' },
-  price_pair: { tier: 'silent' },
-  daily_login: { tier: 'silent' },
-  wear: { tier: 'silent' },
-  read_story: { tier: 'silent' },
-  list_pair: { tier: 'silent' },
-  set_pseudo: { tier: 'silent' },
-  set_avatar: { tier: 'silent' },
-  make_public: { tier: 'silent' },
-  profile_complete: { tier: 'silent' },
-  share_app: { tier: 'silent' },
+  // Silencieux (routine) — pas de toast, MAIS un libellé pour l'historique
+  // (la page « Ma progression » montre TOUS les gains, contrairement aux toasts).
+  add_pair: { tier: 'silent', labelKey: 'stars.rule.add_pair' },
+  complete_pair: { tier: 'silent', labelKey: 'stars.rule.complete_pair' },
+  price_pair: { tier: 'silent', labelKey: 'stars.rule.price_pair' },
+  daily_login: { tier: 'silent', labelKey: 'stars.rule.daily_login' },
+  wear: { tier: 'silent', labelKey: 'stars.rule.wear' },
+  read_story: { tier: 'silent', labelKey: 'stars.rule.read_story' },
+  list_pair: { tier: 'silent', labelKey: 'stars.rule.list_pair' },
+  set_pseudo: { tier: 'silent', labelKey: 'stars.rule.set_pseudo' },
+  set_avatar: { tier: 'silent', labelKey: 'stars.rule.set_avatar' },
+  make_public: { tier: 'silent', labelKey: 'stars.rule.make_public' },
+  profile_complete: { tier: 'silent', labelKey: 'stars.rule.profile_complete' },
+  share_app: { tier: 'silent', labelKey: 'stars.rule.share_app' },
 }
 
 /** Niveau d'affichage d'une règle (fail-safe → 'silent'). */
@@ -93,6 +94,15 @@ export function isToastable(ruleKey: string): boolean {
 /** Clé i18n du libellé lisible d'une règle (fallback générique si absente). */
 export function getRuleLabelKey(ruleKey: string): DictKey {
   return STAR_RULES[ruleKey]?.labelKey ?? 'stars.rule.generic'
+}
+
+/**
+ * Clé i18n du libellé d'une règle, ou null si la règle est inconnue.
+ * Pour l'historique : le caller affiche le rule_key brut quand null (jamais de
+ * plantage sur une future règle non mappée).
+ */
+export function ruleLabelKeyOf(ruleKey: string): DictKey | null {
+  return STAR_RULES[ruleKey]?.labelKey ?? null
 }
 
 /**

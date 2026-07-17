@@ -785,6 +785,36 @@ export function useMyProfile() {
   })
 }
 
+/** Ligne d'historique d'étoiles (page « Ma progression »). */
+export interface StarHistoryEntry {
+  id: string
+  rule_key: string
+  points: number
+  created_at: string
+}
+
+/**
+ * Historique des gains d'étoiles de l'utilisateur courant, du plus récent au
+ * plus ancien (plafonné). RLS : chacun ne voit que ses events.
+ */
+export function useStarHistory(limit = 50) {
+  return useQuery({
+    queryKey: ['star-history', limit] as const,
+    queryFn: async (): Promise<StarHistoryEntry[]> => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return []
+      const { data, error } = await supabase
+        .from('star_events')
+        .select('id, rule_key, points, created_at')
+        .eq('user_id', userData.user.id)
+        .order('created_at', { ascending: false })
+        .limit(limit)
+      if (error) throw error
+      return (data ?? []) as StarHistoryEntry[]
+    },
+  })
+}
+
 export function useUpdateMyProfile() {
   const qc = useQueryClient()
   return useMutation({

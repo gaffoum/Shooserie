@@ -269,13 +269,20 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Étoiles + rang — visible en vue Portfolio uniquement */}
+        {/* Étoiles + rang — visible en vue Portfolio uniquement.
+            Cliquable → page « Ma progression » (historique + paliers). */}
         {pageMode === 'portfolio' && (
           <div style={{ display: 'flex', marginBottom: 10 }}>
-            <StarRankBadge
-              starsTotal={myProfile?.stars_total}
-              rank={myProfile?.rank}
-            />
+            <Link
+              to="/progression"
+              style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
+              aria-label={t('progression.title')}
+            >
+              <StarRankBadge
+                starsTotal={myProfile?.stars_total}
+                rank={myProfile?.rank}
+              />
+            </Link>
           </div>
         )}
 

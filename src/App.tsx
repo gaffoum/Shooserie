@@ -26,6 +26,7 @@ import OrderSuccess from './pages/OrderSuccess';
 import CheckoutLabels from './pages/CheckoutLabels';
 import { AdminGuard } from './components/AdminGuard';
 import { GuidePage } from './pages/GuidePage';
+import Progression from './pages/Progression';
 import { StarToastProvider } from './components/stars/StarToastProvider';
 
 
@@ -137,6 +138,14 @@ export default function App() {
             }
           />
           <Route path="/u/:pseudo" element={<UserProfile />} />
+          <Route
+            path="/progression"
+            element={
+              <ProtectedRoute>
+                <Progression />
+              </ProtectedRoute>
+            }
+          />
           <Route
             path="/guide"
             element={
