@@ -10,6 +10,7 @@ import {
   useDeleteConversation,
 } from '../lib/queries'
 import { useT } from '@/i18n/I18nContext'
+import { SneakerPhoto } from '@/components/SneakerPhoto'
 
 export function Messaging() {
   const { t } = useT()
@@ -41,12 +42,9 @@ export function Messaging() {
               onClick={() => navigate(`/messages?c=${c.id}`)}
               style={c.id === activeId ? convItemActiveStyle : convItemStyle}
             >
-              {c.sneaker_photo ? (
-                <img src={c.sneaker_photo} alt=""
-                     style={convAvatarStyle} />
-              ) : (
-                <div style={convAvatarPlaceholderStyle}>👟</div>
-              )}
+              <div style={convAvatarWrapStyle}>
+                <SneakerPhoto stockxUrl={c.sneaker_photo} alt="" />
+              </div>
               <div style={convInfoStyle}>
                 <div style={convNameStyle}>{c.other_user_name}</div>
                 {c.sneaker_name && (
@@ -338,23 +336,13 @@ const convItemActiveStyle: React.CSSProperties = {
   background: '#FEF2F4',
 }
 
-const convAvatarStyle: React.CSSProperties = {
+const convAvatarWrapStyle: React.CSSProperties = {
+  position: 'relative',
   width: 40,
   height: 40,
   borderRadius: 8,
-  objectFit: 'cover',
-  flexShrink: 0,
-}
-
-const convAvatarPlaceholderStyle: React.CSSProperties = {
-  width: 40,
-  height: 40,
-  borderRadius: 8,
+  overflow: 'hidden',
   background: 'var(--color-bg)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 20,
   flexShrink: 0,
 }
 

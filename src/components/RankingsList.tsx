@@ -5,6 +5,7 @@
  */
 import { Link } from 'react-router-dom'
 import type { CSSProperties, ReactNode } from 'react'
+import { SneakerPhoto } from './SneakerPhoto'
 
 interface BaseRankingItem {
   id: string
@@ -44,7 +45,6 @@ export function RankingsList<T extends BaseRankingItem>({
       <h2 style={titleStyle}>{title}</h2>
       <div style={listStyle}>
         {items.map((item, i) => {
-          const photo = item.stockx_image_url || item.photo_url || ''
           return (
             <Link
               key={item.id}
@@ -54,11 +54,11 @@ export function RankingsList<T extends BaseRankingItem>({
               <div style={rowStyle}>
                 <span style={rankStyle}>#{i + 1}</span>
                 <div style={imageWrapStyle}>
-                  {photo ? (
-                    <img src={photo} alt={item.name} style={imgStyle} />
-                  ) : (
-                    <div style={imgPlaceholderStyle} />
-                  )}
+                  <SneakerPhoto
+                    stockxUrl={item.stockx_image_url}
+                    storagePath={item.photo_url}
+                    alt={item.name}
+                  />
                 </div>
                 <div style={infoStyle}>
                   {item.brand && <div style={brandStyle}>{item.brand}</div>}
@@ -118,22 +118,13 @@ const rankStyle: CSSProperties = {
   fontVariantNumeric: 'tabular-nums',
 }
 const imageWrapStyle: CSSProperties = {
+  position: 'relative',
   width: 64,
   height: 56,
   background: 'var(--color-bg, #F9FAFB)',
   borderRadius: 6,
   overflow: 'hidden',
   flexShrink: 0,
-}
-const imgStyle: CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-}
-const imgPlaceholderStyle: CSSProperties = {
-  width: '100%',
-  height: '100%',
-  background: 'var(--color-bg, #F9FAFB)',
 }
 const infoStyle: CSSProperties = {
   minWidth: 0,

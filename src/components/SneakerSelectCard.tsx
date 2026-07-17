@@ -3,18 +3,22 @@
  * Utilisee dans /labels pour multi-select des paires a imprimer.
  */
 import type { CSSProperties } from 'react'
+import { SneakerPhoto } from './SneakerPhoto'
 
 interface SneakerSelectCardProps {
   id: string
   name: string
   brand: string | null
-  photoUrl: string | null
+  /** URL StockX directe (publique) */
+  stockxUrl?: string | null
+  /** Path Storage privé (signed URL générée à la volée) */
+  storagePath?: string | null
   selected: boolean
   onToggle: (id: string) => void
 }
 
 export function SneakerSelectCard({
-  id, name, brand, photoUrl, selected, onToggle,
+  id, name, brand, stockxUrl, storagePath, selected, onToggle,
 }: SneakerSelectCardProps) {
   return (
     <button
@@ -24,11 +28,7 @@ export function SneakerSelectCard({
       aria-pressed={selected}
     >
       <div style={imageWrapStyle}>
-        {photoUrl ? (
-          <img src={photoUrl} alt={name} style={imgStyle} />
-        ) : (
-          <div style={imgPlaceholderStyle} />
-        )}
+        <SneakerPhoto stockxUrl={stockxUrl} storagePath={storagePath} alt={name} />
       </div>
       <div style={infoStyle}>
         {brand && <div style={brandStyle}>{brand.toUpperCase()}</div>}
@@ -61,18 +61,13 @@ const cardSelectedStyle: CSSProperties = {
   background: '#FFF5F7',
 }
 const imageWrapStyle: CSSProperties = {
+  position: 'relative',
   width: '100%',
   aspectRatio: '4 / 3',
   background: 'var(--color-surface-alt)',
   borderRadius: 6,
   overflow: 'hidden',
   marginBottom: 8,
-}
-const imgStyle: CSSProperties = {
-  width: '100%', height: '100%', objectFit: 'contain',
-}
-const imgPlaceholderStyle: CSSProperties = {
-  width: '100%', height: '100%', background: 'var(--color-surface-alt)',
 }
 const infoStyle: CSSProperties = { width: '100%' }
 const brandStyle: CSSProperties = {

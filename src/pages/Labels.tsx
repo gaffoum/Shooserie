@@ -235,7 +235,8 @@ export default function Labels() {
                 id={s.id}
                 name={s.name}
                 brand={s.brand}
-                photoUrl={s.stockx_image_url || s.photo_url}
+                stockxUrl={s.stockx_image_url}
+                storagePath={s.photo_url}
                 selected={selected.has(s.id)}
                 onToggle={toggle}
               />

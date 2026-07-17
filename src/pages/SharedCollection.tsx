@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { useSharedCollection, type SharedSneaker } from '@/lib/queries'
 import { calcDelta, deltaBgColor, deltaColor, formatEur, formatPct } from '@/lib/format'
 import { Logo } from '@/components/Logo'
+import { SneakerPhoto } from '@/components/SneakerPhoto'
 
 type ViewMode = 'grid' | 'list'
 
@@ -226,16 +227,7 @@ function Card({ sneaker }: { sneaker: SharedSneaker }) {
   return (
     <article style={cardStyle}>
       <div style={cardThumbStyle}>
-        {sneaker.stockx_image_url ? (
-          <img
-            src={sneaker.stockx_image_url}
-            alt={sneaker.name}
-            loading="lazy"
-            style={imgStyle}
-          />
-        ) : (
-          <div style={imgPlaceholderStyle}>👟</div>
-        )}
+        <SneakerPhoto stockxUrl={sneaker.stockx_image_url} alt={sneaker.name} />
         {sneaker.is_for_sale && <span style={ribbonStyle}>À VENDRE</span>}
       </div>
       <div style={cardMetaStyle}>
@@ -298,11 +290,9 @@ function Row({ sneaker }: { sneaker: SharedSneaker }) {
   return (
     <tr style={trStyle}>
       <td style={rowThumbStyle}>
-        {sneaker.stockx_image_url ? (
-          <img src={sneaker.stockx_image_url} alt="" style={rowImgStyle} />
-        ) : (
-          <div style={rowImgEmptyStyle}>👟</div>
-        )}
+        <div style={rowThumbInnerStyle}>
+          <SneakerPhoto stockxUrl={sneaker.stockx_image_url} alt="" />
+        </div>
       </td>
       <td style={tdStyle}>
         {sneaker.brand && <div style={rowBrandStyle}>{sneaker.brand}</div>}
@@ -485,23 +475,6 @@ const cardThumbStyle: CSSProperties = {
   borderBottom: '1px solid var(--color-border)',
   overflow: 'hidden',
 }
-const imgStyle: CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-  padding: 8,
-}
-const imgPlaceholderStyle: CSSProperties = {
-  position: 'absolute',
-  inset: 0,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 40,
-  opacity: 0.3,
-}
 const ribbonStyle: CSSProperties = {
   position: 'absolute',
   top: 8,
@@ -598,22 +571,13 @@ const rowThumbStyle: CSSProperties = {
   width: 56,
   paddingRight: 0,
 }
-const rowImgStyle: CSSProperties = {
+const rowThumbInnerStyle: CSSProperties = {
+  position: 'relative',
   width: 44,
   height: 44,
-  objectFit: 'contain',
   background: 'var(--color-bg)',
   borderRadius: 'var(--radius-sm)',
-  padding: 4,
-  display: 'block',
-}
-const rowImgEmptyStyle: CSSProperties = {
-  ...rowImgStyle,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 22,
-  opacity: 0.3,
+  overflow: 'hidden',
 }
 const rowBrandStyle: CSSProperties = {
   fontSize: 9,

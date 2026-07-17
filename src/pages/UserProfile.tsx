@@ -14,6 +14,7 @@ import {
 import { useUserBadge } from '../lib/badges'
 import { BadgeDisplay } from '../components/BadgeDisplay'
 import { FacetsList } from '../components/FacetsList'
+import { SneakerPhoto } from '../components/SneakerPhoto'
 import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
 
 type ViewMode = 'grid' | 'list'
@@ -330,9 +331,6 @@ function SneakerListing({
   )
 }
 
-function pickImage(s: UserSneaker): string | null {
-  return s.photo_url ?? s.stockx_image_url ?? null
-}
 function pickPrice(s: UserSneaker): number | null {
   return s.listing_price ?? s.target_sale_price ?? null
 }
@@ -346,21 +344,11 @@ function pickTitle(s: UserSneaker): string {
 }
 
 function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
-  const img = pickImage(s)
   const price = pickPrice(s)
   return (
     <div style={cardStyle}>
       <div style={cardImageWrapStyle}>
-        {img ? (
-          <img
-            src={img}
-            alt={pickTitle(s)}
-            style={cardImageStyle}
-            loading="lazy"
-          />
-        ) : (
-          <div style={cardImagePlaceholderStyle}>—</div>
-        )}
+        <SneakerPhoto stockxUrl={s.stockx_image_url} storagePath={s.photo_url} alt={pickTitle(s)} />
       </div>
       <div style={cardBodyStyle}>
         <div style={cardBrandStyle}>{s.brand ?? '—'}</div>
@@ -379,17 +367,12 @@ function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
 }
 
 function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
-  const img = pickImage(s)
   const price = pickPrice(s)
   const size = pickSize(s)
   return (
     <div style={listCardStyle}>
       <div style={listImageWrapStyle}>
-        {img ? (
-          <img src={img} alt="" style={cardImageStyle} loading="lazy" />
-        ) : (
-          <div style={cardImagePlaceholderStyle}>—</div>
-        )}
+        <SneakerPhoto stockxUrl={s.stockx_image_url} storagePath={s.photo_url} alt="" />
       </div>
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={listTitleStyle}>
@@ -643,22 +626,10 @@ const cardStyle: React.CSSProperties = {
 }
 
 const cardImageWrapStyle: React.CSSProperties = {
+  position: 'relative',
   aspectRatio: '1 / 1',
   background: COLOR_BG_SOFT,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const cardImageStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
-}
-
-const cardImagePlaceholderStyle: React.CSSProperties = {
-  color: COLOR_MUTED,
-  fontSize: 24,
+  overflow: 'hidden',
 }
 
 const cardBodyStyle: React.CSSProperties = {
@@ -718,15 +689,13 @@ const listCardStyle: React.CSSProperties = {
 }
 
 const listImageWrapStyle: React.CSSProperties = {
+  position: 'relative',
   width: 64,
   height: 64,
   flexShrink: 0,
   background: COLOR_BG_SOFT,
   borderRadius: 8,
   overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
 }
 
 const listTitleStyle: React.CSSProperties = {

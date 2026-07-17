@@ -11,6 +11,7 @@ import {
   wearStatus,
   WEAR_STATUS_COLORS,
 } from '@/lib/wears'
+import { SneakerPhoto } from './SneakerPhoto'
 
 interface TopWornSneakersProps {
   limit?: number
@@ -41,17 +42,16 @@ export function TopWornSneakers({ limit = 10, viewAllUrl }: TopWornSneakersProps
         {sneakers.map((s, i) => {
           const status = wearStatus(s.wear_count)
           const colors = WEAR_STATUS_COLORS[status]
-          const photo = s.stockx_image_url || s.photo_url || ''
           return (
             <Link key={s.id} to={`/sneakers/${s.id}`} style={cardLinkStyle}>
               <div style={cardStyle}>
                 <span style={rankStyle}>#{i + 1}</span>
                 <div style={imageWrapStyle}>
-                  {photo ? (
-                    <img src={photo} alt={s.name} style={imgStyle} />
-                  ) : (
-                    <div style={imgPlaceholderStyle} />
-                  )}
+                  <SneakerPhoto
+                    stockxUrl={s.stockx_image_url}
+                    storagePath={s.photo_url}
+                    alt={s.name}
+                  />
                 </div>
                 <div style={bodyStyle}>
                   {s.brand && <div style={brandStyle}>{s.brand}</div>}
@@ -149,21 +149,10 @@ const rankStyle: CSSProperties = {
 }
 
 const imageWrapStyle: CSSProperties = {
+  position: 'relative',
   aspectRatio: '1.15',
   background: 'var(--color-bg, #F9FAFB)',
   overflow: 'hidden',
-}
-
-const imgStyle: CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-}
-
-const imgPlaceholderStyle: CSSProperties = {
-  width: '100%',
-  height: '100%',
-  background: 'var(--color-bg, #F9FAFB)',
 }
 
 const bodyStyle: CSSProperties = { padding: 10 }
