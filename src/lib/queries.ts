@@ -766,7 +766,7 @@ export interface Profile {
   rank?: string | null
 }
 
-const PROFILE_KEY = ['profile'] as const
+export const PROFILE_KEY = ['profile'] as const
 
 export function useMyProfile() {
   return useQuery({

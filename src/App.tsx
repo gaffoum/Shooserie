@@ -26,11 +26,13 @@ import OrderSuccess from './pages/OrderSuccess';
 import CheckoutLabels from './pages/CheckoutLabels';
 import { AdminGuard } from './components/AdminGuard';
 import { GuidePage } from './pages/GuidePage';
+import { StarToastProvider } from './components/stars/StarToastProvider';
 
 
 export default function App() {
   return (
     <AuthProvider>
+      <StarToastProvider>
       <BrowserRouter>
 	<PseudoSetupGuard />
         <Routes>
@@ -197,6 +199,7 @@ export default function App() {
         />
       </Routes>
       </BrowserRouter>
+      </StarToastProvider>
     </AuthProvider>
   )
 }

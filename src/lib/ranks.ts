@@ -58,6 +58,15 @@ export function getRankDisplay(rank: string | null | undefined): RankDisplay {
   return RANKS.find((r) => r.key === rank) ?? RANKS[0]
 }
 
+/**
+ * Position d'un rang dans la hiérarchie (0 = Rookie … 6 = General OG).
+ * Clé inconnue → 0. Sert à détecter une *montée* de rang (comparaison d'index).
+ */
+export function getRankIndex(rank: string | null | undefined): number {
+  const i = RANKS.findIndex((r) => r.key === rank)
+  return i < 0 ? 0 : i
+}
+
 export interface RankProgress {
   /** Rang courant dérivé du total d'étoiles */
   current: RankDisplay
