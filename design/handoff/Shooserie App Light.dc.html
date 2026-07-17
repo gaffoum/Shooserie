@@ -1,0 +1,987 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&amp;family=Space+Mono:wght@400;700&amp;display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+  a { color: #CE1141; text-decoration: none; }
+  a:hover { color: #E8657F; }
+  @keyframes holoShift { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+  @keyframes floatY { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-7px); } }
+  @keyframes ringPulse { 0%,100% { opacity: .55; transform: scaleX(1); } 50% { opacity: .9; transform: scaleX(1.08); } }
+  .scr { width:390px;height:844px;border-radius:44px;background:#FFFFFF;border:1px solid rgba(0,0,0,.09);box-shadow:0 24px 60px rgba(0,0,0,.15);overflow:hidden;position:relative;display:flex;flex-direction:column;font-family:'Outfit',system-ui,sans-serif; }
+  .lab { font-family:'Space Mono',monospace; }
+</style>
+</helmet>
+<div style="display:none;width:0;height:0;overflow:hidden;position:absolute;"><x-import component-from-global-scope="image-slot" from="./image-slot.js" hint-size="0,0"></x-import></div>
+
+<section style="display:flex;flex-direction:column;gap:26px;padding:52px 48px 20px;background:radial-gradient(circle at 30% 0%,#ffffff,#e6e6e6 60%);font-family:'Outfit',system-ui,sans-serif;">
+  <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+    <div class="lab" style="font-size:12px;letter-spacing:2px;color:#CE1141;background:rgba(206,17,65,.12);border:1px solid rgba(206,17,65,.4);padding:7px 14px;border-radius:100px;">SHOOSERIE · APP</div>
+    <div style="color:#141414;font-size:24px;font-weight:800;letter-spacing:-.6px;">Toutes les pages — Light (miroir du Dark)</div>
+    <div class="lab" style="color:#6c6c6c;font-size:13px;">Bred · light · mobile 390px</div>
+  </div>
+</section>
+
+<!-- ================= LANDING ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#CE1141;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Landing</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">page d'accueil · façon STRIDE</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">SPLASH / MANIFESTO</div>
+      <div class="scr">
+        <div style="position: absolute; inset: 0; background: radial-gradient(circle at 72% 30%,rgba(206,17,65,.35),transparent 55%),radial-gradient(circle at 20% 88%,rgba(29,66,138,.28),transparent 55%); left: 1px; top: -4px"><div style="position: absolute; padding: 8px 24px 0; left: 4px; top: 372px">
+           <div style="color:#141414;font-size:50px;font-weight:900;line-height:.92;letter-spacing:-2px;">BUILT FOR<br>THE <span style="color:#CE1141;">OGs.</span></div>
+           <div style="color:#4a4a4a;font-size:14px;line-height:1.5;margin-top:14px;max-width:290px;">Gère ta collection, révèle la rareté de chaque paire, et laisse tes sneakers raconter leur histoire.</div>
+         </div><div style="position: absolute; left: 14px; font-family: 'Outfit'; font-weight: 900; font-size: 150px; line-height: .8; color: transparent; -webkit-text-stroke: 1.5px rgba(0,0,0,.04); pointer-events: none; top: 550px">SH</div><button style="width: 373px; height: 55px; border-radius: 16px; border: none; background: #CE1141; color: #fff; font-size: 16px; font-weight: 800; letter-spacing: .3px; cursor: pointer; box-shadow: 0 10px 30px rgba(206,17,65,.45); display: flex; align-items: center; justify-content: center; gap: 10px; position: absolute; left: 11px; top: 684px">Explorer ma collection <span>→</span></button></div>
+        <div style="position:absolute;top:34%;left:50%;width:74%;height:22px;border-radius:50%;background:radial-gradient(ellipse,rgba(206,17,65,.9),transparent 70%);filter:blur(6px);animation:ringPulse 4s ease-in-out infinite;"></div>
+        
+
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:16px 24px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+
+        <div style="position:relative;display:flex;align-items:center;gap:10px;padding:10px 24px;">
+          <svg width="34" height="34" viewBox="0 0 160 160"><rect width="160" height="160" rx="36" fill="#111"></rect><rect x="28.3" y="45" width="103.4" height="19.22" rx="5.6" fill="#FFFFFF"></rect><rect x="33" y="56.22" width="94" height="54.78" rx="8" fill="#FFFFFF"></rect><rect x="50.7" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="55.5" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="63.1" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="67.9" y="67.22" width="7" height="26" fill="#0A0A0A"></rect><rect x="76.9" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="81.7" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect><rect x="87.9" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="92.7" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="100.3" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect><rect x="106.5" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect></svg>
+          <span style="color:#141414;font-size:18px;font-weight:900;letter-spacing:-.5px;">SH<span style="color:#CE1141;">OO</span>SERIE</span>
+        </div>
+
+        <div style="position:relative;height:300px;margin-top:6px;">
+          <div style="position:absolute;inset:0 24px;animation:floatY 6s ease-in-out infinite;"><image-slot id="app-landing-hero" shape="rounded" radius="12" fit="contain" src="assets/jordan1-bred-v3.png" placeholder="Jordan 1 Bred"></image-slot></div>
+        </div>
+
+        
+
+        <div style="position:relative;margin-top:auto;padding:0 24px 22px;">
+          
+          <div style="display:flex;justify-content:center;gap:40px;margin-top:20px;">
+            <a href="https://instagram.com/shooserie" style="display:flex;flex-direction:column;align-items:center;gap:7px;color:#3f3f3f;text-decoration:none;"><span style="width:50px;height:50px;border-radius:50%;border:1px solid rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"></rect><circle cx="12" cy="12" r="4"></circle><circle cx="17.3" cy="6.7" r="1.1" fill="currentColor" stroke="none"></circle></svg></span><span class="lab" style="font-size:9px;letter-spacing:.5px;">Instagram</span></a>
+            <a href="https://facebook.com/shooserie" style="display:flex;flex-direction:column;align-items:center;gap:7px;color:#3f3f3f;text-decoration:none;"><span style="width:50px;height:50px;border-radius:50%;border:1px solid rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;"><svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M13.5 21v-8h2.7l.4-3.1h-3.1V7.9c0-.9.25-1.5 1.55-1.5H17V3.6c-.3-.04-1.3-.13-2.5-.13-2.45 0-4.15 1.5-4.15 4.25v2.17H7.6V13h2.75v8z"></path></svg></span><span class="lab" style="font-size:9px;letter-spacing:.5px;">Facebook</span></a>
+            <a href="https://x.com/shooserie" style="display:flex;flex-direction:column;align-items:center;gap:7px;color:#3f3f3f;text-decoration:none;"><span style="width:50px;height:50px;border-radius:50%;border:1px solid rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="currentColor"><path d="M18.9 2H22l-7.6 8.7L23 22h-6.8l-5-6.5L5.4 22H2.3l8.1-9.3L1.5 2h6.9l4.5 6zM17.7 20h1.7L7.4 4H5.6z"></path></svg></span><span class="lab" style="font-size:9px;letter-spacing:.5px;">X</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COLLECTION ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#CE1141;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Collection</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Portfolio · Collection TCG · Détail · Éditer · Mes stats</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- PORTFOLIO -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PORTFOLIO</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;">MA COLLECTION</div>
+              <div style="color:#141414;font-size:26px;font-weight:900;letter-spacing:-.8px;">42 paires</div>
+            </div>
+            <div style="width:42px;height:42px;border-radius:13px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:16px;">⤢</div>
+          </div>
+          <!-- value banner -->
+          <div style="margin-top:14px;padding:16px;border-radius:18px;background:linear-gradient(120deg,rgba(206,17,65,.16),rgba(29,66,138,.12));border:1px solid rgba(0,0,0,.09);display:flex;justify-content:space-between;align-items:flex-end;">
+            <div><div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;">VALEUR ESTIMÉE</div><div style="color:#141414;font-size:30px;font-weight:900;letter-spacing:-1px;">14 820 €</div></div>
+            <div style="color:#4ADE80;font-size:13px;font-weight:700;">▲ +6,2%</div>
+          </div>
+          <!-- filter chips -->
+          <div style="display:flex;gap:8px;margin-top:14px;overflow:hidden;">
+            <span style="padding:7px 13px;border-radius:100px;background:#CE1141;color:#fff;font-size:12px;font-weight:700;">Tout</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Grails</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">DS</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">En vente</span>
+          </div>
+          <!-- grid -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+            <div style="border-radius:16px;padding:2px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C,#FDE9A6);background-size:200% 200%;animation:holoShift 6s linear infinite;">
+              <div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#f8efd6,#ece1c2);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:1px;color:#0a0a0a;background:#F6C560;padding:2px 6px;border-radius:5px;">★ GRAIL</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.14);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Jordan 1 Bred</div><div style="color:#9a7b1e;font-size:11px;font-weight:700;">620 €</div></div>
+              </div>
+            </div>
+            <div style="border-radius:16px;padding:2px;background:rgba(192,192,192,.5);">
+              <div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#eef1f6,#dfe4ec);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:1px;color:#0a0a0a;background:#C0C0C0;padding:2px 6px;border-radius:5px;">RARE</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Dunk Low Panda</div><div style="color:#3f3f3f;font-size:11px;font-weight:700;">180 €</div></div>
+              </div>
+            </div>
+            <div style="border-radius:16px;padding:2px;background:rgba(184,115,51,.5);">
+              <div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#f5eadb,#e9dcc6);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:.5px;color:#0a0a0a;background:#B87333;padding:2px 6px;border-radius:5px;">PEU COM.</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Samba OG</div><div style="color:#3f3f3f;font-size:11px;font-weight:700;">120 €</div></div>
+              </div>
+            </div><div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#f5eadb,#e9dcc6);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:.5px;color:#0a0a0a;background:#B87333;padding:2px 6px;border-radius:5px;">PEU COM.</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Samba OG</div><div style="color:#3f3f3f;font-size:11px;font-weight:700;">120 €</div></div>
+              </div><div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#f5eadb,#e9dcc6);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:.5px;color:#0a0a0a;background:#B87333;padding:2px 6px;border-radius:5px;">PEU COM.</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Samba OG</div><div style="color:#3f3f3f;font-size:11px;font-weight:700;">120 €</div></div>
+              </div>
+            <div style="border-radius:16px;padding:2px;background:rgba(107,114,128,.5);">
+              <div style="border-radius:14px;background:radial-gradient(circle at 50% 38%,#eef0f2,#e2e4e8);height:150px;padding:10px;display:flex;flex-direction:column;justify-content:space-between;">
+                <span class="lab" style="align-self:flex-end;font-size:8px;font-weight:700;letter-spacing:.5px;color:#F2F2F2;background:#4b5563;padding:2px 6px;border-radius:5px;">COMMUNE</span>
+                <div style="text-align:center;flex:1;display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.09);font-size:38px;">◥◤</div>
+                <div><div style="color:#141414;font-size:12px;font-weight:800;line-height:1.1;">Air Force 1</div><div style="color:#3f3f3f;font-size:11px;font-weight:700;">110 €</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COLLECTION TCG (classeur) -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">COLLECTION TCG · le classeur</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 96px;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;flex-shrink:0;">
+            <div><div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;">CLASSEUR · SÉRIE JORDAN</div><div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">18 / 24</div></div>
+            <span style="padding:6px 12px;border-radius:100px;background:rgba(246,197,96,.14);border:1px solid rgba(246,197,96,.4);color:#9a7b1e;font-size:12px;font-weight:700;" class="lab">75%</span>
+          </div>
+          <!-- progress -->
+          <div style="margin-top:12px;height:8px;border-radius:100px;background:rgba(0,0,0,.09);overflow:hidden;flex-shrink:0;"><div style="width:75%;height:100%;border-radius:100px;background:linear-gradient(90deg,#CE1141,#F6C560);"></div></div>
+          <!-- binder grid -->
+          <div style="display: grid; grid-template-columns: repeat(3,1fr); gap: 9px; margin-top: 16px; flex-shrink: 0; position: absolute; left: 13px; top: 145px; width: 365px; height: 457px">
+            <div style="aspect-ratio:3/4;border-radius:12px;padding:2px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C);background-size:200% 200%;animation:holoShift 6s linear infinite;"><div style="border-radius:10px;height:100%;background:radial-gradient(circle at 50% 40%,#f8efd6,#ece1c2);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.18);font-size:22px;">◥◤</div></div>
+            <div style="aspect-ratio:3/4;border-radius:12px;background:radial-gradient(circle at 50% 40%,#eef1f6,#dfe4ec);border:1px solid rgba(192,192,192,.35);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:22px;">◥◤</div>
+            <div style="aspect-ratio:3/4;border-radius:12px;background:radial-gradient(circle at 50% 40%,#f5eadb,#e9dcc6);border:1px solid rgba(184,115,51,.35);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:22px;">◥◤</div>
+            <div style="aspect-ratio:3/4;border-radius:12px;background:#eff0f2;border:1px dashed rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3a3a3a;font-size:22px;">🔒</div>
+            <div style="aspect-ratio:3/4;border-radius:12px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:22px;">◥◤</div>
+            <div style="aspect-ratio:3/4;border-radius:12px;background:#eff0f2;border:1px dashed rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;color:#3a3a3a;font-size:22px;">🔒</div><div style="aspect-ratio:3/4;border-radius:12px;background:#eff0f2;border:1px dashed rgba(0,0,0,.14);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#3a3a3a;font-size:22px;">🔒</div>
+<div style="aspect-ratio:3/4;border-radius:12px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:22px;">◥◤</div>
+<div style="aspect-ratio:3/4;border-radius:12px;background:#eff0f2;border:1px dashed rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;color:#3a3a3a;font-size:22px;">🔒</div>
+          </div>
+          
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉTAIL PAIRE (1a compact) -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">DÉTAIL PAIRE · la carte 1a</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 18px 10px;">
+          <div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div>
+          <span class="lab" style="font-size:10px;letter-spacing:2px;color:#8a8a8a;">COLLECTION · #017</span>
+          <div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:18px;">⋯</div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding:0 18px 18px;display:flex;flex-direction:column;">
+          <div style="position:relative;border-radius:24px;padding:3px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C,#8fd6d0,#f3a9c7,#FDE9A6);background-size:220% 220%;animation:holoShift 6s linear infinite;box-shadow:0 0 40px rgba(246,197,96,.26);flex:1;display:flex;">
+            <div style="border-radius:21px;background:linear-gradient(180deg,#ffffff,#f5f5f5);width:100%;overflow:hidden;display:flex;flex-direction:column;">
+              <div style="display:flex;justify-content:space-between;align-items:center;padding:13px 15px 6px;"><span class="lab" style="font-weight:700;font-size:10px;letter-spacing:2px;color:#0a0a0a;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C);padding:5px 11px;border-radius:8px;">★ GRAIL</span><span class="lab" style="font-size:9px;color:#9a7b1e;">OR HOLO · 1/1</span></div>
+              <div style="position:relative;margin:2px 13px 0;border-radius:14px;overflow:hidden;background:radial-gradient(circle at 50% 42%,#f8efd6,#f5f5f5 55%,#ececec);flex:1;display:flex;align-items:center;justify-content:center;">
+                <div style="position:absolute;bottom:14%;left:50%;transform:translateX(-50%);width:64%;height:14px;border-radius:50%;background:radial-gradient(ellipse,rgba(206,17,65,.85),transparent 70%);filter:blur(4px);animation:ringPulse 4s ease-in-out infinite;"></div>
+                <div style="width:86%;height:78%;animation:floatY 6s ease-in-out infinite;"><image-slot id="app-hero-detail" shape="rounded" radius="10" fit="contain" placeholder="Photo détourée"></image-slot></div>
+              </div>
+              <div style="padding:12px 16px 2px;"><div class="lab" style="font-size:10px;color:#CE1141;letter-spacing:2px;">AIR JORDAN</div><div style="color:#141414;font-size:23px;font-weight:900;letter-spacing:-.8px;line-height:1;margin-top:3px;">Jordan 1 Retro High</div><div style="color:#9a7b1e;font-size:14px;font-weight:700;font-style:italic;">« Bred » — OG 2016</div></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:2px;margin:10px 13px 0;border-radius:12px;overflow:hidden;">
+                <div style="padding:10px 13px;background:rgba(206,17,65,.14);"><div class="lab" style="font-size:8px;letter-spacing:1px;color:#8a8a8a;">COTE</div><div style="color:#141414;font-size:21px;font-weight:800;">620 €</div><div style="color:#4ADE80;font-size:10px;font-weight:600;">▲ +244%</div></div>
+                <div style="padding:10px 13px;background:rgba(29,66,138,.16);"><div class="lab" style="font-size:8px;letter-spacing:1px;color:#8a8a8a;">RETAIL</div><div style="color:#33589f;font-size:21px;font-weight:800;">180 €</div><div style="color:#6c6c6c;font-size:10px;">sortie</div></div>
+              </div>
+              <div style="display:flex;gap:7px;margin:9px 13px 0;">
+                <div style="flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div class="lab" style="font-size:8px;color:#8a8a8a;">EU</div><div style="color:#141414;font-size:13px;font-weight:700;">44.5</div></div>
+                <div style="flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div class="lab" style="font-size:8px;color:#8a8a8a;">US</div><div style="color:#141414;font-size:13px;font-weight:700;">10.5</div></div>
+                <div style="flex:1;text-align:center;padding:8px;border-radius:10px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);"><div class="lab" style="font-size:8px;color:#4ADE80;">ÉTAT</div><div style="color:#4ADE80;font-size:13px;font-weight:700;">DS</div></div>
+              </div>
+              <div style="margin:11px 13px 14px;padding:11px 13px;border-radius:11px;background:rgba(0,0,0,.35);border-left:2px solid #F6C560;"><div class="lab" style="font-size:8px;letter-spacing:1px;color:#9a7b1e;margin-bottom:4px;">HISTOIRE</div><div style="color:#3f3f3f;font-size:11px;line-height:1.5;font-style:italic;">Bannie des parquets NBA en 1985, la Bred est devenue le mythe fondateur de Jordan.</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:9px;margin-top:12px;">
+            <button style="width:50px;height:50px;border-radius:14px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:18px;cursor:pointer;">✎</button>
+            <button style="width:50px;height:50px;border-radius:14px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:18px;cursor:pointer;">👟</button>
+            <button style="flex:1;height:50px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);">METTRE EN VENTE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ÉDITER PAIRE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">ÉDITER PAIRE</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 20px 12px;"><span style="color:#8a8a8a;font-size:15px;">Annuler</span><span style="color:#141414;font-size:16px;font-weight:800;">Éditer la paire</span><span style="color:#CE1141;font-size:15px;font-weight:700;">OK</span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;display:flex;flex-direction:column;gap:14px;">
+          <div style="align-self:center;width:120px;height:120px;border-radius:16px;overflow:hidden;background:radial-gradient(circle at 50% 40%,#f8efd6,#ece1c2);position:relative;"><image-slot id="app-hero-edit" shape="rounded" radius="14" fit="contain" placeholder="Photo"></image-slot><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(206,17,65,.9);color:#fff;text-align:center;font-size:11px;padding:4px;">Changer</div></div>
+          <div><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">MODÈLE</div><div style="padding:14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:15px;font-weight:600;">Jordan 1 Retro High « Bred »</div></div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;"><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">TAILLE EU</div><div style="padding:14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:15px;">44.5</div></div>
+            <div style="flex:1;"><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">PRIX PAYÉ</div><div style="padding:14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:15px;">340 €</div></div>
+          </div>
+          <div><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">ÉTAT</div>
+            <div style="display:flex;gap:7px;">
+              <span style="flex:1;text-align:center;padding:11px 0;border-radius:11px;background:#CE1141;color:#fff;font-size:13px;font-weight:700;">DS</span>
+              <span style="flex:1;text-align:center;padding:11px 0;border-radius:11px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:13px;">VNDS</span>
+              <span style="flex:1;text-align:center;padding:11px 0;border-radius:11px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:13px;">Used</span>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);"><span style="color:#141414;font-size:14px;">Visible sur mon profil public</span><span style="width:44px;height:26px;border-radius:100px;background:#CE1141;position:relative;"><span style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;"></span></span></div>
+          <button style="margin-top:auto;height:50px;border-radius:14px;border:1px solid rgba(206,17,65,.4);background:rgba(206,17,65,.1);color:#CE1141;font-size:14px;font-weight:700;cursor:pointer;">Supprimer de la collection</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MES STATS -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MES STATS · ex-Rankings</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 20px 82px;">
+          <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;">TABLEAU DE BORD</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Mes stats</div>
+          <!-- rank card -->
+          <div style="margin-top:14px;padding:16px;border-radius:18px;background:linear-gradient(120deg,rgba(29,66,138,.22),rgba(206,17,65,.12));border:1px solid rgba(0,0,0,.09);display:flex;align-items:center;gap:14px;">
+            <img src="app-icons/rangs/rang-4-lieutenant.svg" alt="Lieutenant" style="width:54px;height:60px;display:block;">
+            <div><div class="lab" style="font-size:10px;color:#33589f;letter-spacing:1px;">RANG · NIVEAU 4</div><div style="color:#141414;font-size:19px;font-weight:800;">Lieutenant</div><div style="color:#8a8a8a;font-size:11px;">plus que 8 paires → Grail Captain</div></div>
+          </div>
+          <!-- 2x2 stat tiles -->
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px;">
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div style="color:#141414;font-size:24px;font-weight:900;">42</div><div class="lab" style="color:#8a8a8a;font-size:10px;">PAIRES</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div style="color:#9a7b1e;font-size:24px;font-weight:900;">3</div><div class="lab" style="color:#8a8a8a;font-size:10px;">GRAILS</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div style="color:#141414;font-size:24px;font-weight:900;">7</div><div class="lab" style="color:#8a8a8a;font-size:10px;">MARQUES</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><div style="color:#4ADE80;font-size:24px;font-weight:900;">61%</div><div class="lab" style="color:#8a8a8a;font-size:10px;">PORTÉES</div></div>
+          </div>
+          <!-- facettes -->
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-top:16px;">FACETTES DÉBLOQUÉES</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px;">
+            <div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><img src="app-icons/facettes/facette-brand-diversity.svg" alt="Brand Diversity" style="height:40px;"><span class="lab" style="color:#8a8a8a;font-size:9px;">Brand Div.</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><img src="app-icons/facettes/facette-value-connoisseur.svg" alt="Value Connoisseur" style="height:40px;"><span class="lab" style="color:#8a8a8a;font-size:9px;">Value Conn.</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:4px;"><img src="app-icons/facettes/facette-active-wearer.svg" alt="Active Wearer" style="height:40px;"><span class="lab" style="color:#8a8a8a;font-size:9px;">Active Wear.</span></div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= COMMUNAUTÉ ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#1D428A;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Communauté</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Leaderboard · Découvrir · Profil public /u:pseudo</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- LEADERBOARD -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">LEADERBOARD</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 20px 82px;">
+          <div class="lab" style="color:#33589f;font-size:10px;letter-spacing:2px;font-weight:700;">CLASSEMENT · FRANCE</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Leaderboard</div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <span style="padding:7px 13px;border-radius:100px;background:#1D428A;color:#fff;font-size:12px;font-weight:700;">Valeur</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Paires</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Grails</span>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:center;gap:10px;margin-top:18px;">
+            <div style="text-align:center;"><div style="width:52px;height:52px;border-radius:50%;margin:0 auto;background:radial-gradient(circle,#eef1f6,#dfe4ec);border:2px solid #C0C0C0;"></div><div style="color:#141414;font-size:12px;font-weight:700;margin-top:5px;">@kobe</div><div style="width:56px;height:44px;border-radius:8px 8px 0 0;background:linear-gradient(#C0C0C0,#8a8a8a);color:#0a0a0a;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;margin-top:6px;">2</div></div>
+            <div style="text-align:center;"><div style="color:#9a7b1e;font-size:16px;">👑</div><div style="width:60px;height:60px;border-radius:50%;margin:0 auto;background:radial-gradient(circle,#f8efd6,#ece1c2);border:2px solid #F6C560;"></div><div style="color:#141414;font-size:12px;font-weight:700;margin-top:5px;">@solegod</div><div style="width:60px;height:64px;border-radius:8px 8px 0 0;background:linear-gradient(#F6C560,#E7A93C);color:#0a0a0a;font-weight:900;font-size:22px;display:flex;align-items:center;justify-content:center;margin-top:6px;">1</div></div>
+            <div style="text-align:center;"><div style="width:52px;height:52px;border-radius:50%;margin:0 auto;background:radial-gradient(circle,#f5eadb,#e9dcc6);border:2px solid #B87333;"></div><div style="color:#141414;font-size:12px;font-weight:700;margin-top:5px;">@nims</div><div style="width:56px;height:34px;border-radius:8px 8px 0 0;background:linear-gradient(#B87333,#7d4e23);color:#fff;font-weight:900;font-size:18px;display:flex;align-items:center;justify-content:center;margin-top:6px;">3</div></div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;margin-top:16px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.09);"><span class="lab" style="color:#8a8a8a;font-size:13px;width:20px;">4</span><div style="width:34px;height:34px;border-radius:50%;background:#d9dbe0;"></div><span style="color:#141414;font-size:14px;font-weight:600;flex:1;">@drip_lab</span><span style="color:#3f3f3f;font-size:13px;font-weight:700;">28,4k€</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:11px 13px;border-radius:13px;background:linear-gradient(120deg,rgba(206,17,65,.2),rgba(206,17,65,.05));border:1px solid rgba(206,17,65,.4);"><span class="lab" style="color:#CE1141;font-size:13px;width:20px;font-weight:700;">12</span><div style="width:34px;height:34px;border-radius:50%;background:radial-gradient(circle,#f8efd6,#ece1c2);border:1px solid #F6C560;"></div><span style="color:#141414;font-size:14px;font-weight:700;flex:1;">Toi</span><span style="color:#CE1141;font-size:13px;font-weight:800;">14,8k€</span></div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉCOUVRIR -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">DÉCOUVRIR · le feed</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div><div class="lab" style="color:#33589f;font-size:10px;letter-spacing:2px;font-weight:700;">LE FEED</div><div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Découvrir</div></div>
+            <div style="width:42px;height:42px;border-radius:13px;background:rgba(0,0,0,.05);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:16px;">⌕</div>
+          </div>
+          <div style="margin-top:14px;border-radius:18px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;"><div style="width:36px;height:36px;border-radius:50%;background:radial-gradient(circle,#f8efd6,#ece1c2);border:1px solid #F6C560;"></div><div><div style="color:#141414;font-size:13px;font-weight:700;">@solegod</div><div class="lab" style="color:#8a8a8a;font-size:10px;">a ajouté un GRAIL · 2h</div></div></div>
+            <div style="height:150px;background:radial-gradient(circle at 50% 40%,#faedcd,#ecdcb8);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.14);font-size:42px;position:relative;">◥◤<span class="lab" style="position:absolute;top:10px;right:10px;font-size:9px;font-weight:700;color:#0a0a0a;background:#F6C560;padding:3px 8px;border-radius:6px;">★ GRAIL</span></div>
+            <div style="padding:12px 14px;"><div style="color:#141414;font-size:14px;font-weight:700;">Travis Scott x AJ1 Low</div><div style="display:flex;justify-content:space-between;align-items:center;margin-top:6px;"><span style="color:#8a8a8a;font-size:12px;">♡ 214 · 💬 18</span><span style="color:#9a7b1e;font-size:13px;font-weight:700;">1 450 €</span></div></div>
+          </div>
+          <div style="margin-top:12px;border-radius:18px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;"><div style="width:36px;height:36px;border-radius:50%;background:#d9dbe0;"></div><div><div style="color:#141414;font-size:13px;font-weight:700;">@drip_lab</div><div class="lab" style="color:#8a8a8a;font-size:10px;">a porté une paire · 5h</div></div></div>
+            <div style="height:120px;background:radial-gradient(circle at 50% 40%,#eef1f6,#dfe4ec);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:38px;">◥◤</div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PROFIL PUBLIC -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PROFIL PUBLIC · /u:solegod</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:0 0 96px;display:flex;flex-direction:column;">
+          <!-- cover -->
+          <div style="height:96px;background:linear-gradient(120deg,#1D428A,#CE1141);position:relative;"><div style="position:absolute;top:10px;left:14px;width:40px;height:40px;border-radius:12px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">‹</div></div>
+          <div style="padding:14px 16px 22px;position:relative;flex:1;display:flex;flex-direction:column;min-height:0;">
+            <div style="display:flex;align-items:flex-end;gap:12px;margin-top:-34px;">
+              <div style="width:76px;height:76px;border-radius:22px;background:radial-gradient(circle,#f8efd6,#ece1c2);border:3px solid #ffffff;box-shadow:0 0 0 2px #F6C560;"></div>
+              <div style="padding-bottom:6px;"><div style="color:#141414;font-size:19px;font-weight:800;">@solegod</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><img src="app-icons/rangs/rang-5-grail-captain.svg" alt="Grail Captain" style="height:20px;"><span class="lab" style="color:#8a8a8a;font-size:11px;">Grail Captain · Paris</span></div></div>
+            </div>
+            <button style="width:100%;height:44px;border-radius:13px;border:none;background:#CE1141;color:#fff;font-size:14px;font-weight:800;margin-top:14px;cursor:pointer;">Suivre</button>
+            <div style="display:flex;gap:16px;margin-top:14px;justify-content:space-around;text-align:center;">
+              <div><div style="color:#141414;font-size:18px;font-weight:900;">64</div><div class="lab" style="color:#8a8a8a;font-size:10px;">PAIRES</div></div>
+              <div><div style="color:#9a7b1e;font-size:18px;font-weight:900;">9</div><div class="lab" style="color:#8a8a8a;font-size:10px;">GRAILS</div></div>
+              <div><div style="color:#141414;font-size:18px;font-weight:900;">1,2k</div><div class="lab" style="color:#8a8a8a;font-size:10px;">FOLLOWERS</div></div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:8px;margin-top:14px;flex:1;min-height:0;">
+              <div style="border-radius:11px;padding:2px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C);background-size:200% 200%;animation:holoShift 6s linear infinite;"><div style="border-radius:9px;height:100%;background:radial-gradient(circle at 50% 40%,#f8efd6,#ece1c2);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.18);font-size:20px;">◥◤</div></div>
+              <div style="border-radius:11px;background:radial-gradient(circle at 50% 40%,#eef1f6,#dfe4ec);border:1px solid rgba(192,192,192,.35);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:20px;">◥◤</div>
+              <div style="border-radius:11px;background:radial-gradient(circle at 50% 40%,#f5eadb,#e9dcc6);border:1px solid rgba(184,115,51,.35);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:20px;">◥◤</div>
+              <div style="border-radius:11px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:20px;">◥◤</div>
+              <div style="border-radius:11px;padding:2px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C);background-size:200% 200%;animation:holoShift 6s linear infinite;"><div style="border-radius:9px;height:100%;background:radial-gradient(circle at 50% 40%,#f8efd6,#ece1c2);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.18);font-size:20px;">◥◤</div></div>
+              <div style="border-radius:11px;background:radial-gradient(circle at 50% 40%,#eef1f6,#dfe4ec);border:1px solid rgba(192,192,192,.35);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:20px;">◥◤</div>
+              <div style="border-radius:11px;padding:2px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C);background-size:200% 200%;animation:holoShift 6s linear infinite;"><div style="border-radius:9px;height:100%;background:radial-gradient(circle at 50% 40%,#f8efd6,#ece1c2);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.18);font-size:20px;">◥◤</div></div>
+              <div style="border-radius:11px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:20px;">◥◤</div>
+              <div style="border-radius:11px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.12);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;"><span style="color:#141414;font-size:16px;font-weight:800;">+58</span><span class="lab" style="color:#8a8a8a;font-size:9px;">voir tout</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ================= AJOUTER ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#CE1141;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Ajouter</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Ajout manuel · Scan code-barres</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- AJOUT MANUEL -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">AJOUT PAIRE · manuel</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 20px 12px;"><span style="color:#8a8a8a;font-size:15px;">Annuler</span><span style="color:#141414;font-size:16px;font-weight:800;">Nouvelle paire</span><span style="color:#3a3a3a;font-size:15px;font-weight:700;">1/3</span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;display:flex;flex-direction:column;gap:13px;">
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;height:110px;border-radius:14px;border:1.5px dashed rgba(206,17,65,.5);background:rgba(206,17,65,.06);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#CE1141;"><span style="font-size:26px;">＋</span><span style="font-size:12px;font-weight:700;">Ajouter photo</span></div>
+            <div style="width:80px;height:110px;border-radius:14px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);"></div>
+          </div>
+          <div><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">RECHERCHER LE MODÈLE</div><div style="padding:14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(206,17,65,.4);color:#141414;font-size:15px;display:flex;align-items:center;gap:8px;"><span style="color:#CE1141;">⌕</span> Jordan 1 Retro High…</div></div>
+          <div style="border-radius:13px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;">
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;border-bottom:1px solid rgba(0,0,0,.05);background:rgba(206,17,65,.08);"><div style="width:38px;height:38px;border-radius:9px;background:radial-gradient(circle,#f8efd6,#ece1c2);"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Jordan 1 Retro High « Bred »</div><div class="lab" style="color:#8a8a8a;font-size:10px;">555088-062 · cote 620 €</div></div><span style="color:#CE1141;font-size:18px;">✓</span></div>
+            <div style="display:flex;align-items:center;gap:10px;padding:11px 13px;"><div style="width:38px;height:38px;border-radius:9px;background:radial-gradient(circle,#eef1f6,#dfe4ec);"></div><div style="flex:1;"><div style="color:#3f3f3f;font-size:13px;">Jordan 1 Retro High « Royal »</div><div class="lab" style="color:#8a8a8a;font-size:10px;">555088-041 · cote 380 €</div></div></div>
+          </div>
+          <div style="display:flex;gap:10px;">
+            <div style="flex:1;"><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">TAILLE EU</div><div style="padding:13px;border-radius:12px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:15px;">44.5</div></div>
+            <div style="flex:1;"><div class="lab" style="font-size:10px;color:#8a8a8a;letter-spacing:1px;margin-bottom:6px;">ÉTAT</div><div style="padding:13px;border-radius:12px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:15px;">DS ▾</div></div>
+          </div>
+          <button style="margin-top:auto;height:52px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);">Continuer →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SCAN CODE-BARRES -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">SCAN CODE-BARRES</div>
+      <div class="scr" style="background:#000;">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#181818,#000);"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#fff;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#fff;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="position:relative;flex:1;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 20px;"><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;">✕</div><span class="lab" style="color:#fff;font-size:11px;letter-spacing:2px;">SCANNER</span><div style="width:40px;height:40px;border-radius:12px;background:rgba(255,255,255,.1);display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;">⚡</div></div>
+          <!-- viewfinder -->
+          <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+            <div style="width:230px;height:150px;position:relative;">
+              <div style="position:absolute;top:0;left:0;width:34px;height:34px;border-top:3px solid #CE1141;border-left:3px solid #CE1141;border-radius:8px 0 0 0;"></div>
+              <div style="position:absolute;top:0;right:0;width:34px;height:34px;border-top:3px solid #CE1141;border-right:3px solid #CE1141;border-radius:0 8px 0 0;"></div>
+              <div style="position:absolute;bottom:0;left:0;width:34px;height:34px;border-bottom:3px solid #CE1141;border-left:3px solid #CE1141;border-radius:0 0 0 8px;"></div>
+              <div style="position:absolute;bottom:0;right:0;width:34px;height:34px;border-bottom:3px solid #CE1141;border-right:3px solid #CE1141;border-radius:0 0 8px 0;"></div>
+              <div style="position:absolute;top:50%;left:12px;right:12px;height:2px;background:#CE1141;box-shadow:0 0 12px 2px rgba(206,17,65,.8);"></div>
+              <div style="position:absolute;bottom:-30px;left:0;right:0;text-align:center;color:rgba(255,255,255,.7);font-size:12px;">Vise le code-barres de la boîte</div>
+            </div>
+          </div>
+          <!-- detected pill -->
+          <div style="margin:0 20px 18px;padding:12px 14px;border-radius:16px;background:rgba(20,20,20,.9);border:1px solid rgba(206,17,65,.5);display:flex;align-items:center;gap:12px;">
+            <div style="width:44px;height:44px;border-radius:11px;background:radial-gradient(circle,#2a1f0e,#111);"></div>
+            <div style="flex:1;"><div style="color:#fff;font-size:13px;font-weight:700;">Jordan 1 « Bred »</div><div class="lab" style="color:#8a8a8a;font-size:10px;">détecté · 555088-062</div></div>
+            <button style="padding:9px 15px;border-radius:11px;border:none;background:#CE1141;color:#fff;font-size:13px;font-weight:700;cursor:pointer;">Ajouter</button>
+          </div>
+          <div style="display:flex;gap:8px;justify-content:center;padding-bottom:20px;">
+            <span class="lab" style="padding:8px 16px;border-radius:100px;background:#CE1141;color:#fff;font-size:12px;font-weight:700;">Scan</span>
+            <span class="lab" style="padding:8px 16px;border-radius:100px;background:rgba(255,255,255,.1);color:#b8b8b8;font-size:12px;">Manuel</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ================= MARKETPLACE ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#CE1141;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Marketplace</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Parcourir · Détail annonce · Messagerie · Mes ventes · Mes achats</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- PARCOURIR -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PARCOURIR</div>
+      <div class="scr">
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;font-weight:700;">MARKETPLACE</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Parcourir</div>
+          <div style="margin-top:12px;padding:12px 14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#8a8a8a;font-size:14px;display:flex;align-items:center;gap:8px;"><span>⌕</span> Rechercher une paire… <span style="margin-left:auto;color:#CE1141;">⇅</span></div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <span style="padding:7px 13px;border-radius:100px;background:#CE1141;color:#fff;font-size:12px;font-weight:700;">Tendance</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Jordan</span>
+            <span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">&lt; 200€</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:14px;">
+            <div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#faedcd,#ecdcb8);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.14);font-size:34px;position:relative;">◥◤<span class="lab" style="position:absolute;top:8px;left:8px;font-size:8px;font-weight:700;color:#0a0a0a;background:#F6C560;padding:2px 6px;border-radius:5px;">GRAIL</span><span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Jordan 1 Bred</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 44 · DS</div><div style="color:#CE1141;font-size:15px;font-weight:800;margin-top:3px;">640 €</div></div></div>
+            <div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#eef1f6,#dfe4ec);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:34px;position:relative;">◥◤<span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Dunk Low Panda</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 42 · VNDS</div><div style="color:#141414;font-size:15px;font-weight:800;margin-top:3px;">175 €</div></div></div>
+            <div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#f5eadb,#e9dcc6);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:34px;position:relative;">◥◤<span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Samba OG</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 43 · Used</div><div style="color:#141414;font-size:15px;font-weight:800;margin-top:3px;">95 €</div></div></div>
+            <div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:34px;position:relative;">◥◤<span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Air Max 1</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 44 · DS</div><div style="color:#141414;font-size:15px;font-weight:800;margin-top:3px;">150 €</div></div></div><div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#f5eadb,#e9dcc6);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:34px;position:relative;">◥◤<span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Samba OG</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 43 · Used</div><div style="color:#141414;font-size:15px;font-weight:800;margin-top:3px;">95 €</div></div></div>
+<div style="border-radius:16px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);overflow:hidden;"><div style="height:110px;background:radial-gradient(circle at 50% 40%,#eef0f2,#e2e4e8);display:flex;align-items:center;justify-content:center;color:rgba(0,0,0,.12);font-size:34px;position:relative;">◥◤<span style="position:absolute;top:8px;right:8px;color:#fff;font-size:16px;">♡</span></div><div style="padding:9px 11px;"><div style="color:#141414;font-size:12px;font-weight:700;line-height:1.1;">Air Max 1</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 44 · DS</div><div style="color:#141414;font-size:15px;font-weight:800;margin-top:3px;">150 €</div></div></div>
+          </div>
+        </div><div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DÉTAIL ANNONCE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">DÉTAIL ANNONCE</div>
+      <div class="scr">
+        <div style="position:relative;height:300px;flex-shrink:0;background:radial-gradient(circle at 50% 40%,#fce1e8,#f3f3f3);overflow:hidden;">
+          <div style="position:absolute;inset:0;"><image-slot id="app-annonce-hero" shape="rect" fit="cover" placeholder="Photo annonce"></image-slot></div>
+          <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,10,.45),transparent 30%,transparent 72%,#ffffff);pointer-events:none;"></div>
+          <div style="position:absolute;top:0;left:0;right:0;display:flex;justify-content:space-between;padding:15px 22px 4px;"><span class="lab" style="color:#fff;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#fff;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+          <div style="position:absolute;top:48px;left:0;right:0;display:flex;justify-content:space-between;padding:0 16px;"><button style="width:44px;height:44px;border-radius:14px;border:none;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);color:#fff;font-size:20px;cursor:pointer;">‹</button><div style="display:flex;gap:10px;"><button style="width:44px;height:44px;border-radius:14px;border:none;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);color:#fff;font-size:18px;cursor:pointer;">♡</button><button style="width:44px;height:44px;border-radius:14px;border:none;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);color:#fff;font-size:16px;cursor:pointer;">⇪</button></div></div>
+        </div>
+        <div style="flex:1;overflow:hidden;padding:16px 20px 0;display:flex;flex-direction:column;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;"><div><div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;">AIR JORDAN</div><div style="color:#141414;font-size:20px;font-weight:900;letter-spacing:-.5px;line-height:1.05;">Jordan 1 Retro « Bred »</div></div><span class="lab" style="font-size:9px;font-weight:700;color:#0a0a0a;background:linear-gradient(120deg,#F6C560,#E7A93C);padding:5px 10px;border-radius:7px;white-space:nowrap;">★ GRAIL</span></div>
+          <div style="display:flex;align-items:baseline;gap:10px;margin-top:10px;"><span style="color:#141414;font-size:30px;font-weight:900;letter-spacing:-1px;">640 €</span><span style="color:#6c6c6c;font-size:13px;">cote 620 €</span></div>
+          <div style="display:flex;gap:7px;margin-top:12px;"><span style="padding:8px 12px;border-radius:11px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:12px;">EU 44</span><span style="padding:8px 12px;border-radius:11px;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.3);color:#4ADE80;font-size:12px;font-weight:700;">DS</span><span style="padding:8px 12px;border-radius:11px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#141414;font-size:12px;">Boîte OG</span></div>
+          <div style="display:flex;align-items:center;gap:11px;margin-top:16px;padding:12px 14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div style="width:40px;height:40px;border-radius:50%;background:radial-gradient(circle,#f8efd6,#ece1c2);border:1px solid #F6C560;"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">@solegod</div><div class="lab" style="color:#8a8a8a;font-size:10px;">★ 4.9 · 128 ventes</div></div><span class="lab" style="color:#4ADE80;font-size:11px;">✓ Vérifié</span></div>
+          <div style="margin-top:auto;display:flex;gap:10px;padding:14px 0 20px;"><button style="width:54px;height:54px;border-radius:16px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:18px;cursor:pointer;">✉</button><button style="flex:1;height:54px;border-radius:16px;border:none;background:#CE1141;color:#fff;font-size:16px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(206,17,65,.42);">Acheter · 640 €</button></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MESSAGERIE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MESSAGERIE</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:12px;padding:8px 18px 12px;border-bottom:1px solid rgba(0,0,0,.09);"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><div style="width:38px;height:38px;border-radius:50%;background:radial-gradient(circle,#f8efd6,#ece1c2);border:1px solid #F6C560;"></div><div style="flex:1;"><div style="color:#141414;font-size:14px;font-weight:700;">@solegod</div><div class="lab" style="color:#4ADE80;font-size:10px;">en ligne</div></div></div>
+        <div style="flex:1;overflow:hidden;padding:14px 18px;display:flex;flex-direction:column;gap:10px;">
+          <div style="align-self:center;padding:5px 12px;border-radius:100px;background:rgba(0,0,0,.05);color:#8a8a8a;font-size:11px;" class="lab">Jordan 1 « Bred » · 640 €</div>
+          <div style="align-self:flex-start;max-width:75%;padding:11px 14px;border-radius:16px 16px 16px 4px;background:rgba(0,0,0,.09);color:#141414;font-size:13px;">Salut ! La paire est toujours dispo ?</div>
+          <div style="align-self:flex-end;max-width:75%;padding:11px 14px;border-radius:16px 16px 4px 16px;background:#CE1141;color:#fff;font-size:13px;">Yes ! DS jamais portée, boîte OG incluse 🔥</div>
+          <div style="align-self:flex-start;max-width:75%;padding:11px 14px;border-radius:16px 16px 16px 4px;background:rgba(0,0,0,.09);color:#141414;font-size:13px;">Tu ferais 600 ?</div>
+          <div style="align-self:flex-end;max-width:75%;padding:11px 14px;border-radius:16px 16px 4px 16px;background:#CE1141;color:#fff;font-size:13px;">620 et c'est parti 🤝</div>
+        </div>
+        <div style="padding:12px 16px 22px;border-top:1px solid rgba(0,0,0,.09);display:flex;gap:10px;align-items:center;"><div style="flex:1;padding:12px 14px;border-radius:100px;background:rgba(0,0,0,.05);color:#8a8a8a;font-size:13px;">Message…</div><button style="width:44px;height:44px;border-radius:50%;border:none;background:#CE1141;color:#fff;font-size:18px;cursor:pointer;">➤</button></div>
+      </div>
+    </div>
+
+    <!-- MES VENTES + étiquettes -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MES VENTES · + étiquettes</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;font-weight:700;">MARKETPLACE</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Mes ventes</div>
+          <div style="display:flex;gap:8px;margin-top:12px;"><span style="padding:7px 13px;border-radius:100px;background:#CE1141;color:#fff;font-size:12px;font-weight:700;">En cours</span><span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Vendues</span></div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="padding:12px;border-radius:15px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;gap:12px;align-items:center;"><div style="width:52px;height:52px;border-radius:11px;background:radial-gradient(circle,#f8efd6,#ece1c2);"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Jordan 1 « Bred »</div><div class="lab" style="color:#8a8a8a;font-size:10px;">EU 44 · 640 €</div><span class="lab" style="display:inline-block;margin-top:5px;font-size:9px;color:#9a7b1e;background:rgba(246,197,96,.14);padding:3px 8px;border-radius:6px;">👁 214 vues</span></div></div>
+            <!-- vendue → étiquette -->
+            <div style="padding:12px;border-radius:15px;background:linear-gradient(120deg,rgba(74,222,128,.12),rgba(29,66,138,.08));border:1px solid rgba(74,222,128,.3);"><div style="display:flex;gap:12px;align-items:center;"><div style="width:52px;height:52px;border-radius:11px;background:radial-gradient(circle,#eef1f6,#dfe4ec);"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Dunk Low Panda</div><div class="lab" style="color:#4ADE80;font-size:10px;">VENDUE · 175 €</div></div></div>
+              <button style="width:100%;margin-top:11px;height:44px;border-radius:12px;border:none;background:#1D428A;color:#fff;font-size:13px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;">🏷 Éditer l'étiquette d'envoi</button>
+            </div>
+          </div>
+          <div style="margin-top:14px;padding:14px;border-radius:15px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;justify-content:space-between;align-items:center;"><div><div class="lab" style="color:#8a8a8a;font-size:10px;">GAINS DU MOIS</div><div style="color:#4ADE80;font-size:22px;font-weight:900;">+ 815 €</div></div><span style="color:#4ADE80;font-size:22px;">↗</span></div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MES ACHATS -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MES ACHATS</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;font-weight:700;">MARKETPLACE</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Mes achats</div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:10px;">
+            <div style="padding:14px;border-radius:15px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div style="display:flex;gap:12px;align-items:center;"><div style="width:52px;height:52px;border-radius:11px;background:radial-gradient(circle,#f8efd6,#ece1c2);"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Jordan 1 « Royal »</div><div class="lab" style="color:#8a8a8a;font-size:10px;">380 € · @drip_lab</div></div><span class="lab" style="font-size:10px;color:#9a7b1e;background:rgba(246,197,96,.14);padding:4px 9px;border-radius:7px;">En transit</span></div>
+              <div style="display:flex;align-items:center;gap:4px;margin-top:12px;"><span style="width:22px;height:22px;border-radius:50%;background:#4ADE80;color:#0a0a0a;font-size:11px;display:flex;align-items:center;justify-content:center;">✓</span><span style="flex:1;height:2px;background:#4ADE80;"></span><span style="width:22px;height:22px;border-radius:50%;background:#4ADE80;color:#0a0a0a;font-size:11px;display:flex;align-items:center;justify-content:center;">✓</span><span style="flex:1;height:2px;background:linear-gradient(90deg,#4ADE80,rgba(255,255,255,.15));"></span><span style="width:22px;height:22px;border-radius:50%;background:rgba(255,255,255,.15);color:#8a8a8a;font-size:11px;display:flex;align-items:center;justify-content:center;">3</span></div>
+              <div style="display:flex;justify-content:space-between;margin-top:6px;"><span class="lab" style="color:#8a8a8a;font-size:9px;">Payé</span><span class="lab" style="color:#8a8a8a;font-size:9px;">Expédié</span><span class="lab" style="color:#8a8a8a;font-size:9px;">Reçu</span></div>
+            </div>
+            <div style="padding:14px;border-radius:15px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;gap:12px;align-items:center;"><div style="width:52px;height:52px;border-radius:11px;background:radial-gradient(circle,#eef0f2,#e2e4e8);"></div><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Air Max 1</div><div class="lab" style="color:#8a8a8a;font-size:10px;">150 € · @nims</div></div><span class="lab" style="font-size:10px;color:#4ADE80;background:rgba(74,222,128,.12);padding:4px 9px;border-radius:7px;">Reçu ✓</span></div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ================= PROFIL ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 40px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#1D428A;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Profil</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Mon profil · Ma progression · Parrainage · Paramètres · Partage collec</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- MON PROFIL -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MON PROFIL</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:0 0 82px;">
+          <div style="height:88px;background:linear-gradient(120deg,#CE1141,#1D428A);position:relative;"><div style="position:absolute;top:10px;right:14px;width:40px;height:40px;border-radius:12px;background:rgba(0,0,0,.4);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:18px;">⚙</div></div>
+          <div style="padding: 0 20px; padding-top: 0px; padding-bottom: 0px; position: relative; top: 10px">
+            <div style="display:flex;align-items:flex-end;gap:12px;margin-top:-32px;"><div style="width:74px;height:74px;border-radius:22px;background:radial-gradient(circle,#f8efd6,#ece1c2);border:3px solid #ffffff;box-shadow:0 0 0 2px #F6C560;"></div><div style="padding-bottom:6px;"><div style="color:#141414;font-size:19px;font-weight:800;">@toi</div><div style="display:flex;align-items:center;gap:5px;margin-top:3px;"><img src="app-icons/rangs/rang-4-lieutenant.svg" alt="Lieutenant" style="height:20px;"><span class="lab" style="color:#8a8a8a;font-size:11px;">Lieutenant · niveau 4</span></div></div></div>
+            <div style="display:flex;gap:16px;margin-top:14px;justify-content:space-around;text-align:center;">
+              <div><div style="color:#141414;font-size:18px;font-weight:900;">42</div><div class="lab" style="color:#8a8a8a;font-size:10px;">PAIRES</div></div>
+              <div><div style="color:#9a7b1e;font-size:18px;font-weight:900;">3</div><div class="lab" style="color:#8a8a8a;font-size:10px;">GRAILS</div></div>
+              <div><div style="color:#141414;font-size:18px;font-weight:900;">248</div><div class="lab" style="color:#8a8a8a;font-size:10px;">FOLLOWERS</div></div>
+            </div>
+            <div style="margin-top:16px;display:flex;flex-direction:column;gap:2px;border-radius:15px;overflow:hidden;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);">
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;"><span style="color:#CE1141;font-size:16px;width:20px;">◈</span><span style="flex:1;color:#141414;font-size:14px;">Ma progression</span><span style="color:#6c6c6c;">›</span></div>
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="color:#9a7b1e;font-size:16px;width:20px;">✦</span><span style="flex:1;color:#141414;font-size:14px;">Parrainage</span><span class="lab" style="font-size:9px;color:#9a7b1e;background:rgba(246,197,96,.14);padding:3px 8px;border-radius:6px;">-10€</span></div>
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="color:#33589f;font-size:16px;width:20px;">⤴</span><span style="flex:1;color:#141414;font-size:14px;">Partager ma collec</span><span style="color:#6c6c6c;">›</span></div>
+              <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="color:#8a8a8a;font-size:16px;width:20px;">⚙</span><span style="flex:1;color:#141414;font-size:14px;">Paramètres</span><span style="color:#6c6c6c;">›</span></div>
+            </div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div>
+          <div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MA PROGRESSION -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">MA PROGRESSION · rangs &amp; badges</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 10px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">Ma progression</span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;">
+          <!-- current rank hero -->
+          <div style="padding:18px;border-radius:18px;background:linear-gradient(120deg,rgba(29,66,138,.28),rgba(10,10,10,0));border:1px solid rgba(159,180,221,.3);text-align:center;">
+            <img src="app-icons/rangs/rang-4-lieutenant.svg" alt="Lieutenant" style="width:66px;height:73px;margin:0 auto;display:block;">
+            <div class="lab" style="color:#33589f;font-size:10px;letter-spacing:2px;margin-top:10px;">RANG 4 · ACTIVITÉ</div>
+            <div style="color:#141414;font-size:22px;font-weight:900;">Lieutenant</div>
+            <div style="margin-top:12px;height:8px;border-radius:100px;background:rgba(0,0,0,.12);overflow:hidden;"><div style="width:64%;height:100%;background:linear-gradient(90deg,#1D428A,#9fb4dd);border-radius:100px;"></div></div>
+            <div class="lab" style="color:#8a8a8a;font-size:10px;margin-top:6px;">8 paires avant Grail Captain</div>
+          </div>
+          <!-- badge rail -->
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-top:16px;">BADGES · TYPE DE COLLECTIONNEUR</div>
+          <div style="display:flex;gap:10px;margin-top:10px;">
+            <div style="flex:1;"><img src="app-icons/badges/badge-2-beater.svg" alt="Beater" style="width:100%;display:block;"></div>
+            <div style="flex:1;"><img src="app-icons/badges/badge-3-initiated.svg" alt="Initié" style="width:100%;display:block;"></div>
+            <div style="flex:1;"><img src="app-icons/badges/badge-4-rotation.svg" alt="Rotation" style="width:100%;display:block;"></div>
+            <div style="flex:1;aspect-ratio:1;border-radius:14px;background:#eff0f2;border:1px dashed rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;color:#3a3a3a;font-size:20px;">🔒</div>
+          </div>
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-top:16px;">PROCHAIN PALIER</div>
+          <div style="margin-top:10px;padding:14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;align-items:center;gap:12px;"><img src="app-icons/badges/badge-6-legit-checker.svg" alt="Legit Checker" style="width:46px;height:46px;"><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Legit Checker</div><div class="lab" style="color:#8a8a8a;font-size:10px;">81 paires · plus que 39</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARRAINAGE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PARRAINAGE</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 10px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">Parrainage</span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;display:flex;flex-direction:column;">
+          <div style="text-align:center;padding:24px 0 8px;"><div style="font-size:48px;">✦</div><div style="color:#141414;font-size:22px;font-weight:900;margin-top:8px;letter-spacing:-.5px;">Invite tes potes,<br>gagnez 10 € chacun</div><div style="color:#8a8a8a;font-size:13px;margin-top:8px;line-height:1.5;">Ton pote crée sa collec, ajoute 3 paires,<br>vous recevez 10 € de crédit marketplace.</div></div>
+          <div style="margin-top:18px;padding:16px;border-radius:16px;background:linear-gradient(120deg,rgba(206,17,65,.14),rgba(29,66,138,.1));border:1px dashed rgba(206,17,65,.5);text-align:center;"><div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;">TON CODE</div><div class="lab" style="color:#141414;font-size:26px;font-weight:700;letter-spacing:4px;margin-top:4px;">SOLE-8F2K</div></div>
+          <div style="display:flex;gap:16px;margin-top:16px;justify-content:space-around;text-align:center;"><div><div style="color:#9a7b1e;font-size:22px;font-weight:900;">4</div><div class="lab" style="color:#8a8a8a;font-size:10px;">FILLEULS</div></div><div><div style="color:#4ADE80;font-size:22px;font-weight:900;">40 €</div><div class="lab" style="color:#8a8a8a;font-size:10px;">GAGNÉS</div></div></div>
+          <button style="margin-top:auto;height:52px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);">Partager mon code</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARAMÈTRES -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PARAMÈTRES</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 10px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">Paramètres</span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;display:flex;flex-direction:column;gap:16px;">
+          <div><div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-bottom:8px;">COMPTE</div><div style="border-radius:14px;overflow:hidden;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div style="display:flex;align-items:center;gap:12px;padding:14px 15px;"><span style="width:18px;color:#8a8a8a;">◑</span><span style="flex:1;color:#141414;font-size:14px;">Modifier le profil</span><span style="color:#6c6c6c;">›</span></div><div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">✉</span><span style="flex:1;color:#141414;font-size:14px;">Email &amp; mot de passe</span><span style="color:#6c6c6c;">›</span></div></div></div>
+          <div><div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-bottom:8px;">PRÉFÉRENCES</div><div style="border-radius:14px;overflow:hidden;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;"><span style="width:18px;color:#8a8a8a;">◐</span><span style="flex:1;color:#141414;font-size:14px;">Thème sombre</span><span style="width:44px;height:26px;border-radius:100px;background:rgba(0,0,0,.14);position:relative;"><span style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;"></span></span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">🔔</span><span style="flex:1;color:#141414;font-size:14px;">Notifications</span><span style="width:44px;height:26px;border-radius:100px;background:#CE1141;position:relative;"><span style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:50%;background:#fff;"></span></span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">🌐</span><span style="flex:1;color:#141414;font-size:14px;">Langue</span><span style="color:#8a8a8a;font-size:13px;">Français ›</span></div>
+          </div></div>
+          <div><div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-bottom:8px;">À PROPOS</div><div style="border-radius:14px;overflow:hidden;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div style="display:flex;align-items:center;gap:12px;padding:14px 15px;"><span style="width:18px;color:#8a8a8a;">?</span><span style="flex:1;color:#141414;font-size:14px;">Guide &amp; aide</span><span style="color:#6c6c6c;">›</span></div><div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">§</span><span style="flex:1;color:#141414;font-size:14px;">CGV</span><span style="color:#6c6c6c;">›</span></div></div></div>
+          <button style="height:48px;border-radius:14px;border:1px solid rgba(206,17,65,.4);background:rgba(206,17,65,.08);color:#CE1141;font-size:14px;font-weight:700;cursor:pointer;">Se déconnecter</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- PARTAGE COLLEC -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">PARTAGE COLLEC · carte à partager</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 20px 12px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:18px;">✕</div><span style="color:#141414;font-size:16px;font-weight:800;">Partager ma collec</span><span style="width:40px;"></span></div>
+        <div style="flex:1;overflow:hidden;padding:4px 20px 20px;display:flex;flex-direction:column;">
+          <!-- shareable holo card -->
+          <div style="border-radius:22px;padding:3px;background:linear-gradient(120deg,#F6C560,#FFF6D0,#E7A93C,#8fd6d0,#f3a9c7,#FDE9A6);background-size:220% 220%;animation:holoShift 6s linear infinite;box-shadow:0 0 40px rgba(246,197,96,.22);">
+            <div style="border-radius:19px;background:linear-gradient(160deg,#ffffff,#f4f4f4);padding:20px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;"><div class="lab" style="color:#CE1141;font-size:11px;letter-spacing:2px;font-weight:700;">SHOOSERIE</div><div class="lab" style="font-size:9px;font-weight:700;color:#0a0a0a;background:linear-gradient(120deg,#F6C560,#E7A93C);padding:4px 9px;border-radius:6px;">GRAIL CAPTAIN</div></div>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:18px;"><div style="width:60px;height:60px;border-radius:18px;background:radial-gradient(circle,#f8efd6,#ece1c2);border:1px solid #F6C560;"></div><div><div style="color:#141414;font-size:22px;font-weight:900;">@toi</div><div class="lab" style="color:#8a8a8a;font-size:11px;">Paris · depuis 2023</div></div></div>
+              <div style="display:flex;gap:12px;margin-top:20px;"><div style="flex:1;text-align:center;padding:12px 0;border-radius:12px;background:rgba(0,0,0,.04);"><div style="color:#141414;font-size:22px;font-weight:900;">42</div><div class="lab" style="color:#8a8a8a;font-size:9px;">PAIRES</div></div><div style="flex:1;text-align:center;padding:12px 0;border-radius:12px;background:rgba(246,197,96,.14);"><div style="color:#9a7b1e;font-size:22px;font-weight:900;">3</div><div class="lab" style="color:#8a8a8a;font-size:9px;">GRAILS</div></div><div style="flex:1;text-align:center;padding:12px 0;border-radius:12px;background:rgba(29,66,138,.16);"><div style="color:#33589f;font-size:22px;font-weight:900;">15k€</div><div class="lab" style="color:#8a8a8a;font-size:9px;">VALEUR</div></div></div>
+              <div style="display:flex;align-items:center;gap:10px;margin-top:18px;"><div style="width:44px;height:44px;border-radius:8px;background:#fff;display:flex;align-items:center;justify-content:center;color:#0a0a0a;font-size:9px;font-weight:700;">QR</div><div class="lab" style="color:#8a8a8a;font-size:11px;">shooserie.app/u/toi</div></div>
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:18px;">
+            <button style="flex:1;height:50px;border-radius:14px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:13px;font-weight:700;cursor:pointer;">Enregistrer</button>
+            <button style="flex:1.4;height:50px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:14px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);">Partager en story</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+<!-- ================= HORS NAVIGATION ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 60px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#6c6c6c;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">Hors navigation</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Auth · CGV · Guide · Admin</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- CONNEXION -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">CONNEXION</div>
+      <div class="scr">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 18%,rgba(206,17,65,.25),transparent 55%);"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="position:relative;flex:1;padding:0 26px 26px;display:flex;flex-direction:column;justify-content:center;">
+          <!-- logo mark -->
+          <div style="text-align:center;margin-bottom:28px;">
+            <div style="width:96px;height:96px;border-radius:26px;background:#111;border:1px solid rgba(0,0,0,.12);margin:0 auto;display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+              <svg width="66" height="66" viewBox="0 0 160 160"><rect x="28.3" y="45" width="103.4" height="19.22" rx="5.6" fill="#FFFFFF"></rect><rect x="33" y="56.22" width="94" height="54.78" rx="8" fill="#FFFFFF"></rect><rect x="50.7" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="55.5" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="63.1" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="67.9" y="67.22" width="7" height="26" fill="#0A0A0A"></rect><rect x="76.9" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="81.7" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect><rect x="87.9" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="92.7" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="100.3" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect><rect x="106.5" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect></svg>
+            </div>
+            <div style="color:#141414;font-size:26px;font-weight:900;letter-spacing:-1px;margin-top:16px;">SH<span style="color:#CE1141;">OO</span>SERIE</div>
+            <div class="lab" style="color:#8a8a8a;font-size:12px;margin-top:4px;">Ta collection. Ta légende.</div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:11px;">
+            <div style="padding:15px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#8a8a8a;font-size:14px;">Email</div>
+            <div style="padding:15px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#8a8a8a;font-size:14px;display:flex;justify-content:space-between;">Mot de passe <span>◡</span></div>
+            <button style="height:52px;border-radius:13px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);margin-top:4px;">Se connecter</button>
+            <div style="text-align:center;color:#8a8a8a;font-size:12px;margin:6px 0;">— ou —</div>
+            <button style="height:50px;border-radius:13px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:14px;font-weight:600;cursor:pointer;">Continuer avec Google</button>
+          </div>
+          <div style="text-align:center;margin-top:20px;color:#8a8a8a;font-size:13px;">Pas de compte ? <a href="#">Créer</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RESET MOT DE PASSE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">RESET MOT DE PASSE</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 10px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div></div>
+        <div style="flex:1;padding:8px 26px 26px;display:flex;flex-direction:column;">
+          <div style="width:64px;height:64px;border-radius:18px;background:rgba(206,17,65,.12);border:1px solid rgba(206,17,65,.4);display:flex;align-items:center;justify-content:center;color:#CE1141;font-size:28px;">✉</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;margin-top:18px;">Mot de passe oublié ?</div>
+          <div style="color:#8a8a8a;font-size:14px;line-height:1.55;margin-top:8px;">Entre ton email, on t'envoie un lien pour réinitialiser ton mot de passe.</div>
+          <div style="padding:15px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(206,17,65,.4);color:#141414;font-size:14px;margin-top:22px;">toi@email.com</div>
+          <button style="height:52px;border-radius:13px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);margin-top:14px;">Envoyer le lien</button>
+          <div style="text-align:center;margin-top:auto;color:#8a8a8a;font-size:13px;">Tu t'en souviens ? <a href="#">Se connecter</a></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CALLBACK AUTH -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">CALLBACK AUTH · transition</div>
+      <div class="scr">
+        <div style="position:absolute;inset:0;background:radial-gradient(circle at 50% 45%,rgba(206,17,65,.2),transparent 60%);"></div>
+        <div style="position:relative;display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="position:relative;flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;">
+          <div style="width:80px;height:80px;border-radius:24px;background:#111;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;animation:floatY 3s ease-in-out infinite;">
+            <svg width="52" height="52" viewBox="0 0 160 160"><rect x="28.3" y="45" width="103.4" height="19.22" rx="5.6" fill="#FFFFFF"></rect><rect x="33" y="56.22" width="94" height="54.78" rx="8" fill="#FFFFFF"></rect><rect x="55.5" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="92.7" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="50.7" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="63.1" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="67.9" y="67.22" width="7" height="26" fill="#0A0A0A"></rect><rect x="100.3" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect></svg>
+          </div>
+          <div style="width:38px;height:38px;border-radius:50%;border:3px solid rgba(0,0,0,.12);border-top-color:#CE1141;animation:holoShift 1s linear infinite;"></div>
+          <div style="text-align:center;"><div style="color:#141414;font-size:16px;font-weight:700;">Connexion en cours…</div><div class="lab" style="color:#8a8a8a;font-size:12px;margin-top:4px;">On prépare ta collection</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CGV -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">CGV · document légal</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 12px;border-bottom:1px solid rgba(0,0,0,.09);"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">CGV</span></div>
+        <div style="flex:1;overflow:hidden;padding:18px 22px;">
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;">MISE À JOUR · 01/06/2026</div>
+          <div style="color:#141414;font-size:15px;font-weight:800;margin-top:14px;">1. Objet</div>
+          <div style="color:#9a9a9a;font-size:13px;line-height:1.7;margin-top:6px;">Les présentes conditions régissent l'utilisation de Shooserie et de sa marketplace entre collectionneurs de sneakers.</div>
+          <div style="color:#141414;font-size:15px;font-weight:800;margin-top:16px;">2. Transactions</div>
+          <div style="color:#9a9a9a;font-size:13px;line-height:1.7;margin-top:6px;">Shooserie agit comme intermédiaire. Les paiements sont sécurisés et libérés au vendeur après réception confirmée par l'acheteur.</div>
+          <div style="color:#141414;font-size:15px;font-weight:800;margin-top:16px;">3. Authenticité</div>
+          <div style="color:#9a9a9a;font-size:13px;line-height:1.7;margin-top:6px;">Le vendeur garantit l'authenticité des paires mises en vente. Toute contrefaçon entraîne la suspension du compte.</div>
+        </div>
+        <div style="padding:14px 20px 24px;border-top:1px solid rgba(0,0,0,.09);"><button style="width:100%;height:50px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:14px;font-weight:800;cursor:pointer;">J'accepte les CGV</button></div>
+      </div>
+    </div>
+
+    <!-- GUIDE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">GUIDE · aide (rangs, raretés…)</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 10px;"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">Guide &amp; aide</span></div>
+        <div style="flex:1;overflow:hidden;padding:6px 20px 20px;">
+          <div style="padding:12px 14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#8a8a8a;font-size:14px;">⌕ Rechercher dans l'aide…</div>
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-top:16px;">LES 4 SYSTÈMES</div>
+          <div style="display:flex;flex-direction:column;gap:9px;margin-top:10px;">
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;background:rgba(29,66,138,.12);border:1px solid rgba(29,66,138,.35);"><img src="app-icons/rangs/rang-7-general-og.svg" alt="Rangs" style="width:30px;height:33px;"><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Rangs</div><div class="lab" style="color:#8a8a8a;font-size:10px;">activité · Rookie → General OG</div></div><span style="color:#6c6c6c;">›</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);"><img src="app-icons/badges/badge-7-king.svg" alt="Badges" style="width:34px;height:34px;"><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Badges</div><div class="lab" style="color:#8a8a8a;font-size:10px;">type de collectionneur</div></div><span style="color:#6c6c6c;">›</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;background:rgba(147,120,220,.1);border:1px solid rgba(147,120,220,.3);"><img src="app-icons/facettes/facette-pure-collector.svg" alt="Facettes" style="height:26px;"><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Facettes</div><div class="lab" style="color:#8a8a8a;font-size:10px;">traits de ta collec</div></div><span style="color:#6c6c6c;">›</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:13px;background:rgba(246,197,96,.1);border:1px solid rgba(246,197,96,.35);"><span style="width:34px;height:34px;border-radius:9px;background:rgba(246,197,96,.2);display:flex;align-items:center;justify-content:center;color:#9a7b1e;font-size:16px;">★</span><div style="flex:1;"><div style="color:#141414;font-size:13px;font-weight:700;">Rareté</div><div class="lab" style="color:#8a8a8a;font-size:10px;">métaux · commune → grail</div></div><span style="color:#6c6c6c;">›</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">ADMIN · dashboard</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 12px;border-bottom:1px solid rgba(0,0,0,.09);"><span style="color:#141414;font-size:17px;font-weight:800;">Admin</span><span class="lab" style="font-size:9px;color:#CE1141;background:rgba(206,17,65,.14);border:1px solid rgba(206,17,65,.4);padding:3px 8px;border-radius:6px;margin-left:auto;">STAFF</span></div>
+        <div style="flex:1;overflow:hidden;padding:14px 20px;">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div class="lab" style="color:#8a8a8a;font-size:10px;">UTILISATEURS</div><div style="color:#141414;font-size:24px;font-weight:900;">12 480</div><div style="color:#4ADE80;font-size:11px;">▲ +214 / 7j</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div class="lab" style="color:#8a8a8a;font-size:10px;">GMV / MOIS</div><div style="color:#141414;font-size:24px;font-weight:900;">184k€</div><div style="color:#4ADE80;font-size:11px;">▲ +9%</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(246,197,96,.1);border:1px solid rgba(246,197,96,.3);"><div class="lab" style="color:#8a8a8a;font-size:10px;">SIGNALEMENTS</div><div style="color:#9a7b1e;font-size:24px;font-weight:900;">7</div><div style="color:#8a8a8a;font-size:11px;">à traiter</div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div class="lab" style="color:#8a8a8a;font-size:10px;">ANNONCES</div><div style="color:#141414;font-size:24px;font-weight:900;">3 902</div><div style="color:#8a8a8a;font-size:11px;">actives</div></div>
+          </div>
+          <div class="lab" style="color:#8a8a8a;font-size:10px;letter-spacing:1px;margin-top:18px;">RACCOURCIS</div>
+          <div style="display:flex;flex-direction:column;gap:2px;margin-top:10px;border-radius:14px;overflow:hidden;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);">
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;"><span style="width:18px;color:#8a8a8a;">◈</span><span style="flex:1;color:#141414;font-size:14px;">Gérer les commandes</span><span style="color:#6c6c6c;">›</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">◑</span><span style="flex:1;color:#141414;font-size:14px;">Modération utilisateurs</span><span style="color:#6c6c6c;">›</span></div>
+            <div style="display:flex;align-items:center;gap:12px;padding:14px 15px;border-top:1px solid rgba(0,0,0,.04);"><span style="width:18px;color:#8a8a8a;">◆</span><span style="flex:1;color:#141414;font-size:14px;">Base modèles &amp; cotes</span><span style="color:#6c6c6c;">›</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN COMMANDES -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">ADMIN COMMANDES</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="display:flex;align-items:center;gap:10px;padding:6px 20px 12px;border-bottom:1px solid rgba(0,0,0,.09);"><div style="width:40px;height:40px;border-radius:12px;border:1px solid rgba(0,0,0,.12);display:flex;align-items:center;justify-content:center;color:#141414;font-size:20px;">‹</div><span style="color:#141414;font-size:17px;font-weight:800;">Commandes</span></div>
+        <div style="flex:1;overflow:hidden;padding:12px 20px;">
+          <div style="display:flex;gap:8px;"><span style="padding:7px 13px;border-radius:100px;background:#CE1141;color:#fff;font-size:12px;font-weight:700;">Litiges</span><span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">En cours</span><span style="padding:7px 13px;border-radius:100px;background:rgba(0,0,0,.04);border:1px solid rgba(0,0,0,.12);color:#4a4a4a;font-size:12px;">Clôturées</span></div>
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:14px;">
+            <div style="padding:14px;border-radius:14px;background:rgba(206,17,65,.08);border:1px solid rgba(206,17,65,.35);"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="lab" style="color:#141414;font-size:12px;font-weight:700;">#CMD-8842</span><span class="lab" style="font-size:9px;color:#CE1141;background:rgba(206,17,65,.16);padding:3px 8px;border-radius:6px;">LITIGE</span></div><div style="color:#141414;font-size:14px;font-weight:700;margin-top:8px;">Jordan 1 « Bred » · 640 €</div><div class="lab" style="color:#8a8a8a;font-size:11px;margin-top:3px;">@nims → @toi · « paire non conforme »</div><div style="display:flex;gap:8px;margin-top:11px;"><button style="flex:1;height:40px;border-radius:10px;border:1px solid rgba(0,0,0,.14);background:transparent;color:#141414;font-size:12px;font-weight:600;cursor:pointer;">Voir preuves</button><button style="flex:1;height:40px;border-radius:10px;border:none;background:#CE1141;color:#fff;font-size:12px;font-weight:700;cursor:pointer;">Trancher</button></div></div>
+            <div style="padding:14px;border-radius:14px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);"><div style="display:flex;justify-content:space-between;align-items:center;"><span class="lab" style="color:#141414;font-size:12px;font-weight:700;">#CMD-8839</span><span class="lab" style="font-size:9px;color:#9a7b1e;background:rgba(246,197,96,.14);padding:3px 8px;border-radius:6px;">REMBOURS.</span></div><div style="color:#3f3f3f;font-size:14px;font-weight:600;margin-top:8px;">Dunk Low Panda · 175 €</div><div class="lab" style="color:#8a8a8a;font-size:11px;margin-top:3px;">demande de remboursement · 2j</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section></x-dc>
+</body>
+</html>
+
+<!-- ================= ÉTATS ================= -->
+<section style="display:flex;flex-direction:column;gap:18px;padding:20px 48px 60px;background:#ececec;font-family:'Outfit',sans-serif;">
+  <div style="display:flex;align-items:center;gap:12px;">
+    <span style="width:10px;height:10px;border-radius:3px;background:#6c6c6c;"></span>
+    <span style="color:#141414;font-size:19px;font-weight:800;">États</span>
+    <span class="lab" style="color:#6c6c6c;font-size:12px;">Collection vide · Chargement · Aucun résultat · Hors-ligne</span>
+  </div>
+  <div style="display:flex;gap:44px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- COLLECTION VIDE -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">COLLECTION VIDE</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 36px 82px;">
+          <div style="width:104px;height:104px;border-radius:30px;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:center;opacity:.75;"><svg width="52" height="52" viewBox="0 0 160 160"><rect x="28.3" y="45" width="103.4" height="19.22" rx="5.6" fill="#FFFFFF"></rect><rect x="33" y="56.22" width="94" height="54.78" rx="8" fill="#FFFFFF"></rect><rect x="55.5" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="92.7" y="67.22" width="5.6" height="26" fill="#CE1141"></rect><rect x="50.7" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="63.1" y="67.22" width="2.8" height="26" fill="#0A0A0A"></rect><rect x="67.9" y="67.22" width="7" height="26" fill="#0A0A0A"></rect><rect x="100.3" y="67.22" width="4.2" height="26" fill="#0A0A0A"></rect></svg></div>
+          <div style="color:#141414;font-size:21px;font-weight:800;margin-top:20px;letter-spacing:-.4px;">Ta collection est vide</div>
+          <div style="color:#8a8a8a;font-size:13px;line-height:1.55;margin-top:8px;">Ajoute ta première paire pour lancer ta collection, débloquer ton rang Rookie et commencer à grimper.</div>
+          <button style="width:100%;height:52px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;box-shadow:0 8px 22px rgba(206,17,65,.4);margin-top:22px;">Ajouter ma première paire</button>
+          <button style="width:100%;height:50px;border-radius:14px;border:1px solid rgba(0,0,0,.14);background:rgba(0,0,0,.04);color:#141414;font-size:14px;font-weight:700;cursor:pointer;margin-top:10px;">Scanner une boîte</button>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div><div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div></div>
+      </div>
+    </div>
+
+    <!-- CHARGEMENT (skeleton) -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">CHARGEMENT · skeleton</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;overflow:hidden;padding:8px 18px 82px;">
+          <div style="width:120px;height:12px;border-radius:100px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+          <div style="width:170px;height:26px;border-radius:8px;margin-top:8px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+          <div style="height:92px;border-radius:18px;margin-top:16px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+          <div style="display:flex;gap:8px;margin-top:14px;"><div style="width:64px;height:32px;border-radius:100px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div><div style="width:74px;height:32px;border-radius:100px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div><div style="width:58px;height:32px;border-radius:100px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px;">
+            <div style="height:150px;border-radius:16px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+            <div style="height:150px;border-radius:16px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+            <div style="height:150px;border-radius:16px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+            <div style="height:150px;border-radius:16px;background:linear-gradient(90deg,rgba(0,0,0,.04),rgba(0,0,0,.1),rgba(0,0,0,.04));background-size:200% 100%;animation:holoShift 1.4s linear infinite;"></div>
+          </div>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div><div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div></div>
+      </div>
+    </div>
+
+    <!-- AUCUN RÉSULTAT -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">AUCUN RÉSULTAT · marketplace</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="padding:8px 18px 0;">
+          <div class="lab" style="color:#CE1141;font-size:10px;letter-spacing:2px;font-weight:700;">MARKETPLACE</div>
+          <div style="color:#141414;font-size:24px;font-weight:900;letter-spacing:-.6px;">Parcourir</div>
+          <div style="margin-top:12px;padding:12px 14px;border-radius:13px;background:rgba(0,0,0,.04);border:1px solid rgba(206,17,65,.4);color:#141414;font-size:14px;display:flex;align-items:center;gap:8px;"><span style="color:#CE1141;">⌕</span> jordan 4 thunder &lt; 100€ <span style="margin-left:auto;color:#8a8a8a;">✕</span></div>
+        </div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 40px 82px;">
+          <div style="width:88px;height:88px;border-radius:50%;background:rgba(0,0,0,.03);border:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:center;color:#5a5a5a;font-size:38px;">⌕</div>
+          <div style="color:#141414;font-size:19px;font-weight:800;margin-top:18px;">Aucune paire trouvée</div>
+          <div style="color:#8a8a8a;font-size:13px;line-height:1.55;margin-top:8px;">Aucune annonce ne correspond à ta recherche. Élargis ta fourchette de prix ou réinitialise les filtres.</div>
+          <button style="height:48px;padding:0 22px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:14px;font-weight:800;cursor:pointer;margin-top:20px;">Réinitialiser les filtres</button>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div><div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div></div>
+      </div>
+    </div>
+
+    <!-- HORS-LIGNE / ERREUR -->
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="lab" style="color:#8a8a8a;font-size:12px;letter-spacing:1px;">HORS-LIGNE · erreur</div>
+      <div class="scr">
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:15px 22px 4px;"><span class="lab" style="color:#141414;font-size:14px;font-weight:700;">9:41</span><span class="lab" style="color:#141414;font-size:11px;">▂▄▆ 5G ▮86</span></div>
+        <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 40px 82px;">
+          <div style="width:96px;height:96px;border-radius:28px;background:rgba(206,17,65,.1);border:1px solid rgba(206,17,65,.4);display:flex;align-items:center;justify-content:center;color:#CE1141;font-size:40px;">⚡</div>
+          <div style="color:#141414;font-size:21px;font-weight:800;margin-top:20px;letter-spacing:-.4px;">Connexion perdue</div>
+          <div style="color:#8a8a8a;font-size:13px;line-height:1.55;margin-top:8px;">Impossible de charger ta collection. Vérifie ta connexion internet et réessaie.</div>
+          <button style="height:50px;padding:0 26px;border-radius:14px;border:none;background:#CE1141;color:#fff;font-size:15px;font-weight:800;cursor:pointer;margin-top:22px;box-shadow:0 8px 22px rgba(206,17,65,.4);">↻ Réessayer</button>
+        </div>
+        <div style="position:absolute;bottom:0;left:0;right:0;height:74px;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-top:1px solid rgba(0,0,0,.09);display:flex;align-items:center;justify-content:space-around;padding:0 12px 8px;"><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#CE1141;"><span style="font-size:19px;">▦</span><span class="lab" style="font-size:8px;">Collec</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◎</span><span class="lab" style="font-size:8px;">Commu</span></div><div style="width:50px;height:50px;border-radius:16px;background:#CE1141;color:#fff;font-size:26px;display:flex;align-items:center;justify-content:center;margin-top:-16px;box-shadow:0 8px 20px rgba(206,17,65,.5);">+</div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◈</span><span class="lab" style="font-size:8px;">Marché</span></div><div style="display:flex;flex-direction:column;align-items:center;gap:3px;color:#6c6c6c;"><span style="font-size:19px;">◑</span><span class="lab" style="font-size:8px;">Profil</span></div></div>
+      </div>
+    </div>
+
+  </div>
+</section>
