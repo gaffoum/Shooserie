@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useMarketplaceSneakers } from '../lib/queries'
 import { useT } from '@/i18n/I18nContext'
+import { SneakerPhoto } from '@/components/SneakerPhoto'
 
 type ViewMode = 'grid' | 'list'
 
@@ -113,15 +114,11 @@ export function Marketplace() {
             <Link key={s.id} to={`/marketplace/${s.id}`} style={cardLinkStyle}>
               <div style={cardStyle}>
                 <div style={cardImageWrapStyle}>
-                  {s.photo_url ? (
-                    <img src={s.photo_url} alt={s.name}
-                         style={cardImageStyle} />
-                  ) : s.stockx_image_url ? (
-                    <img src={s.stockx_image_url} alt={s.name}
-                         style={cardImageStyle} />
-                  ) : (
-                    <div style={cardImagePlaceholderStyle}>👟</div>
-                  )}
+                  <SneakerPhoto
+                    stockxUrl={s.stockx_image_url}
+                    storagePath={s.photo_url}
+                    alt={s.name}
+                  />
                 </div>
                 <div style={cardBodyStyle}>
                   <div style={cardBrandStyle}>{s.brand}</div>
@@ -151,15 +148,11 @@ export function Marketplace() {
             <Link key={s.id} to={`/marketplace/${s.id}`} style={listRowLinkStyle}>
               <div style={listRowStyle}>
                 <div style={listImageWrapStyle}>
-                  {s.photo_url ? (
-                    <img src={s.photo_url} alt={s.name}
-                         style={listImageStyle} />
-                  ) : s.stockx_image_url ? (
-                    <img src={s.stockx_image_url} alt={s.name}
-                         style={listImageStyle} />
-                  ) : (
-                    <div style={listImagePlaceholderStyle}>👟</div>
-                  )}
+                  <SneakerPhoto
+                    stockxUrl={s.stockx_image_url}
+                    storagePath={s.photo_url}
+                    alt={s.name}
+                  />
                 </div>
                 <div style={listInfoStyle}>
                   <div style={listBrandStyle}>{s.brand}</div>
@@ -305,22 +298,10 @@ const cardStyle: React.CSSProperties = {
 }
 
 const cardImageWrapStyle: React.CSSProperties = {
+  position: 'relative',
   aspectRatio: '1 / 1',
   background: 'var(--color-bg)',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const cardImageStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-}
-
-const cardImagePlaceholderStyle: React.CSSProperties = {
-  fontSize: 48,
-  opacity: 0.4,
+  overflow: 'hidden',
 }
 
 const cardBodyStyle: React.CSSProperties = {
@@ -384,26 +365,13 @@ const listRowStyle: React.CSSProperties = {
 }
 
 const listImageWrapStyle: React.CSSProperties = {
+  position: 'relative',
   width: 80,
   height: 80,
   flexShrink: 0,
   background: 'var(--color-bg)',
   borderRadius: 8,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
   overflow: 'hidden',
-}
-
-const listImageStyle: React.CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'contain',
-}
-
-const listImagePlaceholderStyle: React.CSSProperties = {
-  fontSize: 28,
-  opacity: 0.4,
 }
 
 const listInfoStyle: React.CSSProperties = {

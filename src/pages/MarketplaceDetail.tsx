@@ -6,7 +6,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { useMarketplaceSneaker, useCreateOrGetConversation } from '@/lib/queries'
 import { formatEur } from '@/lib/format'
-import { PhotoPlaceholder } from '@/components/PhotoPlaceholder'
+import { SneakerPhoto } from '@/components/SneakerPhoto'
 import { wearStatus } from '@/lib/wears'
 
 /**
@@ -62,7 +62,6 @@ export function MarketplaceDetail() {
     )
   }
 
-  const photo = (sneaker as any).photo_url ?? (sneaker as any).stockx_image_url
   const price = (sneaker as any).target_sale_price ?? (sneaker as any).market_price
 
   return (
@@ -72,11 +71,11 @@ export function MarketplaceDetail() {
         <div style={layoutStyle}>
           {/* Photo */}
           <div style={photoWrapStyle}>
-            {photo ? (
-              <img src={photo} alt={sneaker.name} style={photoStyle} />
-            ) : (
-              <PhotoPlaceholder />
-            )}
+            <SneakerPhoto
+              stockxUrl={(sneaker as any).stockx_image_url}
+              storagePath={(sneaker as any).photo_url}
+              alt={sneaker.name}
+            />
           </div>
 
           {/* Details */}
@@ -181,21 +180,13 @@ const layoutStyle: CSSProperties = {
 }
 
 const photoWrapStyle: CSSProperties = {
+  position: 'relative',
   width: '100%',
   aspectRatio: '1 / 1',
   background: 'var(--color-card)',
   border: '1px solid var(--color-border)',
   borderRadius: 'var(--radius-lg)',
   overflow: 'hidden',
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-}
-
-const photoStyle: CSSProperties = {
-  width: '100%',
-  height: '100%',
-  objectFit: 'cover',
 }
 
 const detailsStyle: CSSProperties = {
