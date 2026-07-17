@@ -6,23 +6,26 @@
 :root {
   /* === Colors === */
   /* Surfaces */
-  --color-bg: #F5F5F5;
+  --color-bg: #ECECEC;               /* handoff Light canvas */
   --color-surface: #FFFFFF;
   --color-surface-alt: #FAFAFA;
-  --color-border: #E8E8E8;
-  --color-border-strong: #D4D4D4;
+  --color-border: #E0E0E0;
+  --color-border-strong: #CFCFCF;
 
   /* Text */
-  --color-text: #0A0A0A;
+  --color-text: #141414;             /* handoff Light texte principal */
   --color-text-muted: #6B7280;
   --color-text-faint: #A0A0A0;
 
-  /* Brand accents — Jordan OG */
+  /* Brand accents — Jordan Bred */
   --color-bred: #CE1141;             /* Bred Red, accent principal & plus-values */
+  --color-bred-hover: #E8657F;       /* hover/clair (handoff) */
   --color-bred-bg: rgba(206, 17, 65, 0.10);
   --color-royal: #1D428A;            /* Royal Blue, accents secondaires */
   --color-royal-dark: #0C2340;
   --color-university: #75B2DD;       /* University Blue, hover/highlight */
+  --color-label-blue: #33589F;       /* bleu label sur fond clair (handoff) */
+  --color-success: #4ADE80;          /* vert gain (handoff) */
 
   /* Sparkline colors */
   --color-up: #16A34A;
@@ -35,11 +38,41 @@
 
   /* === Typography === */
   --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  --font-body: 'Inter', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* Corps de texte : Outfit auto-hébergé (Inter/Google retiré — RGPD/perf) */
+  --font-body: 'Outfit', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  /* Labels / codes (handoff « .lab ») — mono, uppercase, letter-spacing */
+  --font-mono: 'Space Mono', ui-monospace, 'SFMono-Regular', 'Menlo', monospace;
 
   --tracking-wide: 0.06em;
   --tracking-wider: 0.12em;
   --tracking-widest: 0.22em;
+
+  /* === Design System « TCG premium » (handoff Niveau 2) ===
+   * Tokens PARTAGÉS aux deux thèmes (métaux de rareté, grail, nav).
+   * Les couleurs dépendantes du thème sont dans :root (Light) et
+   * [data-theme='dark'] plus bas. */
+
+  /* Raretés « métaux » — SOURCE DE VÉRITÉ = handoff (diffère de l'ancien mapping) */
+  --rarity-commune: #4B5563;        /* acier */
+  --rarity-peu-commune: #B87333;    /* bronze */
+  --rarity-rare: #C0C0C0;           /* argent */
+  --rarity-ultra-rare: #1D428A;     /* bleu roi */
+  --rarity-grail: #E7A93C;          /* or (couleur d'appui ; le rendu animé = .holo-grail) */
+
+  /* Or holographique (grail) — stops du dégradé animé holoShift */
+  --grail-1: #F6C560;
+  --grail-2: #FFF6D0;
+  --grail-3: #E7A93C;
+  --grail-4: #FDE9A6;
+
+  /* Navigation basse (5 destinations + FAB) */
+  --nav-height: 74px;
+  --nav-safe-pad: calc(var(--nav-height) + 12px + var(--safe-bottom, 0px)); /* réserve scroll */
+  --nav-inactive: #6C6C6C;
+
+  /* Rayons additionnels (handoff) */
+  --radius-card: 16px;
+  --radius-btn: 14px;
 
   /* === Spacing (8px grid) === */
   --space-1: 4px;
@@ -71,23 +104,26 @@
   --safe-right: env(safe-area-inset-right, 0px);
 }
 
-/* === Thème sombre === */
+/* === Thème sombre (source de vérité du handoff) === */
 [data-theme='dark'] {
-  --color-bg: #0E0E11;
+  --color-bg: #0A0A0A;               /* handoff Dark canvas */
   --color-surface: #17161D;
   --color-surface-alt: #1E1D26;
   --color-border: #2A2A32;
   --color-border-strong: #3A3A44;
 
-  --color-text: #F2F2F5;
-  --color-text-muted: #9A9AA4;
-  --color-text-faint: #6F6F78;
+  --color-text: #F2F2F2;             /* handoff Dark texte principal */
+  --color-text-muted: #8A8A8A;
+  --color-text-faint: #6C6C6C;
 
   --color-bred: #CE1141;              /* conservé, pop suffisant sur fond sombre */
+  --color-bred-hover: #E8657F;
   --color-bred-bg: rgba(206, 17, 65, 0.18);
   --color-royal: #5B8AD4;             /* éclairci pour rester lisible sur sombre */
   --color-royal-dark: #12305C;
   --color-university: #75B2DD;
+  --color-label-blue: #9FB4DD;       /* bleu label sur fond sombre (handoff) */
+  --color-success: #4ADE80;
 
   --color-up: #22C55E;
   --color-down: #F05252;

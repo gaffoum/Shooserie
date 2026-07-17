@@ -1,0 +1,107 @@
+/*
+ * Design System « TCG premium » (handoff Niveau 2) — animations & utilitaires.
+ * Classes réutilisables branchées sur les tokens (tokens.css). Chargé après
+ * tokens.css via index.css.
+ */
+
+/* ============================================================
+   Keyframes
+   ============================================================ */
+
+/* Or holographique du grail : balaie le dégradé (6s). */
+@keyframes holoShift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Flottement produit (sneaker héros). */
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+/* Halo rouge pulsé sous la sneaker. */
+@keyframes ringPulse {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 0.9; transform: scale(1.06); }
+}
+
+/* Skeleton de chargement : balayage clair (1.4s). */
+@keyframes skeletonShift {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* ============================================================
+   Utilitaires
+   ============================================================ */
+
+/* Label mono du handoff : Space Mono, uppercase, tracking. */
+.lab {
+  font-family: var(--font-mono);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 400;
+}
+
+/* Surface / texte or holographique animé (grail).
+   .holo-grail        → fond doré animé (bord/badge de carte grail)
+   .holo-grail-text   → texte doré animé (clip) */
+.holo-grail {
+  background: linear-gradient(
+    115deg,
+    var(--grail-1),
+    var(--grail-2) 25%,
+    var(--grail-3) 50%,
+    var(--grail-4) 75%,
+    var(--grail-1)
+  );
+  background-size: 300% 300%;
+  animation: holoShift 6s ease infinite;
+}
+.holo-grail-text {
+  background: linear-gradient(
+    115deg,
+    var(--grail-1),
+    var(--grail-2) 25%,
+    var(--grail-3) 50%,
+    var(--grail-4) 75%,
+    var(--grail-1)
+  );
+  background-size: 300% 300%;
+  animation: holoShift 6s ease infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.anim-floatY { animation: floatY 6s ease-in-out infinite; }
+.anim-ringPulse { animation: ringPulse 3.2s ease-in-out infinite; }
+
+/* Bloc squelette (chargement). */
+.skeleton {
+  background: linear-gradient(
+    100deg,
+    var(--color-surface-alt) 30%,
+    var(--color-border) 50%,
+    var(--color-surface-alt) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShift 1.4s linear infinite;
+  border-radius: var(--radius-md);
+}
+
+/* ============================================================
+   Accessibilité — prefers-reduced-motion : fige les animations
+   décoratives (le grail reste doré, mais statique).
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .holo-grail,
+  .holo-grail-text,
+  .anim-floatY,
+  .anim-ringPulse,
+  .skeleton {
+    animation: none !important;
+  }
+}

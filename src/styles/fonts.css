@@ -1,0 +1,65 @@
+/*
+ * Polices auto-hébergées (woff2 dans public/fonts/). Aucun appel externe :
+ * conformité RGPD + perf (pas de Google Fonts en prod). font-display: swap
+ * pour éviter le FOIT. Fallbacks system-ui gérés dans les tokens --font-*.
+ */
+
+/* === Outfit — titres / chiffres (400–900) === */
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-500.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-600.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-700.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 800;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-800.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 900;
+  font-display: swap;
+  src: url('/fonts/outfit-v15-latin-900.woff2') format('woff2');
+}
+
+/* === Space Mono — labels / codes (400, 700) === */
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/space-mono-v17-latin-regular.woff2') format('woff2');
+}
+@font-face {
+  font-family: 'Space Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/space-mono-v17-latin-700.woff2') format('woff2');
+}
