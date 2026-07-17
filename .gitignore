@@ -9,6 +9,10 @@ dist-ssr/
 build/
 *.local
 
+# Artefacts tsc -b (projet composite) — regeneres au build
+vite.config.js
+vite.config.d.ts
+
 # Environment variables
 .env
 .env.local
