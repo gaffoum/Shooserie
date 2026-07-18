@@ -197,22 +197,24 @@
   transform: skewX(-12deg);
 }
 
+/* rare = ARGENT (handoff) */
 .tcg-card.tcg-rare {
-  border: 1.5px solid #b06a34;
-  background: linear-gradient(135deg, #e6a56b, #8f5326 52%, #e6a56b);
-}
-.tcg-rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #a86a37, #3a2413); }
-.tcg-rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #3a2413, #150d06); border-color: #7c4e29; }
-.tcg-rare .tcg-plate { --metal: #b8763f; }
-.tcg-rare .tcg-m-sheen { animation: tcg-sheen 6s ease-in-out infinite; }
-
-.tcg-card.tcg-ultra_rare {
   border: 1.5px solid #9aa3ad;
   background: linear-gradient(135deg, #eef2f6, #787f88 52%, #eef2f6);
 }
-.tcg-ultra_rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #aab3bd, #2b2f34); }
-.tcg-ultra_rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #2b2f34, #14161a); border-color: #828a93; }
-.tcg-ultra_rare .tcg-plate { --metal: #c2c9d1; }
+.tcg-rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #aab3bd, #2b2f34); }
+.tcg-rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #2b2f34, #14161a); border-color: #828a93; }
+.tcg-rare .tcg-plate { --metal: #c2c9d1; }
+.tcg-rare .tcg-m-sheen { animation: tcg-sheen 6s ease-in-out infinite; }
+
+/* ultra_rare = BLEU ROI (handoff) */
+.tcg-card.tcg-ultra_rare {
+  border: 1.5px solid #2f5aa8;
+  background: linear-gradient(135deg, #3d6bc0, #12305c 52%, #3d6bc0);
+}
+.tcg-ultra_rare .tcg-m-frame { background: radial-gradient(120% 90% at 50% 36%, #2a4d8f, #0d1c38); }
+.tcg-ultra_rare .tcg-win { background: radial-gradient(120% 90% at 50% 40%, #0d1c38, #0a1121); border-color: #2f5aa8; }
+.tcg-ultra_rare .tcg-plate { --metal: #7ba0e0; }
 .tcg-ultra_rare .tcg-m-sheen { animation: tcg-sheen 5.2s ease-in-out infinite; }
 
 .tcg-card.tcg-grail {
@@ -248,10 +250,11 @@
 }
 .tcg-grail .tcg-m-sheen { animation: tcg-sheen 4.5s ease-in-out infinite; }
 
-.tcg-card.tcg-commune { border-color: #8a8a8a55; }
-.tcg-commune .tcg-plate { --metal: #5a5a5a; }
-.tcg-card.tcg-peu_commune { border-color: #2f9e4455; }
-.tcg-peu_commune .tcg-plate { --metal: #2f9e44; }
+/* commune = ACIER · peu_commune = BRONZE (handoff) */
+.tcg-card.tcg-commune { border-color: #4B556355; }
+.tcg-commune .tcg-plate { --metal: #6b7280; }
+.tcg-card.tcg-peu_commune { border-color: #B8733355; }
+.tcg-peu_commune .tcg-plate { --metal: #B87333; }
 .tcg-card.tcg-unknown { border-color: #33333388; }
 .tcg-unknown .tcg-plate { --metal: #333; }
 

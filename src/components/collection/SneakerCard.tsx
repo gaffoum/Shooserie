@@ -23,21 +23,24 @@ const TIER: Record<ClassedTier, { stars: number; label: string }> = {
 
 export const METAL_TIERS: RarityTier[] = ['rare', 'ultra_rare', 'grail']
 
-/** Couleur du métal/accent du tier (titre, séparateur, étoiles). */
+/** Couleur du métal/accent du tier (titre, séparateur, étoiles).
+ *  Métaux du handoff : commune=acier, peu_commune=bronze, rare=argent,
+ *  ultra_rare=bleu roi, grail=or. */
 export function starColor(r: RarityTier): string {
   return r === 'grail'
-    ? '#e7c257'
+    ? '#e7c257' // or
     : r === 'ultra_rare'
-      ? '#c2c9d1'
+      ? '#7ba0e0' // bleu roi (éclairci pour lisibilité sur fond sombre)
       : r === 'rare'
-        ? '#c9824c'
+        ? '#c2c9d1' // argent
         : r === 'peu_commune'
-          ? '#2f9e44'
-          : '#8a8a8a'
+          ? '#B87333' // bronze
+          : '#6b7280' // acier (commune / unknown)
 }
 
 function badgeText(r: RarityTier): string {
-  return r === 'grail' || r === 'rare' ? '#1a1206' : r === 'ultra_rare' ? '#1a1d22' : '#fff'
+  // Fond du badge = starColor : texte sombre sur métaux clairs, blanc sinon.
+  return r === 'grail' || r === 'rare' || r === 'ultra_rare' ? '#141414' : '#fff'
 }
 
 /** Classe CSS + flag métal d'une carte selon son tier. */
