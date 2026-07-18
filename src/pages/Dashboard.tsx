@@ -25,6 +25,7 @@ import { WelcomeHeader } from '../components/WelcomeHeader'
 import { LabelsButton } from '@/components/LabelsButton'
 import { BinderView } from '@/components/collection/BinderView'
 import { StarRankBadge } from '@/components/StarRankBadge'
+import { PortfolioHeader } from '@/components/PortfolioHeader'
 
 /* =====================================================
  * Sort keys — labels are dictionary keys, comparators below.
@@ -269,36 +270,56 @@ export function Dashboard() {
           </div>
         )}
 
-        {/* Étoiles + rang — visible en vue Portfolio uniquement.
-            Cliquable → page « Ma progression » (historique + paliers). */}
-        {pageMode === 'portfolio' && (
-          <div style={{ display: 'flex', marginBottom: 10 }}>
-            <Link
-              to="/progression"
-              style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
-              aria-label={t('progression.title')}
-            >
-              <StarRankBadge
-                starsTotal={myProfile?.stars_total}
-                rank={myProfile?.rank}
-              />
-            </Link>
-          </div>
-        )}
+        {pageMode === 'portfolio' ? (
+          <>
+            {/* En-tête handoff : Ma collection + bannière valeur estimée. */}
+            <PortfolioHeader
+              count={kpis.count}
+              totalMarket={kpis.totalMarket}
+              deltaPct={kpis.count > 0 ? kpis.deltaPct : null}
+            />
 
-        {/* KPIs — toujours visibles, même collection vide */}
-        <section style={kpiGridStyle}>
-          <KpiCard label={t('dashboard.kpi.pairs')} value={kpis.count} />
-          <KpiCard label={t('dashboard.kpi.investment')} value={formatEur(kpis.totalCost)} />
-          <KpiCard label={t('dashboard.kpi.currentValue')} value={formatEur(kpis.totalMarket)} />
-          <KpiCard
-            label={t('dashboard.kpi.plusValue')}
-            value={kpis.count > 0 ? formatEur(kpis.deltaEur, true) : '—'}
-            valueColor={kpis.count > 0 ? deltaColor(kpis.deltaEur) : undefined}
-            sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
-            sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
-          />
-        </section>
+            {/* Étoiles + rang — cliquable → « Ma progression ». */}
+            <div style={{ display: 'flex', marginBottom: 10 }}>
+              <Link
+                to="/progression"
+                style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
+                aria-label={t('progression.title')}
+              >
+                <StarRankBadge
+                  starsTotal={myProfile?.stars_total}
+                  rank={myProfile?.rank}
+                />
+              </Link>
+            </div>
+
+            {/* KPIs secondaires (la valeur estimée est déjà dans la bannière). */}
+            <section style={kpiGridStyle}>
+              <KpiCard label={t('dashboard.kpi.investment')} value={formatEur(kpis.totalCost)} />
+              <KpiCard
+                label={t('dashboard.kpi.plusValue')}
+                value={kpis.count > 0 ? formatEur(kpis.deltaEur, true) : '—'}
+                valueColor={kpis.count > 0 ? deltaColor(kpis.deltaEur) : undefined}
+                sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
+                sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
+              />
+            </section>
+          </>
+        ) : (
+          /* Mode Collection (classeur) — KPIs complets inchangés. */
+          <section style={kpiGridStyle}>
+            <KpiCard label={t('dashboard.kpi.pairs')} value={kpis.count} />
+            <KpiCard label={t('dashboard.kpi.investment')} value={formatEur(kpis.totalCost)} />
+            <KpiCard label={t('dashboard.kpi.currentValue')} value={formatEur(kpis.totalMarket)} />
+            <KpiCard
+              label={t('dashboard.kpi.plusValue')}
+              value={kpis.count > 0 ? formatEur(kpis.deltaEur, true) : '—'}
+              valueColor={kpis.count > 0 ? deltaColor(kpis.deltaEur) : undefined}
+              sub={kpis.count > 0 ? formatPct(kpis.deltaPct, true) : null}
+              sparkline={kpis.count > 0 ? <Sparkline points={timeline} /> : null}
+            />
+          </section>
+        )}
 
         {/* Community: top-owned models across all users. The component
             auto-hides if there's nothing in the leaderboard, so this slot

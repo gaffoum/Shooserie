@@ -98,6 +98,12 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Portfolio (en-tête handoff) ===
+  'dashboard.portfolio.label': 'Ma collection',
+  'dashboard.portfolio.pair': '{n} paire',
+  'dashboard.portfolio.pairs': '{n} paires',
+  'dashboard.portfolio.estValue': 'Valeur estimée',
+
   // === Landing (page d'accueil publique) ===
   'landing.title1': 'BUILT FOR',
   'landing.title2': 'THE',
@@ -608,6 +614,12 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Portfolio (handoff header) ===
+  'dashboard.portfolio.label': 'My collection',
+  'dashboard.portfolio.pair': '{n} pair',
+  'dashboard.portfolio.pairs': '{n} pairs',
+  'dashboard.portfolio.estValue': 'Estimated value',
 
   // === Landing (public home page) ===
   'landing.title1': 'BUILT FOR',

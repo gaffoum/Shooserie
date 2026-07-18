@@ -1,0 +1,59 @@
+/* En-tête Portfolio (handoff Niveau 2). Thème-aware via tokens. */
+
+.pf-header {
+  margin-bottom: 16px;
+}
+
+.pf-header__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.pf-header__eyebrow {
+  color: var(--color-bred);
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.pf-header__count {
+  color: var(--color-text);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.8px;
+  margin-top: 2px;
+}
+
+/* Bannière valeur estimée — dégradé Bred → Royal. */
+.pf-header__banner {
+  margin-top: 14px;
+  padding: 16px;
+  border-radius: 18px;
+  background: linear-gradient(120deg, rgba(206, 17, 65, 0.16), rgba(29, 66, 138, 0.12));
+  border: 1px solid var(--color-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.pf-header__banner-label {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.pf-header__value {
+  color: var(--color-text);
+  font-size: 30px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+}
+
+.pf-header__delta {
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
