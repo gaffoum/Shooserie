@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useT } from '@/i18n/I18nContext'
 import './Landing.css'
@@ -10,6 +11,7 @@ import './Landing.css'
  */
 export function Landing() {
   const { t } = useT()
+  const [heroFailed, setHeroFailed] = useState(false)
 
   return (
     <div className="landing">
@@ -38,15 +40,24 @@ export function Landing() {
         {/* Sneaker héros — slot à remplir (image produit détourée). */}
         <div className="landing__hero">
           <div className="landing__halo anim-ringPulse" aria-hidden />
-          <div className="landing__shoe anim-floatY" aria-hidden>
-            <svg viewBox="0 0 100 60" width="200" height="120" fill="none"
-                 stroke="rgba(255,255,255,0.5)" strokeWidth="2.2"
-                 strokeLinecap="round" strokeLinejoin="round">
-              <path d="M8,42 Q8,22 28,18 L48,16 Q58,16 64,20 L78,30 Q90,35 92,42 L92,48 Q92,52 88,52 L12,52 Q8,52 8,48 Z"
-                    fill="rgba(255,255,255,0.08)" stroke="none" />
-              <path d="M8,42 Q8,22 28,18 L48,16 Q58,16 64,20 L78,30 Q90,35 92,42 L92,48 Q92,52 88,52 L12,52 Q8,52 8,48 Z" />
-              <path d="M30,30 Q42,24 56,26" />
-            </svg>
+          <div className="landing__shoe anim-floatY">
+            {heroFailed ? (
+              <svg viewBox="0 0 100 60" width="200" height="120" fill="none" aria-hidden
+                   stroke="rgba(255,255,255,0.5)" strokeWidth="2.2"
+                   strokeLinecap="round" strokeLinejoin="round">
+                <path d="M8,42 Q8,22 28,18 L48,16 Q58,16 64,20 L78,30 Q90,35 92,42 L92,48 Q92,52 88,52 L12,52 Q8,52 8,48 Z"
+                      fill="rgba(255,255,255,0.08)" stroke="none" />
+                <path d="M8,42 Q8,22 28,18 L48,16 Q58,16 64,20 L78,30 Q90,35 92,42 L92,48 Q92,52 88,52 L12,52 Q8,52 8,48 Z" />
+                <path d="M30,30 Q42,24 56,26" />
+              </svg>
+            ) : (
+              <img
+                src="/hero/jordan1-bred.png"
+                alt="Air Jordan 1 Bred"
+                className="landing__shoe-img"
+                onError={() => setHeroFailed(true)}
+              />
+            )}
           </div>
         </div>
 

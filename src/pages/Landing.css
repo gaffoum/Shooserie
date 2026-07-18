@@ -86,6 +86,12 @@
   z-index: 1;
   filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.5));
 }
+.landing__shoe-img {
+  display: block;
+  width: min(78vw, 340px);
+  height: auto;
+  object-fit: contain;
+}
 
 .landing__copy {
   margin-top: 8px;
