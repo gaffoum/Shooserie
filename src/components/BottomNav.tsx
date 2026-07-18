@@ -11,9 +11,8 @@ import './BottomNav.css'
  * flux Ajouter (scan). Les pages non encore restylées gardent leur rendu.
  */
 
-// Préfixes où la nav est MASQUÉE (auth, public, flux Ajouter/scan, messagerie
-// — le champ de saisie collant y récupère tout l'espace bas).
-const HIDDEN_PREFIXES = ['/login', '/reset-password', '/share', '/sneakers/new', '/messages']
+// Préfixes où la nav est MASQUÉE (auth, public, flux Ajouter/scan).
+const HIDDEN_PREFIXES = ['/login', '/reset-password', '/share', '/sneakers/new']
 
 interface Dest {
   key: string

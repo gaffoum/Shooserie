@@ -1,21 +1,38 @@
 /*
  * Messagerie — layout responsive. Desktop : deux colonnes (liste + fil).
  * Mobile : une seule colonne à la fois — la liste, ou le fil quand une
- * conversation est active (.has-active). La nav basse est masquée sur /messages
- * (le champ de saisie collant récupère tout l'espace bas).
+ * conversation est active (.has-active). La bottom-nav reste visible ; la
+ * hauteur du layout réserve l'espace de la nav pour que le champ de saisie
+ * collant passe AU-DESSUS (jamais recouvert).
  */
+.msg-page {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 16px 0;
+  width: 100%;
+  overflow-x: hidden; /* aucun scroll horizontal parasite */
+}
+
 .msg-layout {
   display: grid;
   grid-template-columns: 320px 1fr;
   gap: 16px;
-  height: calc(100vh - 170px);
-  min-height: 480px;
+  height: calc(100vh - 200px);
+  min-height: 420px;
+}
+
+/* min-width:0 : sinon un enfant de grille au contenu large déborde à droite. */
+.msg-sidebar,
+.msg-chat {
+  min-width: 0;
 }
 
 @media (max-width: 767px) {
   .msg-layout {
     grid-template-columns: 1fr;
-    height: calc(100dvh - 120px);
+    gap: 0;
+    /* réserve : titre (~72px) + nav (--nav-safe-pad) */
+    height: calc(100dvh - 72px - var(--nav-safe-pad, 98px));
     min-height: 0;
   }
   .msg-layout .msg-sidebar { display: flex; }
@@ -42,4 +59,16 @@
     font-size: 20px;
     cursor: pointer;
   }
+}
+
+/* État vide compact et centré (pas une boîte pleine hauteur). */
+.msg-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 10px;
+  padding: 48px 20px;
+  min-height: 40vh;
 }

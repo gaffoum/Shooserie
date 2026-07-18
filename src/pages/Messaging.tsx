@@ -20,20 +20,29 @@ export function Messaging() {
   const { data: conversations, isLoading } = useMyConversations()
   const activeId = params.get('c')
 
+  const isEmpty = !isLoading && (!conversations || conversations.length === 0)
+
   return (
-    <div style={pageStyle}>
-      <div style={headerWithBackStyle}>
-        <Link to="/dashboard" style={backLinkStyle}>← Dashboard</Link>
+    <div className="msg-page">
+      <div style={headerStyle}>
         <h1 style={titleStyle}>{t('messaging.title')}</h1>
       </div>
 
-      <div className={'msg-layout' + (activeId ? ' has-active' : '')}>
+      {isEmpty ? (
+        <div className="msg-empty">
+          <div style={emptyIconStyle} aria-hidden>💬</div>
+          <p style={emptyTextStyle}>{t('messaging.noConversations')}</p>
+          <Link to="/marketplace" style={emptyCtaStyle}>{t('messaging.browseMarket')}</Link>
+        </div>
+      ) : (
+        <div className={'msg-layout' + (activeId ? ' has-active' : '')}>
         {/* Sidebar — list of conversations */}
         <aside className="msg-sidebar" style={sidebarStyle}>
-          {isLoading && <p style={emptyStyle}>{t('common.loading')}</p>}
-
-          {!isLoading && (!conversations || conversations.length === 0) && (
-            <p style={emptyStyle}>{t('messaging.noConversations')}</p>
+          {isLoading && (
+            <>
+              <div className="skeleton" style={{ height: 64, margin: 4 }} />
+              <div className="skeleton" style={{ height: 64, margin: 4 }} />
+            </>
           )}
 
           {conversations?.map((c) => (
@@ -69,7 +78,8 @@ export function Messaging() {
             </div>
           )}
         </main>
-      </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -275,35 +285,35 @@ function ChatView({ conversationId }: { conversationId: string }) {
 // =====================================================
 // Styles
 // =====================================================
-const headerWithBackStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 16,
-  marginBottom: 24,
-}
-
-const backLinkStyle: React.CSSProperties = {
-  color: 'var(--color-text-muted)',
-  textDecoration: 'none',
-  fontSize: 14,
-  fontWeight: 500,
-  padding: '8px 14px',
-  background: 'var(--color-surface)',
-  border: '1px solid var(--color-border)',
-  borderRadius: 8,
-}
-
-const pageStyle: React.CSSProperties = {
-  maxWidth: '1200px',
-  margin: '0 auto',
-  padding: '24px 16px',
+const headerStyle: React.CSSProperties = {
+  marginBottom: 16,
 }
 
 const titleStyle: React.CSSProperties = {
-  fontSize: 32,
-  fontWeight: 700,
+  fontSize: 30,
+  fontWeight: 900,
+  letterSpacing: '-0.8px',
   margin: 0,
-  fontFamily: "'Outfit', sans-serif",
+  fontFamily: 'var(--font-display)',
+  color: 'var(--color-text)',
+}
+
+const emptyIconStyle: React.CSSProperties = { fontSize: 40, opacity: 0.5 }
+const emptyTextStyle: React.CSSProperties = {
+  fontSize: 15,
+  color: 'var(--color-text-muted)',
+  margin: 0,
+}
+const emptyCtaStyle: React.CSSProperties = {
+  marginTop: 6,
+  display: 'inline-block',
+  padding: '10px 18px',
+  background: 'var(--color-bred)',
+  color: '#fff',
+  borderRadius: 'var(--radius-md)',
+  fontWeight: 700,
+  fontSize: 14,
+  textDecoration: 'none',
 }
 
 const sidebarStyle: React.CSSProperties = {
