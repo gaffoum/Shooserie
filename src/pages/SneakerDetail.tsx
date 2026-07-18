@@ -13,6 +13,16 @@ import type { Sneaker } from '@/lib/types'
 import type { CSSProperties } from 'react'
 import { wearStatus } from '@/lib/wears'
 import { WearTracker } from '@/components/WearTracker'
+import { rarityMetal, isGrail, hasRarity } from '@/lib/rarityStyle'
+import type { RarityTier } from '@/lib/types'
+
+const RARITY_LABEL: Record<Exclude<RarityTier, 'unknown'>, string> = {
+  commune: 'Commune',
+  peu_commune: 'Peu commune',
+  rare: 'Rare',
+  ultra_rare: 'Ultra rare',
+  grail: 'Grail',
+}
 export function SneakerDetail() {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
@@ -64,13 +74,50 @@ export function SneakerDetail() {
         {sneaker && (
           <>
             <div style={topStyle}>
-              <div style={imageWrapStyle}>
-                <SneakerPhoto
-                  stockxUrl={sneaker.stockx_image_url}
-                  storagePath={sneaker.photo_url}
-                  alt={sneaker.name}
-                />
-              </div>
+              {(() => {
+                const rarity = sneaker.rarity ?? 'unknown'
+                const metal = rarityMetal(rarity)
+                const grail = isGrail(rarity)
+                const showRarity = hasRarity(rarity)
+                return (
+                  <div
+                    className={grail ? 'holo-grail' : undefined}
+                    style={{
+                      borderRadius: 'var(--radius-lg)',
+                      padding: showRarity ? 2 : 0,
+                      background: grail ? undefined : showRarity ? metal : undefined,
+                    }}
+                  >
+                    <div style={{ ...imageWrapStyle, border: showRarity ? 'none' : imageWrapStyle.border }}>
+                      <SneakerPhoto
+                        stockxUrl={sneaker.stockx_image_url}
+                        storagePath={sneaker.photo_url}
+                        alt={sneaker.name}
+                      />
+                      {showRarity && (
+                        <span
+                          className="lab"
+                          style={{
+                            position: 'absolute',
+                            top: 8,
+                            left: 8,
+                            zIndex: 2,
+                            padding: '3px 8px',
+                            borderRadius: 100,
+                            fontSize: 9,
+                            fontWeight: 700,
+                            letterSpacing: '1px',
+                            background: metal,
+                            color: grail || rarity === 'rare' ? '#141414' : '#fff',
+                          }}
+                        >
+                          {RARITY_LABEL[rarity as Exclude<RarityTier, 'unknown'>]}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                )
+              })()}
               <div style={{ minWidth: 0 }}>
                 {sneaker.brand && <div style={brandStyle}>{sneaker.brand}</div>}
                 <h1 style={titleStyle}>{sneaker.name}</h1>
