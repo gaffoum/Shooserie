@@ -12,7 +12,7 @@ import { WelcomeCelebration } from './WelcomeCelebration'
  * jamais voir cet écran (même après avoir dépassé stars_total > 0).
  * ⚠️ À caler sur le moment réel de mise en production.
  */
-const WELCOME_LAUNCH_CUTOFF_MS = Date.parse('2026-07-18T00:00:00Z')
+const WELCOME_LAUNCH_CUTOFF_MS = Date.parse('2026-07-18T14:00:00+02:00') // go-live 14h00 Paris (CEST)
 
 /**
  * Décide de l'affichage de l'écran de bienvenue post-lancement, une seule fois
