@@ -8,6 +8,8 @@ import { useMarketplaceSneaker, useCreateOrGetConversation } from '@/lib/queries
 import { formatEur } from '@/lib/format'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
 import { wearStatus } from '@/lib/wears'
+import { rarityMetal, isGrail, hasRarity } from '@/lib/rarityStyle'
+import type { RarityTier } from '@/lib/types'
 
 /**
  * Marketplace detail page — single sneaker for sale.
@@ -63,6 +65,14 @@ export function MarketplaceDetail() {
   }
 
   const price = (sneaker as any).target_sale_price ?? (sneaker as any).market_price
+  const rarity = (sneaker as any).rarity as RarityTier | null | undefined
+  const heroRarity: CSSProperties = hasRarity(rarity)
+    ? {
+        borderColor: rarityMetal(rarity),
+        borderWidth: 1.5,
+        boxShadow: isGrail(rarity) ? '0 0 0 1px rgba(231,169,60,0.45), 0 8px 24px rgba(231,169,60,0.22)' : undefined,
+      }
+    : {}
 
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
@@ -70,7 +80,7 @@ export function MarketplaceDetail() {
       <main style={mainStyle}>
         <div style={layoutStyle}>
           {/* Photo */}
-          <div style={photoWrapStyle}>
+          <div style={{ ...photoWrapStyle, ...heroRarity }}>
             <SneakerPhoto
               stockxUrl={(sneaker as any).stockx_image_url}
               storagePath={(sneaker as any).photo_url}
