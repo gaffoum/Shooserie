@@ -98,6 +98,13 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Écran de bienvenue post-lancement ===
+  'welcome.eyebrow': 'Nouvelle version',
+  'welcome.title': 'Bienvenue dans la nouvelle Shooserie',
+  'welcome.recap': '{pairs} paires · {grails} grails · {brands} marques',
+  'welcome.cta': 'Voir ma progression',
+  'welcome.later': 'Plus tard',
+
   // === Parrainage (Vague 2) ===
   'referral.title': 'Parrainage',
   'referral.desc': 'Partage ton code : quand un filleul crée son compte et ajoute sa première paire, vous gagnez tous les deux des étoiles.',
@@ -648,6 +655,13 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Welcome screen (post-launch) ===
+  'welcome.eyebrow': 'New version',
+  'welcome.title': 'Welcome to the new Shooserie',
+  'welcome.recap': '{pairs} pairs · {grails} grails · {brands} brands',
+  'welcome.cta': 'See my progress',
+  'welcome.later': 'Later',
 
   // === Referral (Vague 2) ===
   'referral.title': 'Referral',

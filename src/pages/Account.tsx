@@ -8,6 +8,7 @@ import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { ADMIN_EMAIL, useMyProfile, useUpdateMyProfile } from '@/lib/queries'
 import { StarRankBadge } from '@/components/StarRankBadge'
+import { useLogout } from '@/lib/useLogout'
 import type { DictKey } from '@/i18n/dictionaries'
 
 /**
@@ -22,7 +23,8 @@ import type { DictKey } from '@/i18n/dictionaries'
  */
 export function Account() {
   const { t } = useT()
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
+  const logout = useLogout()
   const { data: profile } = useMyProfile()
   const currentEmail = user?.email ?? ''
 
@@ -63,7 +65,7 @@ export function Account() {
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
         {currentEmail === ADMIN_EMAIL && <AdminSection />}
-        <DangerSection onSignOut={signOut} />
+        <DangerSection onSignOut={logout} />
       </main>
     </div>
   )

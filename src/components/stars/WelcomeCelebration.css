@@ -1,0 +1,229 @@
+/*
+ * Écran de bienvenue post-lancement. Overlay plein écran + carte holographique
+ * dorée. Thème-aware : carte dorée sombre en Dark, carte claire à accents or en
+ * Light (or lisible #9A7B1E). Sans scroll sur 390×844.
+ * Réutilise .star-cel-burst / .star-cel-particle (star-toasts.css) pour le feu
+ * d'artifice, et anim-floatY (design-system.css) pour l'écusson.
+ */
+
+.welcome-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: welcome-fade 0.35s ease both;
+}
+
+.welcome-card {
+  position: relative;
+  width: min(92vw, 360px);
+  max-height: 92vh;
+  border-radius: 22px;
+  padding: 26px 22px 22px;
+  overflow: hidden;
+  text-align: center;
+  /* Dark : métal doré sombre. */
+  background: linear-gradient(150deg, #3a2c0c, #140f04 55%, #2a2008);
+  border: 1.5px solid #c9a227;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.55), 0 0 30px rgba(231, 169, 60, 0.3);
+  color: #fff;
+  animation: welcome-pop 0.55s cubic-bezier(0.2, 0.9, 0.25, 1.2) both;
+}
+
+/* Light : carte claire, accents or, texte sombre. */
+:root[data-theme='light'] .welcome-card {
+  background: linear-gradient(150deg, #fff, #f4ecd6 60%, #fff);
+  border-color: #c9a227;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25), 0 0 26px rgba(231, 169, 60, 0.35);
+  color: var(--color-text);
+}
+
+.welcome-close {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  z-index: 3;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  line-height: 1;
+}
+:root[data-theme='light'] .welcome-close {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+.welcome-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.welcome-eyebrow {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: #e7c257;
+}
+
+.welcome-title {
+  margin: 6px 0 0;
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 800;
+  line-height: 1.15;
+  letter-spacing: -0.4px;
+  color: inherit;
+  max-width: 280px;
+}
+
+/* Écusson héros + halo. */
+.welcome-crest {
+  position: relative;
+  margin: 16px 0 6px;
+  width: 96px;
+  height: 96px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.welcome-crest-halo {
+  position: absolute;
+  inset: -14px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(231, 169, 60, 0.55), transparent 68%);
+  filter: blur(6px);
+}
+.welcome-crest-img {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 14px rgba(247, 227, 146, 0.6));
+}
+.welcome-crest-fallback {
+  position: relative;
+  font-size: 64px;
+  line-height: 96px;
+}
+
+.welcome-rank {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+}
+
+.welcome-stars {
+  margin-top: 10px;
+  font-family: var(--font-display);
+  font-size: 44px;
+  font-weight: 900;
+  letter-spacing: -1.5px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.welcome-stars-num {
+  color: #f7e392;
+}
+:root[data-theme='light'] .welcome-stars-num {
+  color: #9a7b1e; /* or lisible sur fond clair (handoff) */
+}
+
+.welcome-recap {
+  margin-top: 12px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  color: rgba(255, 255, 255, 0.7);
+}
+:root[data-theme='light'] .welcome-recap {
+  color: var(--color-text-muted);
+}
+
+.welcome-chips {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 14px;
+}
+.welcome-chip {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: rgba(231, 169, 60, 0.16);
+  border: 1px solid rgba(231, 169, 60, 0.4);
+  color: #f7e392;
+}
+:root[data-theme='light'] .welcome-chip {
+  color: #9a7b1e;
+}
+
+.welcome-cta {
+  margin-top: 20px;
+  width: 100%;
+  min-height: 48px;
+  border: none;
+  border-radius: 15px;
+  background: var(--color-bred);
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(206, 17, 65, 0.45);
+  transition: background 0.15s ease;
+}
+.welcome-cta:hover {
+  background: var(--color-bred-hover);
+}
+
+.welcome-secondary {
+  margin-top: 8px;
+  width: 100%;
+  min-height: 40px;
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  font-family: var(--font-display);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+:root[data-theme='light'] .welcome-secondary {
+  color: var(--color-text-muted);
+}
+
+@keyframes welcome-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes welcome-pop {
+  0% { opacity: 0; transform: scale(0.85); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome-overlay,
+  .welcome-card {
+    animation: welcome-fade 0.2s ease both;
+  }
+  .welcome-crest {
+    animation: none !important;
+  }
+}

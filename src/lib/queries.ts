@@ -763,6 +763,8 @@ export interface Profile {
   leaderboard_visible?: boolean
   /** Mon code de parrainage (jamais celui des autres). */
   referral_code?: string | null
+  /** Écran de bienvenue post-lancement : NULL = jamais vu. */
+  welcome_seen_at?: string | null
   created_at: string
   updated_at: string
   /** Moteur d'étoiles — absents si la migration n'est pas appliquée (fallback front) */

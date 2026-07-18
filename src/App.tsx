@@ -31,6 +31,7 @@ import Progression from './pages/Progression';
 import Referral from './pages/Referral';
 import { StarToastProvider } from './components/stars/StarToastProvider';
 import { EngagementAwards } from './components/EngagementAwards';
+import { WelcomeGate } from './components/stars/WelcomeGate';
 import { BottomNav } from './components/BottomNav';
 
 
@@ -50,6 +51,7 @@ export default function App() {
       <StarToastProvider>
       <EngagementAwards />
       <BrowserRouter>
+      <WelcomeGate />
 	<PseudoSetupGuard />
         <Routes>
           <Route path="/" element={<RootRoute />} />
