@@ -1,0 +1,45 @@
+/*
+ * Messagerie — layout responsive. Desktop : deux colonnes (liste + fil).
+ * Mobile : une seule colonne à la fois — la liste, ou le fil quand une
+ * conversation est active (.has-active). La nav basse est masquée sur /messages
+ * (le champ de saisie collant récupère tout l'espace bas).
+ */
+.msg-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 16px;
+  height: calc(100vh - 170px);
+  min-height: 480px;
+}
+
+@media (max-width: 767px) {
+  .msg-layout {
+    grid-template-columns: 1fr;
+    height: calc(100dvh - 120px);
+    min-height: 0;
+  }
+  .msg-layout .msg-sidebar { display: flex; }
+  .msg-layout .msg-chat { display: none; }
+  .msg-layout.has-active .msg-sidebar { display: none; }
+  .msg-layout.has-active .msg-chat { display: flex; }
+}
+
+/* Bouton retour (liste) dans l'en-tête du fil — mobile only. */
+.msg-back {
+  display: none;
+}
+@media (max-width: 767px) {
+  .msg-back {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    background: transparent;
+    color: var(--color-text);
+    font-size: 20px;
+    cursor: pointer;
+  }
+}

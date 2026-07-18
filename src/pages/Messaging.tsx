@@ -11,6 +11,7 @@ import {
 } from '../lib/queries'
 import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
+import './Messaging.css'
 
 export function Messaging() {
   const { t } = useT()
@@ -26,9 +27,9 @@ export function Messaging() {
         <h1 style={titleStyle}>{t('messaging.title')}</h1>
       </div>
 
-      <div style={layoutStyle}>
+      <div className={'msg-layout' + (activeId ? ' has-active' : '')}>
         {/* Sidebar — list of conversations */}
-        <aside style={sidebarStyle}>
+        <aside className="msg-sidebar" style={sidebarStyle}>
           {isLoading && <p style={emptyStyle}>{t('common.loading')}</p>}
 
           {!isLoading && (!conversations || conversations.length === 0) && (
@@ -59,7 +60,7 @@ export function Messaging() {
         </aside>
 
         {/* Chat view */}
-        <main style={chatMainStyle}>
+        <main className="msg-chat" style={chatMainStyle}>
           {activeId ? (
             <ChatView conversationId={activeId} />
           ) : (
@@ -148,6 +149,14 @@ function ChatView({ conversationId }: { conversationId: string }) {
     <>
       {/* Chat header with delete conversation button */}
       <div style={chatHeaderStyle}>
+        <button
+          type="button"
+          className="msg-back"
+          aria-label={t('messaging.backToList')}
+          onClick={() => navigate('/messages')}
+        >
+          ←
+        </button>
         <div style={chatHeaderInfoStyle}>
           {currentConv && (
             <>
@@ -297,14 +306,6 @@ const titleStyle: React.CSSProperties = {
   fontFamily: "'Outfit', sans-serif",
 }
 
-const layoutStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: '320px 1fr',
-  gap: 16,
-  height: 'calc(100vh - 200px)',
-  minHeight: 500,
-}
-
 const sidebarStyle: React.CSSProperties = {
   background: 'var(--color-surface)',
   border: '1px solid var(--color-border)',
@@ -333,7 +334,7 @@ const convItemStyle: React.CSSProperties = {
 const convItemActiveStyle: React.CSSProperties = {
   ...convItemStyle,
   borderColor: 'var(--color-bred)',
-  background: '#FEF2F4',
+  background: 'var(--color-bred-bg)', /* lisible en clair ET sombre */
 }
 
 const convAvatarWrapStyle: React.CSSProperties = {
@@ -520,6 +521,9 @@ const chatInputStyle: React.CSSProperties = {
   borderRadius: 8,
   fontSize: 14,
   fontFamily: 'inherit',
+  background: 'var(--color-bg)', /* sinon fond/texte par défaut illisibles en sombre */
+  color: 'var(--color-text)',
+  outline: 'none',
 }
 
 const sendButtonStyle: React.CSSProperties = {

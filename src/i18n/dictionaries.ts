@@ -487,6 +487,7 @@ const fr = {
  
   // === Messaging ===
   'messaging.title': 'Messages',
+  'messaging.backToList': 'Retour aux conversations',
   'messaging.noConversations': 'Aucune conversation pour le moment',
   'messaging.selectConversation': 'Sélectionne une conversation pour voir les messages',
   'messaging.typeMessage': 'Écris ton message…',
@@ -1045,6 +1046,7 @@ const en: typeof fr = {
  
   // === Messaging ===
   'messaging.title': 'Messages',
+  'messaging.backToList': 'Back to conversations',
   'messaging.noConversations': 'No conversations yet',
   'messaging.selectConversation': 'Select a conversation to see the messages',
   'messaging.typeMessage': 'Type your message…',
