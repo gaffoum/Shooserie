@@ -98,6 +98,14 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Communauté (Vague 2) ===
+  'community.leaderboard': 'Leaderboard',
+  'community.discover': 'Découvrir des collectionneurs',
+  'community.empty.title': 'Leaderboard vide',
+  'community.empty.desc': "Personne n'est encore visible dans le classement. Active la visibilité dans tes paramètres pour apparaître.",
+  'community.error.title': 'Erreur de chargement',
+  'community.error.desc': 'Impossible de récupérer la communauté. Réessaie dans un instant.',
+
   // === Mes stats (ex-Rankings, handoff) ===
   'mystats.title': 'Mes stats',
   'mystats.tile.pairs': 'Paires',
@@ -622,6 +630,14 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Community (Vague 2) ===
+  'community.leaderboard': 'Leaderboard',
+  'community.discover': 'Discover collectors',
+  'community.empty.title': 'Empty leaderboard',
+  'community.empty.desc': 'Nobody is visible in the ranking yet. Enable visibility in your settings to appear.',
+  'community.error.title': 'Loading error',
+  'community.error.desc': 'Could not load the community. Try again in a moment.',
 
   // === My stats (ex-Rankings, handoff) ===
   'mystats.title': 'My stats',

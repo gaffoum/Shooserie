@@ -120,6 +120,38 @@ export type CommunityMember = {
 }
 
 /**
+ * Entrée du leaderboard — SOURCE = vue SQL `public.leaderboard`, qui n'expose
+ * QUE les colonnes minimales autorisées (id, username, display_name, avatar_url,
+ * stars_total, rank, pairs_count) et ne liste QUE les profils
+ * `leaderboard_visible = true`, triés par stars_total desc. Aucune donnée
+ * sensible ne transite (règles de confidentialité Vague 2).
+ */
+export type LeaderboardEntry = {
+  id: string
+  username: string | null
+  display_name: string | null
+  avatar_url: string | null
+  stars_total: number
+  rank: string
+  pairs_count: number
+}
+
+export function useLeaderboard() {
+  return useQuery({
+    queryKey: ['leaderboard'],
+    queryFn: async (): Promise<LeaderboardEntry[]> => {
+      // On sélectionne explicitement les colonnes minimales (jamais '*').
+      const { data, error } = await supabase
+        .from('leaderboard')
+        .select('id, username, display_name, avatar_url, stars_total, rank, pairs_count')
+      if (error) throw error
+      return (data ?? []) as LeaderboardEntry[]
+    },
+    staleTime: 60_000,
+  })
+}
+
+/**
  * Liste les profils publics (collection_public = true).
  * Pour chaque profil, agrege les compteurs total + for_sale via Promise.all
  * (N+1 queries, OK pour < 100 users ; au-dela passer en vue SQL).
