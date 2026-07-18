@@ -885,8 +885,10 @@ export function useMarketplaceSneakers() {
 
       // 2) Récupérer les profiles des vendeurs
       const userIds = Array.from(new Set(sneakers.map((s: any) => s.user_id)))
+      // Vendeurs = AUTRUI → vue public_profiles (RLS profiles bloque la lecture
+      // directe des profils d'autrui). N'expose que le minimal public.
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('id, display_name')
         .in('id', userIds)
 
@@ -915,8 +917,9 @@ export function useMarketplaceSneaker(id: string | undefined) {
       if (error) throw error
       if (!sneaker) return null
 
+      // Vendeur = AUTRUI → vue public_profiles.
       const { data: profile } = await supabase
-        .from('profiles')
+        .from('public_profiles')
         .select('display_name')
         .eq('id', (sneaker as any).user_id)
         .maybeSingle()
@@ -974,7 +977,8 @@ export function useMyConversations() {
       const sneakerIds = convos.map((c: any) => c.sneaker_id).filter(Boolean)
 
       const [profilesRes, sneakersRes, lastMsgsRes] = await Promise.all([
-        supabase.from('profiles').select('id, display_name').in('id', otherIds),
+        // Interlocuteurs = AUTRUI → vue public_profiles.
+        supabase.from('public_profiles').select('id, display_name').in('id', otherIds),
         sneakerIds.length > 0
           ? supabase
               .from('sneakers')

@@ -49,35 +49,31 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
     queryKey: ['public-profile', pseudo?.toLowerCase()],
     enabled: !!pseudo,
     queryFn: async (): Promise<PublicProfile | null> => {
-      const COLS = 'id, username, display_name, avatar_url, rank, stars_total, pseudo_configured'
-      // On tente d'abord par username, puis par display_name (2 appels séparés
-      // pour ne pas injecter l'input brut dans un filtre .or()).
-      let profile: Record<string, unknown> | null = null
-      const byUsername = await supabase.from('profiles').select(COLS).ilike('username', pseudo!).limit(1).maybeSingle()
+      // AUTRUI → vue public_profiles (RLS profiles bloque la lecture directe).
+      // La vue expose déjà le minimal + pairs_count et filtre
+      // pseudo_configured=true (donc un profil non configuré = 0 ligne = 404).
+      const COLS = 'id, username, display_name, avatar_url, rank, stars_total, pairs_count'
+      // username puis display_name (2 appels séparés, pas de .or() avec input brut).
+      let row: Record<string, unknown> | null = null
+      const byUsername = await supabase.from('public_profiles').select(COLS).ilike('username', pseudo!).limit(1).maybeSingle()
       if (byUsername.error) throw byUsername.error
-      profile = byUsername.data
-      if (!profile) {
-        const byName = await supabase.from('profiles').select(COLS).ilike('display_name', pseudo!).limit(1).maybeSingle()
+      row = byUsername.data
+      if (!row) {
+        const byName = await supabase.from('public_profiles').select(COLS).ilike('display_name', pseudo!).limit(1).maybeSingle()
         if (byName.error) throw byName.error
-        profile = byName.data
+        row = byName.data
       }
+      if (!row) return null
 
-      // Introuvable OU pseudo non configuré → non publiable (404 page).
-      if (!profile || (profile as { pseudo_configured?: boolean }).pseudo_configured !== true) return null
-
-      const p = profile as {
+      const p = row as {
         id: string
         username: string | null
         display_name: string
         avatar_url: string | null
         rank: string | null
         stars_total: number | null
+        pairs_count: number | null
       }
-
-      const { count } = await supabase
-        .from('sneakers')
-        .select('id', { count: 'exact', head: true })
-        .eq('user_id', p.id)
 
       return {
         id: p.id,
@@ -86,7 +82,7 @@ export function useUserProfileByPseudo(pseudo: string | undefined) {
         avatar_url: p.avatar_url ?? null,
         rank: p.rank ?? 'rookie',
         stars_total: p.stars_total ?? 0,
-        pairs_count: count ?? 0,
+        pairs_count: p.pairs_count ?? 0,
       }
     },
     staleTime: 60_000,
@@ -127,10 +123,9 @@ export function useUserSneakers(
 
 export type CommunityMember = {
   id: string
+  username: string | null
   display_name: string
-  created_at: string
-  sneakers_count: number
-  for_sale_count: number
+  pairs_count: number
 }
 
 /**
@@ -177,44 +172,30 @@ export function usePublicProfiles() {
   return useQuery({
     queryKey: ['community-profiles'],
     queryFn: async (): Promise<CommunityMember[]> => {
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, created_at')
-        .eq('collection_public', true)
+      // AUTRUI → vue public_profiles (minimal + pairs_count, filtrée
+      // pseudo_configured=true). Plus de N+1 sur sneakers ni de lecture directe
+      // de profils d'autrui.
+      const { data, error } = await supabase
+        .from('public_profiles')
+        .select('id, username, display_name, pairs_count')
 
       if (error) throw error
-      if (!profiles || profiles.length === 0) return []
+      const rows = (data ?? []) as Array<{
+        id: string
+        username: string | null
+        display_name: string | null
+        pairs_count: number | null
+      }>
 
-      const enriched = await Promise.all(
-        profiles
-          .filter((p): p is { id: string; display_name: string; created_at: string } => !!p.display_name)
-          .map(async (p) => {
-            const [totalRes, forSaleRes] = await Promise.all([
-              supabase
-                .from('sneakers')
-                .select('id', { count: 'exact', head: true })
-                .eq('user_id', p.id),
-              supabase
-                .from('sneakers')
-                .select('id', { count: 'exact', head: true })
-                .eq('user_id', p.id)
-                .eq('is_for_sale', true),
-            ])
-            return {
-              id: p.id,
-              display_name: p.display_name,
-              created_at: p.created_at,
-              sneakers_count: totalRes.count ?? 0,
-              for_sale_count: forSaleRes.count ?? 0,
-            } as CommunityMember
-          }),
-      )
-
-      return enriched.sort((a, b) =>
-        a.display_name.localeCompare(b.display_name, 'fr', {
-          sensitivity: 'base',
-        }),
-      )
+      return rows
+        .filter((r): r is { id: string; username: string | null; display_name: string; pairs_count: number | null } => !!r.display_name)
+        .map((r) => ({
+          id: r.id,
+          username: r.username ?? null,
+          display_name: r.display_name,
+          pairs_count: r.pairs_count ?? 0,
+        }))
+        .sort((a, b) => a.display_name.localeCompare(b.display_name, 'fr', { sensitivity: 'base' }))
     },
     staleTime: 60_000,
   })

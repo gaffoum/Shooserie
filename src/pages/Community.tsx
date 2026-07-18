@@ -234,7 +234,7 @@ function DiscoverRow({
           {member.display_name}
           {isMe && <span style={meTagStyle}>TOI</span>}
         </div>
-        <div style={rowSubStyle}>{fmt(member.sneakers_count)} paires · {fmt(member.for_sale_count)} en vente</div>
+        <div style={rowSubStyle}>{fmt(member.pairs_count)} paires</div>
       </div>
       <div style={rowChevronStyle} aria-hidden>›</div>
     </Link>
