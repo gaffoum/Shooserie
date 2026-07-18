@@ -98,6 +98,14 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Mes stats (ex-Rankings, handoff) ===
+  'mystats.title': 'Mes stats',
+  'mystats.tile.pairs': 'Paires',
+  'mystats.tile.grails': 'Grails',
+  'mystats.tile.brands': 'Marques',
+  'mystats.tile.worn': 'Portées',
+  'mystats.facets.title': 'Facettes débloquées',
+
   // === Portfolio (en-tête handoff) ===
   'dashboard.portfolio.label': 'Ma collection',
   'dashboard.portfolio.pair': '{n} paire',
@@ -614,6 +622,14 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === My stats (ex-Rankings, handoff) ===
+  'mystats.title': 'My stats',
+  'mystats.tile.pairs': 'Pairs',
+  'mystats.tile.grails': 'Grails',
+  'mystats.tile.brands': 'Brands',
+  'mystats.tile.worn': 'Worn',
+  'mystats.facets.title': 'Unlocked facets',
 
   // === Portfolio (handoff header) ===
   'dashboard.portfolio.label': 'My collection',
