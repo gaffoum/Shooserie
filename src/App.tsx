@@ -1,7 +1,8 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
-import { AuthProvider } from '@/contexts/AuthContext'
+import { AuthProvider, useAuth } from '@/contexts/AuthContext'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { Login } from '@/pages/Login'
+import { Landing } from '@/pages/Landing'
 import { Dashboard } from '@/pages/Dashboard'
 import { SneakerNew } from '@/pages/SneakerNew'
 import { SneakerDetail } from '@/pages/SneakerDetail'
@@ -32,6 +33,16 @@ import { EngagementAwards } from './components/EngagementAwards';
 import { BottomNav } from './components/BottomNav';
 
 
+/**
+ * Route racine `/` : landing publique si non connecté, sinon redirection vers
+ * l'app (préserve le comportement auth existant).
+ */
+function RootRoute() {
+  const { session, loading } = useAuth()
+  if (loading) return null
+  return session ? <Navigate to="/dashboard" replace /> : <Landing />
+}
+
 export default function App() {
   return (
     <AuthProvider>
@@ -40,7 +51,7 @@ export default function App() {
       <BrowserRouter>
 	<PseudoSetupGuard />
         <Routes>
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route path="/" element={<RootRoute />} />
           <Route path="/login" element={<Login />} />
           {/* Public ÃƒÂ¢Ã¢â€šÂ¬Ã¢â‚¬Â reached via the email link Supabase sends after a
             * password reset request. The recovery token in the URL hash

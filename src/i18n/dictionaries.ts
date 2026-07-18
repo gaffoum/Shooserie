@@ -98,6 +98,15 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Landing (page d'accueil publique) ===
+  'landing.title1': 'BUILT FOR',
+  'landing.title2': 'THE',
+  'landing.title3': 'OGs.',
+  'landing.manifesto':
+    'Gère ta collection, révèle la rareté de chaque paire, et laisse tes sneakers raconter leur histoire.',
+  'landing.cta': 'Explorer ma collection',
+  'landing.login': "J'ai déjà un compte",
+
   // === Navigation basse (5 destinations) ===
   'nav.aria': 'Navigation principale',
   'nav.collection': 'Collec',
@@ -599,6 +608,15 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Landing (public home page) ===
+  'landing.title1': 'BUILT FOR',
+  'landing.title2': 'THE',
+  'landing.title3': 'OGs.',
+  'landing.manifesto':
+    'Manage your collection, reveal the rarity of every pair, and let your sneakers tell their story.',
+  'landing.cta': 'Explore my collection',
+  'landing.login': 'I already have an account',
 
   // === Bottom navigation (5 destinations) ===
   'nav.aria': 'Main navigation',
