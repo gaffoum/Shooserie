@@ -3,6 +3,18 @@ import { Link } from 'react-router-dom'
 import { useMarketplaceSneakers } from '../lib/queries'
 import { useT } from '@/i18n/I18nContext'
 import { SneakerPhoto } from '@/components/SneakerPhoto'
+import { rarityMetal, isGrail, hasRarity } from '@/lib/rarityStyle'
+
+/** Bord métal de rareté (+ glow grail) à fusionner sur une carte/ligne annonce. */
+function rarityBorder(rarity: unknown): React.CSSProperties {
+  const r = rarity as import('@/lib/types').RarityTier | null | undefined
+  if (!hasRarity(r)) return {}
+  return {
+    borderColor: rarityMetal(r),
+    borderWidth: 1.5,
+    boxShadow: isGrail(r) ? '0 0 0 1px rgba(231,169,60,0.45), 0 6px 16px rgba(231,169,60,0.2)' : undefined,
+  }
+}
 
 type ViewMode = 'grid' | 'list'
 
@@ -112,7 +124,7 @@ export function Marketplace() {
         <div style={gridStyle}>
           {filtered.map((s) => (
             <Link key={s.id} to={`/marketplace/${s.id}`} style={cardLinkStyle}>
-              <div style={cardStyle}>
+              <div style={{ ...cardStyle, ...rarityBorder(s.rarity) }}>
                 <div style={cardImageWrapStyle}>
                   <SneakerPhoto
                     stockxUrl={s.stockx_image_url}
@@ -132,6 +144,9 @@ export function Marketplace() {
                   {s.target_sale_price && (
                     <div style={cardPriceStyle}>{s.target_sale_price} €</div>
                   )}
+                  {s.market_price != null && (
+                    <div style={cardCoteStyle}>{t('marketplace.cote')} {s.market_price} €</div>
+                  )}
                   <div style={cardSellerStyle}>
                     {t('marketplace.seller')}: {s.seller_name}
                   </div>
@@ -146,7 +161,7 @@ export function Marketplace() {
         <div style={listStyle}>
           {filtered.map((s) => (
             <Link key={s.id} to={`/marketplace/${s.id}`} style={listRowLinkStyle}>
-              <div style={listRowStyle}>
+              <div style={{ ...listRowStyle, ...rarityBorder(s.rarity) }}>
                 <div style={listImageWrapStyle}>
                   <SneakerPhoto
                     stockxUrl={s.stockx_image_url}
@@ -335,6 +350,12 @@ const cardPriceStyle: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 700,
   color: 'var(--color-bred)',
+  marginBottom: 2,
+}
+const cardCoteStyle: React.CSSProperties = {
+  fontSize: 11,
+  color: 'var(--color-text-muted)',
+  fontVariantNumeric: 'tabular-nums',
   marginBottom: 6,
 }
 
