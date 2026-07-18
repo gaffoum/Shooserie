@@ -6,6 +6,7 @@ import { SneakerPhoto } from './SneakerPhoto'
 import { RefreshCoteButton } from './RefreshCoteButton'
 import { OwnerCountBadge } from './OwnerCountBadge'
 import { wearStatus, WEAR_STATUS_COLORS, useIncrementWear } from '@/lib/wears'
+import { rarityMetal, isGrail, hasRarity } from '@/lib/rarityStyle'
 import type { CSSProperties } from 'react'
 
 interface SneakerCardProps {
@@ -24,9 +25,22 @@ export function SneakerCard({ sneaker, ownerCount }: SneakerCardProps) {
   const sizeLabel = formatSize(sneaker.size_eu, sneaker.size_us)
   const priceShown = sneaker.market_price ?? effectiveCost(sneaker)
 
+  // Accent « métal » de rareté (handoff) : bord teinté + glow doré pour le grail.
+  const rarity = sneaker.rarity ?? 'unknown'
+  const metal = rarityMetal(rarity)
+  const grail = isGrail(rarity)
+  const cardStyleRarity: CSSProperties = hasRarity(rarity)
+    ? {
+        ...cardStyle,
+        borderColor: metal,
+        borderWidth: 1.5,
+        boxShadow: grail ? '0 0 0 1px rgba(231,169,60,0.5), 0 6px 18px rgba(231,169,60,0.22)' : undefined,
+      }
+    : cardStyle
+
   return (
     <Link to={`/sneakers/${sneaker.id}`} style={linkStyle}>
-      <div style={cardStyle}>
+      <div style={cardStyleRarity}>
         <div style={imageStyle}>
           <SneakerPhoto
             stockxUrl={sneaker.stockx_image_url}
