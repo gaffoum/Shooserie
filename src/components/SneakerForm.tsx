@@ -586,10 +586,10 @@ const legendStyle: CSSProperties = {
 }
 const fieldLabelStyle: CSSProperties = {
   display: 'block',
-  fontFamily: 'var(--font-display)',
-  fontSize: 11,
-  fontWeight: 500,
-  letterSpacing: 'var(--tracking-wider)',
+  fontFamily: 'var(--font-mono)', /* traitement label « mono » du handoff */
+  fontSize: 10,
+  fontWeight: 400,
+  letterSpacing: '1.5px',
   textTransform: 'uppercase',
   color: 'var(--color-text-muted)',
   marginBottom: 6,
