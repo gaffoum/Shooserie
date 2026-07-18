@@ -415,7 +415,7 @@ const ctaStyle: CSSProperties = {
 }
 const ctaDisabledStyle: CSSProperties = {
   ...ctaStyle,
-  background: '#E5E7EB', color: 'var(--color-text-faint)', cursor: 'not-allowed',
+  background: 'var(--color-surface-alt)', color: 'var(--color-text-faint)', cursor: 'not-allowed',
 }
 const hintStyle: CSSProperties = {
   marginTop: 10, fontSize: 11, color: 'var(--color-text-muted)',

@@ -142,7 +142,7 @@ const statusPillStyle: CSSProperties = {
   fontSize: 11, fontWeight: 700, letterSpacing: '0.04em',
 }
 const orderBodyStyle: CSSProperties = {
-  borderTop: '1px solid #F3F4F6', paddingTop: 12,
+  borderTop: '1px solid var(--color-border)', paddingTop: 12,
 }
 const orderRowStyle: CSSProperties = {
   display: 'flex', gap: 16, alignItems: 'center', fontSize: 13,

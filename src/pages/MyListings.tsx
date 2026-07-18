@@ -76,7 +76,11 @@ export function MyListings() {
         </header>
 
         {isLoading ? (
-          <div style={loadingStyle}>{t('common.loading')}</div>
+          <div style={gridStyle}>
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="skeleton" style={{ height: 260 }} />
+            ))}
+          </div>
         ) : forSale.length === 0 ? (
           <EmptyState />
         ) : (
@@ -238,11 +242,6 @@ const gridStyle: CSSProperties = {
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
   gap: 14,
-}
-const loadingStyle: CSSProperties = {
-  textAlign: 'center',
-  padding: 60,
-  color: 'var(--color-text-muted)',
 }
 const emptyWrapStyle: CSSProperties = {
   textAlign: 'center',

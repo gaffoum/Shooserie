@@ -265,8 +265,8 @@ const tdTotalValueStyle: CSSProperties = {
 }
 const nextTierHintStyle: CSSProperties = {
   marginTop: 12, padding: 12,
-  background: '#FFF5F7', border: '1px solid #FFE4E1',
-  borderRadius: 8, fontSize: 13, color: '#9F1239', lineHeight: 1.4,
+  background: 'var(--color-bred-bg)', border: '1px solid var(--color-bred)',
+  borderRadius: 8, fontSize: 13, color: 'var(--color-bred)', lineHeight: 1.4,
 }
 
 const fieldsGridStyle: CSSProperties = {
@@ -282,6 +282,7 @@ const fieldLabelStyle: CSSProperties = {
 const inputStyle: CSSProperties = {
   padding: '10px 12px', fontSize: 14, borderRadius: 8,
   border: '1px solid var(--color-border)', fontFamily: 'inherit',
+  background: 'var(--color-bg)', color: 'var(--color-text)',
 }
 const hintStyle: CSSProperties = {
   marginTop: 12, fontSize: 12, color: 'var(--color-text-faint)',
@@ -311,12 +312,12 @@ const ctaStyle: CSSProperties = {
   fontFamily: 'inherit', width: '100%', maxWidth: 400,
 }
 const ctaDisabledStyle: CSSProperties = {
-  ...ctaStyle, background: '#E5E7EB', color: 'var(--color-text-faint)', cursor: 'not-allowed',
+  ...ctaStyle, background: 'var(--color-surface-alt)', color: 'var(--color-text-faint)', cursor: 'not-allowed',
 }
 const trustStyle: CSSProperties = {
   marginTop: 12, fontSize: 11, color: 'var(--color-text-muted)',
 }
 const errorStyle: CSSProperties = {
   color: 'var(--color-bred)', fontSize: 13, marginBottom: 12,
-  padding: 10, background: '#FEE2E2', borderRadius: 8,
+  padding: 10, background: 'var(--color-bred-bg)', borderRadius: 8,
 }
