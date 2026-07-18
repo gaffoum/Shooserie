@@ -28,6 +28,7 @@ import CheckoutLabels from './pages/CheckoutLabels';
 import { AdminGuard } from './components/AdminGuard';
 import { GuidePage } from './pages/GuidePage';
 import Progression from './pages/Progression';
+import Referral from './pages/Referral';
 import { StarToastProvider } from './components/stars/StarToastProvider';
 import { EngagementAwards } from './components/EngagementAwards';
 import { BottomNav } from './components/BottomNav';
@@ -157,6 +158,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Progression />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/parrainage"
+            element={
+              <ProtectedRoute>
+                <Referral />
               </ProtectedRoute>
             }
           />

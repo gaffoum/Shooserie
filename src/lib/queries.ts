@@ -761,6 +761,8 @@ export interface Profile {
   pseudo_configured: boolean
   /** Visibilité dans le leaderboard communautaire (défaut true en base). */
   leaderboard_visible?: boolean
+  /** Mon code de parrainage (jamais celui des autres). */
+  referral_code?: string | null
   created_at: string
   updated_at: string
   /** Moteur d'étoiles — absents si la migration n'est pas appliquée (fallback front) */
@@ -813,6 +815,27 @@ export function useStarHistory(limit = 50) {
         .limit(limit)
       if (error) throw error
       return (data ?? []) as StarHistoryEntry[]
+    },
+  })
+}
+
+/** Mes stats de parrainage (côté « soi » uniquement — RLS : referrer_id = moi). */
+export function useMyReferral() {
+  return useQuery({
+    queryKey: ['my-referral'],
+    queryFn: async (): Promise<{ signedUp: number; activated: number }> => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) return { signedUp: 0, activated: 0 }
+      const { data, error } = await supabase
+        .from('referrals')
+        .select('status')
+        .eq('referrer_id', userData.user.id)
+      if (error) throw error
+      const rows = (data ?? []) as Array<{ status: string }>
+      return {
+        signedUp: rows.length,
+        activated: rows.filter((r) => r.status === 'activated').length,
+      }
     },
   })
 }

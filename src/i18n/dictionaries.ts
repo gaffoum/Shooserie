@@ -98,6 +98,18 @@ const fr = {
   'reset.tooShort': 'Le mot de passe doit faire au moins 6 caractères.',
   'reset.goLogin': 'Aller à la connexion',
 
+  // === Parrainage (Vague 2) ===
+  'referral.title': 'Parrainage',
+  'referral.desc': 'Partage ton code : quand un filleul crée son compte et ajoute sa première paire, vous gagnez tous les deux des étoiles.',
+  'referral.myCode': 'Mon code',
+  'referral.copyCode': 'Copier le code',
+  'referral.copyLink': 'Copier le lien',
+  'referral.copied': 'Copié !',
+  'referral.copyManual': 'Copie ce lien :',
+  'referral.noCode': 'Ton code de parrainage arrive bientôt.',
+  'referral.signedUp': 'Filleuls inscrits',
+  'referral.activated': 'Filleuls activés',
+
   // === Communauté (Vague 2) ===
   'community.leaderboard': 'Leaderboard',
   'community.discover': 'Découvrir des collectionneurs',
@@ -635,6 +647,18 @@ const en: typeof fr = {
   'reset.mismatch': 'The two passwords do not match.',
   'reset.tooShort': 'Password must be at least 6 characters.',
   'reset.goLogin': 'Go to sign in',
+
+  // === Referral (Vague 2) ===
+  'referral.title': 'Referral',
+  'referral.desc': 'Share your code: when a referral signs up and adds their first pair, you both earn stars.',
+  'referral.myCode': 'My code',
+  'referral.copyCode': 'Copy code',
+  'referral.copyLink': 'Copy link',
+  'referral.copied': 'Copied!',
+  'referral.copyManual': 'Copy this link:',
+  'referral.noCode': 'Your referral code is coming soon.',
+  'referral.signedUp': 'Referrals signed up',
+  'referral.activated': 'Referrals activated',
 
   // === Community (Vague 2) ===
   'community.leaderboard': 'Leaderboard',

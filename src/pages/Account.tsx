@@ -30,6 +30,12 @@ export function Account() {
       <main style={mainStyle}>
         <h1 style={titleStyle}>{t('account.title')}</h1>
         <InviteSection />
+        <section style={sectionStyle}>
+          <Link to="/parrainage" style={{ ...navLinkRowStyle }}>
+            <span>{t('referral.title')}</span>
+            <span aria-hidden style={{ color: 'var(--color-text-muted)' }}>›</span>
+          </Link>
+        </section>
 		<CollectionVisibilitySection />
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
@@ -526,6 +532,16 @@ function CollectionVisibilitySection() {
  * Ajoute ces styles à la fin du fichier, à côté des autres styles
  * (sectionStyle, sectionTitleStyle, etc. existent déjà) :
  */
+
+const navLinkRowStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  textDecoration: 'none',
+  color: 'var(--color-text)',
+  fontSize: 15,
+  fontWeight: 600,
+}
 
 const visibilityDescStyle: CSSProperties = {
   fontSize: 13,
