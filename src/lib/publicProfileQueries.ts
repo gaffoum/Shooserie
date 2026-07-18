@@ -2,14 +2,20 @@ import { useQuery } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import { useAuth } from '../contexts/AuthContext'
 
+/**
+ * Profil public MINIMAL (règles de confidentialité Vague 2). On n'expose QUE :
+ * username, display_name, avatar_url, rank, stars_total et le NOMBRE de paires.
+ * JAMAIS : prix, email, referral_code, referred_by, ni le détail des paires.
+ */
 export type PublicProfile = {
   id: string
+  username: string | null
   display_name: string
-  created_at: string
-  collection_public: boolean | null
-  /** null si la collection est privée (compteur réel non accessible via RLS). */
-  sneakers_count: number | null
-  for_sale_count: number
+  avatar_url: string | null
+  rank: string
+  stars_total: number
+  /** Nombre total de paires (COUNT seulement — pas la liste). */
+  pairs_count: number
 }
 
 export type UserSneaker = {
@@ -30,49 +36,57 @@ export type UserSneaker = {
 }
 
 /**
- * Récupère un profil public à partir du pseudo (display_name, case-insensitive).
- * Retourne null si aucun utilisateur ne porte ce pseudo.
+ * Récupère un profil public MINIMAL par pseudo (username en priorité, sinon
+ * display_name), case-insensitive. Retourne null si introuvable OU si
+ * `pseudo_configured` est false (profil non publiable → 404 côté page).
  *
- * RLS sneakers :
- *   - collection_public = true  -> count renvoie le total réel
- *   - collection_public = false -> count ne renvoie que is_for_sale=true,
- *     donc on force sneakers_count à null pour ne pas mentir dans le header.
+ * 🔒 On ne sélectionne QUE les colonnes autorisées + le COUNT de paires. Aucune
+ * donnée sensible (prix, email, referral_code…) n'est requêtée, et on ne charge
+ * jamais le détail des paires ici.
  */
 export function useUserProfileByPseudo(pseudo: string | undefined) {
   return useQuery({
     queryKey: ['public-profile', pseudo?.toLowerCase()],
     enabled: !!pseudo,
     queryFn: async (): Promise<PublicProfile | null> => {
-      const { data: profile, error } = await supabase
-        .from('profiles')
-        .select('id, display_name, created_at, collection_public')
-        .ilike('display_name', pseudo!)
-        .maybeSingle()
+      const COLS = 'id, username, display_name, avatar_url, rank, stars_total, pseudo_configured'
+      // On tente d'abord par username, puis par display_name (2 appels séparés
+      // pour ne pas injecter l'input brut dans un filtre .or()).
+      let profile: Record<string, unknown> | null = null
+      const byUsername = await supabase.from('profiles').select(COLS).ilike('username', pseudo!).limit(1).maybeSingle()
+      if (byUsername.error) throw byUsername.error
+      profile = byUsername.data
+      if (!profile) {
+        const byName = await supabase.from('profiles').select(COLS).ilike('display_name', pseudo!).limit(1).maybeSingle()
+        if (byName.error) throw byName.error
+        profile = byName.data
+      }
 
-      if (error) throw error
-      if (!profile) return null
+      // Introuvable OU pseudo non configuré → non publiable (404 page).
+      if (!profile || (profile as { pseudo_configured?: boolean }).pseudo_configured !== true) return null
 
-      const [totalRes, forSaleRes] = await Promise.all([
-        supabase
-          .from('sneakers')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id),
-        supabase
-          .from('sneakers')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', profile.id)
-          .eq('is_for_sale', true),
-      ])
+      const p = profile as {
+        id: string
+        username: string | null
+        display_name: string
+        avatar_url: string | null
+        rank: string | null
+        stars_total: number | null
+      }
 
-      const isPrivate = profile.collection_public === false
+      const { count } = await supabase
+        .from('sneakers')
+        .select('id', { count: 'exact', head: true })
+        .eq('user_id', p.id)
 
       return {
-        id: profile.id,
-        display_name: profile.display_name,
-        created_at: profile.created_at,
-        collection_public: profile.collection_public ?? null,
-        sneakers_count: isPrivate ? null : (totalRes.count ?? 0),
-        for_sale_count: forSaleRes.count ?? 0,
+        id: p.id,
+        username: p.username ?? null,
+        display_name: p.display_name,
+        avatar_url: p.avatar_url ?? null,
+        rank: p.rank ?? 'rookie',
+        stars_total: p.stars_total ?? 0,
+        pairs_count: count ?? 0,
       }
     },
     staleTime: 60_000,

@@ -1,743 +1,229 @@
 /**
- * UserProfile — page publique d'un utilisateur (/u/:pseudo).
- * Styles inline cohérents avec WelcomeHeader (Outfit, #0A0A0A, accent #CE1141).
+ * UserProfile — profil public MINIMAL (/u/:pseudo). Vague 2.
+ *
+ * 🔒 Confidentialité : on n'affiche QUE pseudo + display_name + avatar +
+ * écusson de rang + total ⭐ + nombre de paires (COUNT). AUCUNE donnée sensible
+ * (prix, email, code parrainage) ni le détail de la collection. La requête
+ * (useUserProfileByPseudo) ne charge que ces colonnes et gate sur
+ * `pseudo_configured` → 404 propre si introuvable / non publiable.
  */
-import { useMemo, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
-import {
-  useUserProfileByPseudo,
-  useUserSneakers,
-  type UserSneaker,
-} from '../lib/publicProfileQueries'
-import { useUserBadge } from '../lib/badges'
-import { BadgeDisplay } from '../components/BadgeDisplay'
-import { FacetsList } from '../components/FacetsList'
-import { SneakerPhoto } from '../components/SneakerPhoto'
-import { wearStatus, WEAR_STATUSES } from '@/lib/wears'
-
-type ViewMode = 'grid' | 'list'
-type TabKey = 'all' | 'for-sale'
+import { useUserProfileByPseudo } from '../lib/publicProfileQueries'
+import { getRankDisplay } from '../lib/ranks'
+import { useTheme } from '../contexts/ThemeContext'
+import { useT, localeFor } from '@/i18n/I18nContext'
 
 export default function UserProfile() {
   const { pseudo } = useParams<{ pseudo: string }>()
-  const profileQ = useUserProfileByPseudo(pseudo)
-  const profile = profileQ.data
+  const { lang } = useT()
+  const { resolved } = useTheme()
+  const q = useUserProfileByPseudo(pseudo)
+  const profile = q.data
 
-  const [tab, setTab] = useState<TabKey>('all')
-  const [view, setView] = useState<ViewMode>('grid')
-  const [brandFilter, setBrandFilter] = useState<string>('all')
-  const [statusFilter, setStatusFilter] = useState<string>('all')
-
-  const sneakersQ = useUserSneakers(profile?.id, tab === 'for-sale')
-  const badgeQ = useUserBadge(
-    profile?.collection_public ? profile.id : undefined,
-  )
-  const sneakers = sneakersQ.data ?? []
-
-  const brands = useMemo(() => {
-    const set = new Set<string>()
-    for (const s of sneakers) if (s.brand) set.add(s.brand)
-    return Array.from(set).sort((a, b) => a.localeCompare(b, 'fr'))
-  }, [sneakers])
-
-  const filtered = useMemo(() => {
-    return sneakers.filter((s) => {
-      if (brandFilter !== 'all' && s.brand !== brandFilter) return false
-      if (statusFilter !== 'all' && wearStatus(s.wear_count) !== statusFilter) return false
-      return true
-    })
-  }, [sneakers, brandFilter, statusFilter])
-
-  // -------- Loading --------
-  if (profileQ.isLoading) {
+  if (q.isLoading) {
     return (
-      <>
-        <AppHeader leftActions={<BackButton />} />
-        <div style={pageStyle}>
-          <div style={{ ...skeletonStyle, height: 140, marginBottom: 24 }} />
-          <div style={{ ...skeletonStyle, height: 320 }} />
-        </div>
-      </>
+      <Shell>
+        <div className="skeleton" style={{ height: 200, borderRadius: 'var(--radius-xl)' }} />
+      </Shell>
     )
   }
 
-  // -------- Erreur réseau / schéma --------
-  if (profileQ.isError) {
+  if (q.isError) {
     return (
-      <>
-        <AppHeader leftActions={<BackButton />} />
-        <div style={{ ...pageStyle, textAlign: 'center' }}>
-          <h1 style={pageTitleStyle}>Erreur de chargement</h1>
-          <p style={{ ...mutedTextStyle, marginBottom: 16 }}>
-            Impossible de récupérer le profil. Réessaie dans un instant.
-          </p>
-          <p style={{ ...mutedTextStyle, fontSize: 12, fontFamily: 'monospace' }}>
-            {(profileQ.error as Error)?.message ?? 'Erreur inconnue'}
-          </p>
-        </div>
-      </>
+      <Shell center>
+        <h1 style={titleStyle}>Erreur de chargement</h1>
+        <p style={mutedStyle}>Impossible de récupérer le profil. Réessaie dans un instant.</p>
+      </Shell>
     )
   }
 
-  // -------- 404 --------
+  // 404 : introuvable ou pseudo non configuré (géré côté requête).
   if (!profile) {
     return (
-      <>
-        <AppHeader leftActions={<BackButton />} />
-        <div style={{ ...pageStyle, textAlign: 'center' }}>
-          <h1 style={pageTitleStyle}>Utilisateur introuvable</h1>
-          <p style={{ ...mutedTextStyle, marginBottom: 24 }}>
-            Aucun utilisateur ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
-          </p>
-          <Link to="/" style={primaryButtonStyle}>
-            Retour à l'accueil
-          </Link>
-        </div>
-      </>
+      <Shell center>
+        <h1 style={titleStyle}>Utilisateur introuvable</h1>
+        <p style={{ ...mutedStyle, marginBottom: 24 }}>
+          Aucun profil public ne porte le pseudo «&nbsp;{pseudo}&nbsp;».
+        </p>
+        <Link to="/" style={primaryBtnStyle}>Retour à l'accueil</Link>
+      </Shell>
     )
   }
 
-  const isPrivate = profile.collection_public === false
+  const rank = getRankDisplay(profile.rank)
+  const icon = resolved === 'dark' ? rank.iconDark : rank.iconLight
+  const fmt = (n: number) => n.toLocaleString(localeFor(lang))
+  const name = profile.display_name || profile.username || '—'
+  const initial = name.charAt(0).toUpperCase()
 
+  return (
+    <Shell>
+      <div style={cardStyle}>
+        {/* Cover dégradé Bred→Royal */}
+        <div style={coverStyle} aria-hidden />
+
+        <div style={cardBodyStyle}>
+          {/* Avatar */}
+          <div style={avatarWrapStyle}>
+            {profile.avatar_url ? (
+              <img src={profile.avatar_url} alt="" style={avatarImgStyle} />
+            ) : (
+              <div style={avatarFallbackStyle} aria-hidden>{initial}</div>
+            )}
+          </div>
+
+          <h1 style={nameStyle}>{name}</h1>
+          {profile.username && profile.username !== profile.display_name && (
+            <div className="lab" style={handleStyle}>@{profile.username}</div>
+          )}
+
+          {/* Rang */}
+          <div style={rankRowStyle}>
+            <img
+              src={icon}
+              alt=""
+              aria-hidden
+              width={26}
+              height={26}
+              style={{ objectFit: 'contain' }}
+              onError={(e) => { e.currentTarget.style.visibility = 'hidden' }}
+            />
+            <span style={rankLabelStyle}>{rank.label}</span>
+          </div>
+
+          {/* Stats minimales : étoiles + paires */}
+          <div style={statsStyle}>
+            <div style={statStyle}>
+              <div style={statValueStyle}>⭐ {fmt(profile.stars_total)}</div>
+              <div className="lab" style={statLabelStyle}>ÉTOILES</div>
+            </div>
+            <div style={statDividerStyle} aria-hidden />
+            <div style={statStyle}>
+              <div style={statValueStyle}>{fmt(profile.pairs_count)}</div>
+              <div className="lab" style={statLabelStyle}>PAIRES</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Shell>
+  )
+}
+
+function Shell({ children, center }: { children: React.ReactNode; center?: boolean }) {
   return (
     <>
       <AppHeader leftActions={<BackButton />} />
-      <div style={pageStyle}>
-        {/* === Header === */}
-        <div style={headerCardStyle}>
-          <div style={headerLeftStyle}>
-            <div style={pseudoRowStyle}>
-              <h1 style={pseudoTitleStyle}>{profile.display_name}</h1>
-              {isPrivate && (
-                <span style={privateBadgeStyle}>Collection privée</span>
-              )}
-            </div>
-            <p style={memberSinceStyle}>
-              Membre depuis le{' '}
-              {new Date(profile.created_at).toLocaleDateString('fr-FR', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-            {badgeQ.data && (
-              <div style={{ marginTop: 12 }}>
-                <BadgeDisplay code={badgeQ.data.badge.code} size="md" showLabel longLabel />
-                {badgeQ.data.facets.length > 0 && (
-                  <div style={{ marginTop: 8 }}>
-                    <FacetsList facets={badgeQ.data.facets} />
-                  </div>
-                )}
-              </div>
-            )}
-          </div>
-          <div style={statsRowStyle}>
-            {profile.sneakers_count !== null && (
-              <Stat value={profile.sneakers_count} label="paires" />
-            )}
-            <Stat value={profile.for_sale_count} label="en vente" />
-          </div>
-        </div>
-
-        {/* === Contrôles : onglets + filtres === */}
-        <div style={controlsRowStyle}>
-          <div style={tabBarStyle}>
-            <button
-              type="button"
-              onClick={() => setTab('all')}
-              style={tab === 'all' ? activeTabStyle : inactiveTabStyle}
-            >
-              Toutes
-            </button>
-            <button
-              type="button"
-              onClick={() => setTab('for-sale')}
-              style={tab === 'for-sale' ? activeTabStyle : inactiveTabStyle}
-            >
-              En vente
-            </button>
-          </div>
-
-          <div style={filtersStyle}>
-            <select
-              value={brandFilter}
-              onChange={(e) => setBrandFilter(e.target.value)}
-              style={selectStyle}
-              aria-label="Filtrer par marque"
-            >
-              <option value="all">Toutes les marques</option>
-              {brands.map((b) => (
-                <option key={b} value={b}>
-                  {b}
-                </option>
-              ))}
-            </select>
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              style={selectStyle}
-              aria-label="Filtrer par état"
-            >
-              <option value="all">Tous les états</option>
-              {WEAR_STATUSES.map((s) => (
-                <option key={s} value={s}>
-                  {s}
-                </option>
-              ))}
-            </select>
-
-            <div style={viewToggleStyle}>
-              <button
-                type="button"
-                onClick={() => setView('grid')}
-                style={view === 'grid' ? activeViewBtnStyle : viewBtnStyle}
-                aria-label="Vue grille"
-              >
-                Grille
-              </button>
-              <button
-                type="button"
-                onClick={() => setView('list')}
-                style={view === 'list' ? activeViewBtnStyle : viewBtnStyle}
-                aria-label="Vue liste"
-              >
-                Liste
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* === Contenu === */}
-        {tab === 'all' && isPrivate ? (
-          <PrivateCollection />
-        ) : sneakersQ.isLoading ? (
-          <LoadingGrid view={view} />
-        ) : sneakersQ.isError ? (
-          <ErrorBlock error={sneakersQ.error as Error} />
-        ) : filtered.length === 0 ? (
-          <EmptyState
-            message={
-              tab === 'for-sale'
-                ? 'Aucune paire en vente actuellement.'
-                : 'Aucune paire à afficher.'
-            }
-          />
-        ) : (
-          <SneakerListing sneakers={filtered} view={view} />
-        )}
+      <div style={{ ...pageStyle, ...(center ? { textAlign: 'center' as const } : null) }}>
+        {children}
       </div>
     </>
   )
 }
 
 // =================================================================
-// Sub-components
-// =================================================================
-
-function Stat({ value, label }: { value: number; label: string }) {
-  return (
-    <div style={statBoxStyle}>
-      <div style={statValueStyle}>{value}</div>
-      <div style={statLabelStyle}>{label}</div>
-    </div>
-  )
-}
-
-function PrivateCollection() {
-  return (
-    <div style={emptyCardStyle}>
-      <h2 style={emptyTitleStyle}>Collection privée</h2>
-      <p style={emptyTextStyle}>
-        Cet utilisateur a choisi de garder sa collection privée.
-      </p>
-      <p style={{ ...emptyTextStyle, marginTop: 8, fontSize: 13 }}>
-        Vous pouvez tout de même consulter ses paires en vente via l'onglet
-        «&nbsp;En vente&nbsp;».
-      </p>
-    </div>
-  )
-}
-
-function EmptyState({ message }: { message: string }) {
-  return (
-    <div style={emptyCardStyle}>
-      <p style={emptyTextStyle}>{message}</p>
-    </div>
-  )
-}
-
-function ErrorBlock({ error }: { error: Error }) {
-  return (
-    <div style={emptyCardStyle}>
-      <h2 style={emptyTitleStyle}>Erreur de chargement</h2>
-      <p style={emptyTextStyle}>Impossible de récupérer les sneakers.</p>
-      <p
-        style={{
-          ...emptyTextStyle,
-          marginTop: 8,
-          fontSize: 12,
-          fontFamily: 'monospace',
-        }}
-      >
-        {error?.message ?? 'Erreur inconnue'}
-      </p>
-    </div>
-  )
-}
-
-function LoadingGrid({ view }: { view: ViewMode }) {
-  if (view === 'grid') {
-    return (
-      <div style={sneakerGridStyle}>
-        {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} style={{ ...skeletonStyle, aspectRatio: '1 / 1' }} />
-        ))}
-      </div>
-    )
-  }
-  return (
-    <div style={sneakerListStyle}>
-      {Array.from({ length: 5 }).map((_, i) => (
-        <div key={i} style={{ ...skeletonStyle, height: 80 }} />
-      ))}
-    </div>
-  )
-}
-
-function SneakerListing({
-  sneakers,
-  view,
-}: {
-  sneakers: UserSneaker[]
-  view: ViewMode
-}) {
-  if (view === 'grid') {
-    return (
-      <div style={sneakerGridStyle}>
-        {sneakers.map((s) => (
-          <SneakerCardGrid key={s.id} sneaker={s} />
-        ))}
-      </div>
-    )
-  }
-  return (
-    <div style={sneakerListStyle}>
-      {sneakers.map((s) => (
-        <SneakerCardList key={s.id} sneaker={s} />
-      ))}
-    </div>
-  )
-}
-
-function pickPrice(s: UserSneaker): number | null {
-  return s.listing_price ?? s.target_sale_price ?? null
-}
-function pickSize(s: UserSneaker): string | null {
-  if (s.size_eu) return `EU ${s.size_eu}`
-  if (s.size_us) return `US ${s.size_us}`
-  return null
-}
-function pickTitle(s: UserSneaker): string {
-  return s.name || s.brand || '—'
-}
-
-function SneakerCardGrid({ sneaker: s }: { sneaker: UserSneaker }) {
-  const price = pickPrice(s)
-  return (
-    <div style={cardStyle}>
-      <div style={cardImageWrapStyle}>
-        <SneakerPhoto stockxUrl={s.stockx_image_url} storagePath={s.photo_url} alt={pickTitle(s)} />
-      </div>
-      <div style={cardBodyStyle}>
-        <div style={cardBrandStyle}>{s.brand ?? '—'}</div>
-        <div style={cardModelStyle}>{s.name}</div>
-        {s.is_for_sale && (
-          <div style={cardSaleRowStyle}>
-            <span style={saleBadgeStyle}>À vendre</span>
-            {price != null && (
-              <span style={cardPriceStyle}>{price}&nbsp;€</span>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
-
-function SneakerCardList({ sneaker: s }: { sneaker: UserSneaker }) {
-  const price = pickPrice(s)
-  const size = pickSize(s)
-  return (
-    <div style={listCardStyle}>
-      <div style={listImageWrapStyle}>
-        <SneakerPhoto stockxUrl={s.stockx_image_url} storagePath={s.photo_url} alt="" />
-      </div>
-      <div style={{ flex: 1, minWidth: 0 }}>
-        <div style={listTitleStyle}>
-          {[s.brand, s.name].filter(Boolean).join(' · ') || '—'}
-        </div>
-        {size && <div style={listSubtitleStyle}>Taille {size}</div>}
-      </div>
-      {s.is_for_sale && (
-        <div style={{ textAlign: 'right' }}>
-          <span style={saleBadgeStyle}>À vendre</span>
-          {price != null && (
-            <div style={{ ...cardPriceStyle, marginTop: 4 }}>
-              {price}&nbsp;€
-            </div>
-          )}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// =================================================================
 // Styles
 // =================================================================
-
-const FONT = "'Outfit', sans-serif"
-const COLOR_TEXT = 'var(--color-text)'
-const COLOR_MUTED = 'var(--color-text-muted)'
-const COLOR_RED = 'var(--color-bred)'
-const COLOR_BORDER = 'var(--color-border)'
-const COLOR_BG_SOFT = 'var(--color-surface-alt)'
-const COLOR_CARD = 'var(--color-surface)'
-
-const pageStyle: React.CSSProperties = {
-  maxWidth: 1200,
+const pageStyle: CSSProperties = {
+  maxWidth: 480,
   margin: '0 auto',
-  padding: '32px 24px',
-  fontFamily: FONT,
-  color: COLOR_TEXT,
+  padding: '24px 16px',
+  fontFamily: 'var(--font-display)',
+  color: 'var(--color-text)',
 }
-
-const pageTitleStyle: React.CSSProperties = {
-  fontSize: 28,
+const titleStyle: CSSProperties = { fontSize: 24, fontWeight: 800, margin: '0 0 8px', color: 'var(--color-text)' }
+const mutedStyle: CSSProperties = { fontSize: 14, color: 'var(--color-text-muted)', margin: 0 }
+const primaryBtnStyle: CSSProperties = {
+  display: 'inline-block',
+  padding: '10px 18px',
+  background: 'var(--color-bred)',
+  color: '#fff',
+  borderRadius: 'var(--radius-md)',
   fontWeight: 700,
-  letterSpacing: '-0.02em',
-  margin: '0 0 8px',
+  fontSize: 14,
+  textDecoration: 'none',
 }
 
-const headerCardStyle: React.CSSProperties = {
+const cardStyle: CSSProperties = {
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-xl)',
+  overflow: 'hidden',
+}
+const coverStyle: CSSProperties = {
+  height: 96,
+  background: 'linear-gradient(120deg, rgba(206,17,65,0.55), rgba(29,66,138,0.45))',
+}
+const cardBodyStyle: CSSProperties = {
+  padding: '0 20px 24px',
   display: 'flex',
-  justifyContent: 'space-between',
+  flexDirection: 'column',
   alignItems: 'center',
-  gap: 24,
-  flexWrap: 'wrap',
-  background: COLOR_CARD,
-  border: `1px solid ${COLOR_BORDER}`,
-  borderRadius: 12,
-  padding: 24,
-  marginBottom: 24,
+  textAlign: 'center',
 }
-
-const headerLeftStyle: React.CSSProperties = {
-  flex: '1 1 auto',
-  minWidth: 0,
+const avatarWrapStyle: CSSProperties = { marginTop: -44 }
+const avatarImgStyle: CSSProperties = {
+  width: 88,
+  height: 88,
+  borderRadius: '50%',
+  objectFit: 'cover',
+  border: '4px solid var(--color-surface)',
+  background: 'var(--color-surface-alt)',
 }
-
-const pseudoRowStyle: React.CSSProperties = {
+const avatarFallbackStyle: CSSProperties = {
+  width: 88,
+  height: 88,
+  borderRadius: '50%',
+  border: '4px solid var(--color-surface)',
+  background: 'var(--color-bred)',
+  color: '#fff',
   display: 'flex',
   alignItems: 'center',
-  gap: 12,
-  flexWrap: 'wrap',
-  marginBottom: 8,
+  justifyContent: 'center',
+  fontSize: 34,
+  fontWeight: 800,
 }
-
-const pseudoTitleStyle: React.CSSProperties = {
-  fontSize: 32,
+const nameStyle: CSSProperties = {
+  fontSize: 22,
+  fontWeight: 800,
+  letterSpacing: '-0.4px',
+  margin: '12px 0 0',
+  color: 'var(--color-text)',
+}
+const handleStyle: CSSProperties = { fontSize: 11, letterSpacing: '1px', color: 'var(--color-text-muted)', marginTop: 2 }
+const rankRowStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  marginTop: 12,
+  padding: '6px 14px',
+  borderRadius: 100,
+  background: 'var(--color-surface-alt)',
+  border: '1px solid var(--color-border)',
+}
+const rankLabelStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 13,
   fontWeight: 700,
-  letterSpacing: '-0.02em',
-  margin: 0,
-  color: COLOR_TEXT,
-}
-
-const privateBadgeStyle: React.CSSProperties = {
-  fontSize: 11,
-  fontWeight: 600,
   letterSpacing: '0.04em',
   textTransform: 'uppercase',
-  background: COLOR_BG_SOFT,
-  color: COLOR_MUTED,
-  padding: '4px 10px',
-  borderRadius: 999,
-  border: `1px solid ${COLOR_BORDER}`,
+  color: 'var(--color-text)',
 }
-
-const memberSinceStyle: React.CSSProperties = {
-  fontSize: 14,
-  color: COLOR_MUTED,
-  margin: 0,
-}
-
-const statsRowStyle: React.CSSProperties = {
+const statsStyle: CSSProperties = {
   display: 'flex',
-  gap: 24,
+  alignItems: 'center',
+  gap: 20,
+  marginTop: 20,
 }
-
-const statBoxStyle: React.CSSProperties = {
-  textAlign: 'center',
-  minWidth: 60,
-}
-
-const statValueStyle: React.CSSProperties = {
-  fontSize: 28,
-  fontWeight: 700,
-  color: COLOR_TEXT,
+const statStyle: CSSProperties = { textAlign: 'center' }
+const statValueStyle: CSSProperties = {
+  fontSize: 24,
+  fontWeight: 900,
+  letterSpacing: '-0.6px',
   fontVariantNumeric: 'tabular-nums',
-  lineHeight: 1.1,
+  color: 'var(--color-text)',
 }
-
-const statLabelStyle: React.CSSProperties = {
-  fontSize: 11,
-  color: COLOR_MUTED,
-  textTransform: 'uppercase',
-  letterSpacing: '0.05em',
-  marginTop: 2,
-}
-
-const mutedTextStyle: React.CSSProperties = {
-  fontSize: 14,
-  color: COLOR_MUTED,
-}
-
-const controlsRowStyle: React.CSSProperties = {
-  display: 'flex',
-  justifyContent: 'space-between',
-  alignItems: 'center',
-  gap: 16,
-  flexWrap: 'wrap',
-  marginBottom: 16,
-  borderBottom: `1px solid ${COLOR_BORDER}`,
-  paddingBottom: 12,
-}
-
-const tabBarStyle: React.CSSProperties = {
-  display: 'flex',
-  gap: 4,
-}
-
-const baseTabStyle: React.CSSProperties = {
-  background: 'transparent',
-  border: 'none',
-  padding: '8px 16px',
-  fontSize: 15,
-  cursor: 'pointer',
-  fontFamily: FONT,
-  borderRadius: 6,
-  transition: 'background 120ms ease',
-}
-
-const inactiveTabStyle: React.CSSProperties = {
-  ...baseTabStyle,
-  color: COLOR_MUTED,
-  fontWeight: 500,
-}
-
-const activeTabStyle: React.CSSProperties = {
-  ...baseTabStyle,
-  color: COLOR_TEXT,
-  background: COLOR_BG_SOFT,
-  fontWeight: 600,
-  boxShadow: `inset 0 -2px 0 ${COLOR_RED}`,
-}
-
-const filtersStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 8,
-  flexWrap: 'wrap',
-}
-
-const selectStyle: React.CSSProperties = {
-  height: 36,
-  padding: '0 12px',
-  borderRadius: 8,
-  border: `1px solid ${COLOR_BORDER}`,
-  background: COLOR_CARD,
-  fontFamily: FONT,
-  fontSize: 14,
-  color: COLOR_TEXT,
-  cursor: 'pointer',
-}
-
-const viewToggleStyle: React.CSSProperties = {
-  display: 'flex',
-  border: `1px solid ${COLOR_BORDER}`,
-  borderRadius: 8,
-  overflow: 'hidden',
-}
-
-const baseViewBtnStyle: React.CSSProperties = {
-  border: 'none',
-  background: 'transparent',
-  padding: '8px 14px',
-  fontSize: 13,
-  fontFamily: FONT,
-  cursor: 'pointer',
-  fontWeight: 500,
-}
-
-const viewBtnStyle: React.CSSProperties = {
-  ...baseViewBtnStyle,
-  color: COLOR_MUTED,
-}
-
-const activeViewBtnStyle: React.CSSProperties = {
-  ...baseViewBtnStyle,
-  background: '#0A0A0A',
-  color: '#FFFFFF',
-}
-
-const primaryButtonStyle: React.CSSProperties = {
-  display: 'inline-block',
-  background: COLOR_RED,
-  color: '#FFFFFF',
-  padding: '10px 20px',
-  borderRadius: 8,
-  textDecoration: 'none',
-  fontWeight: 600,
-  fontSize: 14,
-  fontFamily: FONT,
-}
-
-const sneakerGridStyle: React.CSSProperties = {
-  display: 'grid',
-  gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
-  gap: 16,
-}
-
-const sneakerListStyle: React.CSSProperties = {
-  display: 'flex',
-  flexDirection: 'column',
-  gap: 8,
-}
-
-const cardStyle: React.CSSProperties = {
-  background: COLOR_CARD,
-  border: `1px solid ${COLOR_BORDER}`,
-  borderRadius: 10,
-  overflow: 'hidden',
-  display: 'flex',
-  flexDirection: 'column',
-}
-
-const cardImageWrapStyle: React.CSSProperties = {
-  position: 'relative',
-  aspectRatio: '1 / 1',
-  background: COLOR_BG_SOFT,
-  overflow: 'hidden',
-}
-
-const cardBodyStyle: React.CSSProperties = {
-  padding: 12,
-}
-
-const cardBrandStyle: React.CSSProperties = {
-  fontWeight: 600,
-  fontSize: 14,
-  color: COLOR_TEXT,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const cardModelStyle: React.CSSProperties = {
-  fontSize: 13,
-  color: COLOR_MUTED,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-  marginTop: 2,
-}
-
-const cardSaleRowStyle: React.CSSProperties = {
-  marginTop: 8,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-}
-
-const saleBadgeStyle: React.CSSProperties = {
-  background: COLOR_RED,
-  color: '#FFFFFF',
-  fontSize: 11,
-  fontWeight: 600,
-  padding: '3px 8px',
-  borderRadius: 999,
-  letterSpacing: '0.02em',
-}
-
-const cardPriceStyle: React.CSSProperties = {
-  fontWeight: 700,
-  fontSize: 14,
-  color: COLOR_TEXT,
-  fontVariantNumeric: 'tabular-nums',
-}
-
-const listCardStyle: React.CSSProperties = {
-  display: 'flex',
-  alignItems: 'center',
-  gap: 16,
-  background: COLOR_CARD,
-  border: `1px solid ${COLOR_BORDER}`,
-  borderRadius: 10,
-  padding: 12,
-}
-
-const listImageWrapStyle: React.CSSProperties = {
-  position: 'relative',
-  width: 64,
-  height: 64,
-  flexShrink: 0,
-  background: COLOR_BG_SOFT,
-  borderRadius: 8,
-  overflow: 'hidden',
-}
-
-const listTitleStyle: React.CSSProperties = {
-  fontWeight: 600,
-  fontSize: 15,
-  color: COLOR_TEXT,
-  overflow: 'hidden',
-  textOverflow: 'ellipsis',
-  whiteSpace: 'nowrap',
-}
-
-const listSubtitleStyle: React.CSSProperties = {
-  fontSize: 13,
-  color: COLOR_MUTED,
-  marginTop: 2,
-}
-
-const emptyCardStyle: React.CSSProperties = {
-  background: COLOR_CARD,
-  border: `1px solid ${COLOR_BORDER}`,
-  borderRadius: 12,
-  padding: '48px 24px',
-  textAlign: 'center',
-}
-
-const emptyTitleStyle: React.CSSProperties = {
-  fontSize: 20,
-  fontWeight: 700,
-  letterSpacing: '-0.01em',
-  margin: '0 0 8px',
-  color: COLOR_TEXT,
-}
-
-const emptyTextStyle: React.CSSProperties = {
-  fontSize: 14,
-  color: COLOR_MUTED,
-  margin: 0,
-}
-
-const skeletonStyle: React.CSSProperties = {
-  background:
-    'linear-gradient(90deg, #F3F4F6 0%, #E5E7EB 50%, #F3F4F6 100%)',
-  borderRadius: 10,
-  width: '100%',
-}
+const statLabelStyle: CSSProperties = { fontSize: 9, letterSpacing: '1.5px', color: 'var(--color-text-muted)', marginTop: 4 }
+const statDividerStyle: CSSProperties = { width: 1, height: 32, background: 'var(--color-border)' }
