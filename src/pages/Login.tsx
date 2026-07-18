@@ -423,7 +423,7 @@ const featureIconStyle: CSSProperties = {
   height: 38,
   borderRadius: 'var(--radius-md)',
   background: 'var(--color-text)',
-  color: '#FFFFFF',
+  color: 'var(--color-bg)', /* inverse → lisible en clair ET sombre */
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',

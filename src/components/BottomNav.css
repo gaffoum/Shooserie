@@ -58,7 +58,10 @@
   width: 50px;
   height: 50px;
   border-radius: 16px;
-  margin-top: -16px;
+  /* Centré dans la barre (pas de débordement vers le haut) : la maquette le
+     colle au bord supérieur — on privilégie un rendu équilibré. */
+  margin-top: 0;
+  align-self: center;
   display: flex;
   align-items: center;
   justify-content: center;

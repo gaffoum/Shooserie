@@ -655,7 +655,7 @@ const errorLinkStyle: CSSProperties = {
   display: 'inline-block',
   padding: '10px 18px',
   background: 'var(--color-text)',
-  color: '#FFFFFF',
+  color: 'var(--color-bg)', /* inverse → lisible en clair ET sombre */
   textDecoration: 'none',
   fontSize: 11,
   fontWeight: 600,

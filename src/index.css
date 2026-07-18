@@ -8,8 +8,16 @@
   padding: 0;
 }
 
-html, body, #root {
+html {
   height: 100%;
+}
+/* body/#root grandissent avec le contenu (min-height, pas height fixe) : sinon
+ * la boîte reste figée à 100vh, le contenu déborde via #root, et le
+ * padding-bottom de réservation (barre de nav) tombe DANS la boîte 100vh
+ * (derrière le contenu) → dernier élément coupé. Avec min-height, body grandit
+ * et body.has-bottom-nav { padding-bottom } réserve un vrai espace en bas. */
+body, #root {
+  min-height: 100%;
 }
 
 html {

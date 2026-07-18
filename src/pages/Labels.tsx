@@ -377,6 +377,7 @@ const inputStyle: CSSProperties = {
 const selectStyle: CSSProperties = {
   padding: '8px 12px', fontSize: 13, borderRadius: 8,
   border: '1px solid var(--color-border)', background: 'var(--color-surface)',
+  color: 'var(--color-text)', /* lisible en clair ET sombre */
   fontFamily: 'inherit',
 }
 const ghostBtnStyle: CSSProperties = {

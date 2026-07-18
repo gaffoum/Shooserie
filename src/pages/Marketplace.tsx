@@ -242,6 +242,7 @@ const selectStyle: React.CSSProperties = {
   borderRadius: 8,
   fontSize: 14,
   background: 'var(--color-surface)',
+  color: 'var(--color-text)', /* sinon texte noir par défaut → illisible en sombre */
   fontFamily: 'inherit',
 }
 

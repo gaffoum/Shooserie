@@ -12,6 +12,9 @@
   --color-border: #E0E0E0;
   --color-border-strong: #CFCFCF;
 
+  /* Contrôles natifs (menus <option>, scrollbars, date pickers) suivent le thème */
+  color-scheme: light;
+
   /* Text */
   --color-text: #141414;             /* handoff Light texte principal */
   --color-text-muted: #6B7280;
@@ -67,7 +70,7 @@
 
   /* Navigation basse (5 destinations + FAB) */
   --nav-height: 74px;
-  --nav-safe-pad: calc(var(--nav-height) + 12px + var(--safe-bottom, 0px)); /* réserve scroll */
+  --nav-safe-pad: calc(var(--nav-height) + 24px + var(--safe-bottom, 0px)); /* réserve scroll (marge confortable) */
   --nav-inactive: #6C6C6C;
 
   /* Rayons additionnels (handoff) */
@@ -106,6 +109,7 @@
 
 /* === Thème sombre (source de vérité du handoff) === */
 [data-theme='dark'] {
+  color-scheme: dark;                /* menus natifs / scrollbars en sombre */
   --color-bg: #0A0A0A;               /* handoff Dark canvas */
   --color-surface: #17161D;
   --color-surface-alt: #1E1D26;

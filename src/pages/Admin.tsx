@@ -391,7 +391,7 @@ const trendBottomStyle: CSSProperties = {
 const vanityStyle: CSSProperties = { marginBottom: 24 }
 const vanityCardStyle: CSSProperties = {
   background: 'var(--color-text)',
-  color: '#FFFFFF',
+  color: 'var(--color-bg)', /* inverse → lisible en clair ET sombre */
   borderRadius: 'var(--radius-lg)',
   padding: '18px 18px 16px',
   textAlign: 'center',

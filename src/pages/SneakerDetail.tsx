@@ -542,7 +542,7 @@ const editBtnStyle: CSSProperties = {
   textTransform: 'uppercase',
   fontWeight: 600,
   background: 'var(--color-text)',
-  color: '#FFFFFF',
+  color: 'var(--color-bg)', /* inverse → lisible en clair ET sombre */
   border: 'none',
   borderRadius: 'var(--radius-md)',
   fontFamily: 'var(--font-display)',

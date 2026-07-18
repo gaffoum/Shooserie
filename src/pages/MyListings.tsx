@@ -273,7 +273,7 @@ const emptyCtaStyle: CSSProperties = {
   display: 'inline-block',
   padding: '12px 22px',
   background: 'var(--color-text)',
-  color: '#FFFFFF',
+  color: 'var(--color-bg)', /* inverse → lisible en clair ET sombre */
   textDecoration: 'none',
   fontSize: 11,
   fontWeight: 600,
