@@ -7,6 +7,7 @@ import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
 import { ADMIN_EMAIL, useMyProfile, useUpdateMyProfile } from '@/lib/queries'
+import { StarRankBadge } from '@/components/StarRankBadge'
 import type { DictKey } from '@/i18n/dictionaries'
 
 /**
@@ -22,6 +23,7 @@ import type { DictKey } from '@/i18n/dictionaries'
 export function Account() {
   const { t } = useT()
   const { user, signOut } = useAuth()
+  const { data: profile } = useMyProfile()
   const currentEmail = user?.email ?? ''
 
   return (
@@ -29,6 +31,27 @@ export function Account() {
       <AppHeader leftActions={<BackLink to="/dashboard" />} />
       <main style={mainStyle}>
         <h1 style={titleStyle}>{t('account.title')}</h1>
+
+        {/* Ma carte profil (avatar + pseudo, puis rang + étoiles). Cliquable → progression. */}
+        <Link to="/progression" style={profileCardLinkStyle} aria-label={t('progression.title')}>
+          <div style={profileHeaderStyle}>
+            <div style={profileAvatarStyle} aria-hidden>
+              {profile?.avatar_url ? (
+                <img src={profile.avatar_url} alt="" style={profileAvatarImgStyle} />
+              ) : (
+                (profile?.display_name || currentEmail || '?').charAt(0).toUpperCase()
+              )}
+            </div>
+            <div style={{ minWidth: 0 }}>
+              <div style={profileNameStyle}>{profile?.display_name || currentEmail}</div>
+              {profile?.username && (
+                <div className="lab" style={profileHandleStyle}>@{profile.username}</div>
+              )}
+            </div>
+          </div>
+          <StarRankBadge starsTotal={profile?.stars_total} rank={profile?.rank} />
+        </Link>
+
         <InviteSection />
         <section style={sectionStyle}>
           <Link to="/parrainage" style={{ ...navLinkRowStyle }}>
@@ -532,6 +555,57 @@ function CollectionVisibilitySection() {
  * Ajoute ces styles à la fin du fichier, à côté des autres styles
  * (sectionStyle, sectionTitleStyle, etc. existent déjà) :
  */
+
+const profileCardLinkStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+  textDecoration: 'none',
+  color: 'inherit',
+  marginBottom: 20,
+}
+const profileHeaderStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  gap: 14,
+  minWidth: 0,
+}
+const profileAvatarStyle: CSSProperties = {
+  width: 56,
+  height: 56,
+  borderRadius: '50%',
+  flexShrink: 0,
+  background: 'var(--color-bred)',
+  color: '#fff',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  fontSize: 24,
+  fontWeight: 800,
+  fontFamily: 'var(--font-display)',
+  overflow: 'hidden',
+}
+const profileAvatarImgStyle: CSSProperties = {
+  width: '100%',
+  height: '100%',
+  objectFit: 'cover',
+}
+const profileNameStyle: CSSProperties = {
+  fontFamily: 'var(--font-display)',
+  fontSize: 20,
+  fontWeight: 800,
+  letterSpacing: '-0.4px',
+  color: 'var(--color-text)',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+}
+const profileHandleStyle: CSSProperties = {
+  fontSize: 11,
+  letterSpacing: '1px',
+  color: 'var(--color-text-muted)',
+  marginTop: 2,
+}
 
 const navLinkRowStyle: CSSProperties = {
   display: 'flex',
