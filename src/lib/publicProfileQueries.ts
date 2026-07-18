@@ -143,6 +143,8 @@ export type LeaderboardEntry = {
   stars_total: number
   rank: string
   pairs_count: number
+  /** true ssi le profil a un profil public consultable (pseudo_configured). */
+  has_public_profile: boolean
 }
 
 export function useLeaderboard() {
@@ -152,7 +154,7 @@ export function useLeaderboard() {
       // On sélectionne explicitement les colonnes minimales (jamais '*').
       const { data, error } = await supabase
         .from('leaderboard')
-        .select('id, username, display_name, avatar_url, stars_total, rank, pairs_count')
+        .select('id, username, display_name, avatar_url, stars_total, rank, pairs_count, has_public_profile')
       if (error) throw error
       return (data ?? []) as LeaderboardEntry[]
     },

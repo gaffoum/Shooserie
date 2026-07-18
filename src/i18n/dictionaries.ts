@@ -120,6 +120,7 @@ const fr = {
   // === Communauté (Vague 2) ===
   'community.leaderboard': 'Leaderboard',
   'community.discover': 'Découvrir des collectionneurs',
+  'community.pseudoCta': 'Configure ton pseudo pour avoir un profil public',
   'community.empty.title': 'Leaderboard vide',
   'community.empty.desc': "Personne n'est encore visible dans le classement. Active la visibilité dans tes paramètres pour apparaître.",
   'community.error.title': 'Erreur de chargement',
@@ -680,6 +681,7 @@ const en: typeof fr = {
   // === Community (Vague 2) ===
   'community.leaderboard': 'Leaderboard',
   'community.discover': 'Discover collectors',
+  'community.pseudoCta': 'Set your username to get a public profile',
   'community.empty.title': 'Empty leaderboard',
   'community.empty.desc': 'Nobody is visible in the ranking yet. Enable visibility in your settings to appear.',
   'community.error.title': 'Loading error',

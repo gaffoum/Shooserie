@@ -11,6 +11,7 @@ import { Link } from 'react-router-dom'
 import { AppHeader } from '../components/AppHeader'
 import { BackButton } from '../components/BackButton'
 import { useAuth } from '../contexts/AuthContext'
+import { useMyProfile } from '../lib/queries'
 import { getRankDisplay } from '../lib/ranks'
 import { useTheme } from '../contexts/ThemeContext'
 import { useT, localeFor } from '@/i18n/I18nContext'
@@ -31,6 +32,7 @@ function profileHref(username: string | null, displayName: string | null): strin
 export default function Community() {
   const { t, lang } = useT()
   const { user } = useAuth()
+  const { data: myProfile } = useMyProfile()
   const lb = useLeaderboard()
   const discover = usePublicProfiles()
   const fmt = (n: number) => n.toLocaleString(localeFor(lang))
@@ -38,6 +40,13 @@ export default function Community() {
   const entries = lb.data ?? []
   const podium = entries.slice(0, 3)
   const rest = entries.slice(3)
+
+  // Une entrée du leaderboard sans profil public (pseudo non configuré) ne doit
+  // pas être un lien → sinon 404. La vue expose has_public_profile (pas de
+  // requête supplémentaire sur public_profiles).
+
+  // CTA si l'utilisateur courant n'a pas configuré son pseudo (pas de profil public).
+  const showPseudoCta = !!myProfile && myProfile.pseudo_configured === false
 
   return (
     <>
@@ -47,6 +56,13 @@ export default function Community() {
           <div className="lab" style={eyebrowStyle}>COMMUNAUTÉ</div>
           <h1 style={pageTitleStyle}>{t('community.leaderboard')}</h1>
         </div>
+
+        {showPseudoCta && (
+          <Link to="/account" style={pseudoCtaStyle}>
+            {t('community.pseudoCta')}
+            <span aria-hidden style={{ marginLeft: 8 }}>→</span>
+          </Link>
+        )}
 
         {lb.isLoading ? (
           <div style={listStyle}>
@@ -74,6 +90,7 @@ export default function Community() {
                     entry={entry}
                     rank={rank}
                     isMe={!!user && user.id === entry.id}
+                    linkable={entry.has_public_profile}
                     fmt={fmt}
                   />
                 ))}
@@ -87,6 +104,7 @@ export default function Community() {
                     entry={e}
                     position={i + 4}
                     isMe={!!user && user.id === e.id}
+                    linkable={e.has_public_profile}
                     fmt={fmt}
                   />
                 ))}
@@ -141,15 +159,17 @@ function PodiumCard({
   entry,
   rank,
   isMe,
+  linkable,
   fmt,
 }: {
   entry: LeaderboardEntry
   rank: number
   isMe: boolean
+  linkable: boolean
   fmt: (n: number) => string
 }) {
   const first = rank === 1
-  const href = profileHref(entry.username, entry.display_name)
+  const href = linkable ? profileHref(entry.username, entry.display_name) : null
   const name = entry.display_name || entry.username || '—'
   const Inner = (
     <>
@@ -178,14 +198,16 @@ function LeaderRow({
   entry,
   position,
   isMe,
+  linkable,
   fmt,
 }: {
   entry: LeaderboardEntry
   position: number
   isMe: boolean
+  linkable: boolean
   fmt: (n: number) => string
 }) {
-  const href = profileHref(entry.username, entry.display_name)
+  const href = linkable ? profileHref(entry.username, entry.display_name) : null
   const name = entry.display_name || entry.username || '—'
   const style: React.CSSProperties = {
     ...rowStyle,
@@ -259,6 +281,21 @@ const pageTitleStyle: React.CSSProperties = {
   letterSpacing: '-0.8px',
   margin: '2px 0 0',
   color: 'var(--color-text)',
+}
+const pseudoCtaStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  textAlign: 'center',
+  padding: '12px 16px',
+  marginBottom: 16,
+  borderRadius: 'var(--radius-md)',
+  background: 'var(--color-bred-bg)',
+  border: '1px solid var(--color-bred)',
+  color: 'var(--color-bred)',
+  fontSize: 13,
+  fontWeight: 600,
+  textDecoration: 'none',
 }
 const sectionTitleStyle: React.CSSProperties = {
   fontFamily: 'var(--font-display)',
