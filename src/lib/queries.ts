@@ -759,6 +759,8 @@ export interface Profile {
   avatar_url: string | null
   collection_public: boolean
   pseudo_configured: boolean
+  /** Visibilité dans le leaderboard communautaire (défaut true en base). */
+  leaderboard_visible?: boolean
   created_at: string
   updated_at: string
   /** Moteur d'étoiles — absents si la migration n'est pas appliquée (fallback front) */

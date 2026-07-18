@@ -440,6 +440,8 @@ function CollectionVisibilitySection() {
 
   const queryClient = useQueryClient()
   const isPublic = profile?.collection_public ?? false
+  // Défaut true en base : on considère visible sauf si explicitement false.
+  const inLeaderboard = profile?.leaderboard_visible !== false
 
   const handleToggle = async () => {
     setIsUpdating(true)
@@ -448,6 +450,18 @@ function CollectionVisibilitySection() {
       await queryClient.invalidateQueries({ queryKey: ['my-collection-public'] })
     } catch (err) {
       console.error('Failed to update visibility', err)
+    } finally {
+      setIsUpdating(false)
+    }
+  }
+
+  const handleToggleLeaderboard = async () => {
+    setIsUpdating(true)
+    try {
+      await updateMutation.mutateAsync({ leaderboard_visible: !inLeaderboard })
+      await queryClient.invalidateQueries({ queryKey: ['leaderboard'] })
+    } catch (err) {
+      console.error('Failed to update leaderboard visibility', err)
     } finally {
       setIsUpdating(false)
     }
@@ -481,6 +495,27 @@ function CollectionVisibilitySection() {
           aria-label={t('account.visibility.toggle')}
         >
           <span style={toggleKnobStyle(isPublic)} />
+        </button>
+      </div>
+
+      {/* Visibilité leaderboard — pendant UX des règles de confidentialité. */}
+      <div style={visibilityRowStyle}>
+        <div style={{ flex: 1 }}>
+          <div style={visibilityLabelStyle}>{t('account.leaderboard.label')}</div>
+          <div style={visibilityHintStyle}>
+            {inLeaderboard
+              ? t('account.leaderboard.onHint')
+              : t('account.leaderboard.offHint')}
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={handleToggleLeaderboard}
+          disabled={isLoading || isUpdating}
+          style={toggleBtnStyle(inLeaderboard, isLoading || isUpdating)}
+          aria-label={t('account.leaderboard.label')}
+        >
+          <span style={toggleKnobStyle(inLeaderboard)} />
         </button>
       </div>
     </section>

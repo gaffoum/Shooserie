@@ -484,6 +484,11 @@ const fr = {
   'account.visibility.privateHint':
     'Seules tes paires en vente sont visibles dans le Marché.',
   'account.visibility.toggle': 'Basculer la visibilité',
+  'account.leaderboard.label': 'Apparaître dans le leaderboard',
+  'account.leaderboard.onHint':
+    'Ton pseudo, ton rang et ton total d\'étoiles sont visibles dans le classement communautaire.',
+  'account.leaderboard.offHint':
+    'Tu n\'apparais pas dans le classement communautaire.',
  
   // === Dashboard — toolbar buttons ===
   'dashboard.marketplace.button': 'Marché',
@@ -1017,7 +1022,11 @@ const en: typeof fr = {
   'account.visibility.privateHint':
     'Only your pairs for sale are visible in the Marketplace.',
   'account.visibility.toggle': 'Toggle visibility',
- 
+  'account.leaderboard.label': 'Appear on the leaderboard',
+  'account.leaderboard.onHint':
+    'Your username, rank and star total are visible in the community ranking.',
+  'account.leaderboard.offHint': 'You do not appear in the community ranking.',
+
   // === Dashboard — toolbar buttons ===
   'dashboard.marketplace.button': 'Marketplace',
   'dashboard.marketplace.tooltip': 'See all pairs for sale',
