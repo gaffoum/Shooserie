@@ -29,6 +29,7 @@ import { AdminGuard } from './components/AdminGuard';
 import { GuidePage } from './pages/GuidePage';
 import Progression from './pages/Progression';
 import Referral from './pages/Referral';
+import Announcements from './pages/Announcements';
 import { StarToastProvider } from './components/stars/StarToastProvider';
 import { EngagementAwards } from './components/EngagementAwards';
 import { WelcomeGate } from './components/stars/WelcomeGate';
@@ -168,6 +169,14 @@ export default function App() {
             element={
               <ProtectedRoute>
                 <Referral />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/nouveautes"
+            element={
+              <ProtectedRoute>
+                <Announcements />
               </ProtectedRoute>
             }
           />

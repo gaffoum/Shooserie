@@ -6,7 +6,12 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
 import { BackLink } from '@/components/BackLink'
-import { ADMIN_EMAIL, useMyProfile, useUpdateMyProfile } from '@/lib/queries'
+import {
+  ADMIN_EMAIL,
+  useHasUnreadAnnouncements,
+  useMyProfile,
+  useUpdateMyProfile,
+} from '@/lib/queries'
 import { StarRankBadge } from '@/components/StarRankBadge'
 import { useLogout } from '@/lib/useLogout'
 import type { DictKey } from '@/i18n/dictionaries'
@@ -54,6 +59,7 @@ export function Account() {
           <StarRankBadge starsTotal={profile?.stars_total} rank={profile?.rank} />
         </Link>
 
+        <NewsSection />
         <InviteSection />
         <section style={sectionStyle}>
           <Link to="/parrainage" style={{ ...navLinkRowStyle }}>
@@ -69,6 +75,48 @@ export function Account() {
       </main>
     </div>
   )
+}
+
+/* =====================================================
+ * News section — accès à la page « Nouveautés » avec pastille non-lue.
+ *
+ * La pastille rouge (#CE1141 via --color-bred) s'affiche tant qu'une annonce
+ * plus récente que `announcements_seen_at` existe (ou si la page n'a jamais
+ * été ouverte). Ouvrir /nouveautes marque « lu » et fait disparaître la
+ * pastille au retour sur cette page.
+ * ===================================================== */
+
+function NewsSection() {
+  const { t } = useT()
+  const hasUnread = useHasUnreadAnnouncements()
+
+  return (
+    <section style={sectionStyle}>
+      <Link to="/nouveautes" style={{ ...navLinkRowStyle }}>
+        <span style={newsLabelStyle}>
+          {t('news.title')}
+          {hasUnread && <span style={unreadDotStyle} aria-label={t('news.unread')} />}
+        </span>
+        <span aria-hidden style={{ color: 'var(--color-text-muted)' }}>
+          ›
+        </span>
+      </Link>
+    </section>
+  )
+}
+
+const newsLabelStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+}
+const unreadDotStyle: CSSProperties = {
+  display: 'inline-block',
+  width: 8,
+  height: 8,
+  borderRadius: '50%',
+  background: 'var(--color-bred)',
+  flexShrink: 0,
 }
 
 /* =====================================================

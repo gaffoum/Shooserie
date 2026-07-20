@@ -765,6 +765,8 @@ export interface Profile {
   referral_code?: string | null
   /** Écran de bienvenue post-lancement : NULL = jamais vu. */
   welcome_seen_at?: string | null
+  /** Dernière consultation de la page « Nouveautés » : NULL = jamais ouverte. */
+  announcements_seen_at?: string | null
   created_at: string
   updated_at: string
   /** Moteur d'étoiles — absents si la migration n'est pas appliquée (fallback front) */
@@ -838,6 +840,93 @@ export function useMyReferral() {
         signedUp: rows.length,
         activated: rows.filter((r) => r.status === 'activated').length,
       }
+    },
+  })
+}
+
+/* =====================================================
+ * ANNOUNCEMENTS — page « Nouveautés » (lecture seule côté client).
+ *
+ * La table `announcements` est alimentée en service_role (pas d'écriture
+ * client). RLS : lecture réservée aux utilisateurs authentifiés, uniquement
+ * pour les lignes `is_published = true`. La pastille non-lue et le marquage
+ * « vu » s'appuient sur `profiles.announcements_seen_at`.
+ * ===================================================== */
+
+export type AnnouncementCategory = 'info' | 'feature' | 'fix'
+
+export interface Announcement {
+  id: string
+  title: string
+  body: string
+  category: AnnouncementCategory
+  published_at: string
+  is_published: boolean
+  created_at: string
+}
+
+const ANNOUNCEMENTS_KEY = ['announcements'] as const
+
+/** Liste des annonces publiées, la plus récente d'abord (RLS : auth + publié). */
+export function useAnnouncements() {
+  return useQuery({
+    queryKey: ANNOUNCEMENTS_KEY,
+    queryFn: async (): Promise<Announcement[]> => {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('id, title, body, category, published_at, is_published, created_at')
+        .order('published_at', { ascending: false })
+      if (error) throw error
+      return (data ?? []) as Announcement[]
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+}
+
+/**
+ * Pastille non-lue : vrai s'il existe au moins une annonce plus récente que
+ * `announcements_seen_at` (ou si la page n'a jamais été ouverte). Ne charge
+ * que la date de la dernière annonce — le profil est déjà en cache ailleurs.
+ */
+export function useHasUnreadAnnouncements(): boolean {
+  const { data: profile } = useMyProfile()
+  const { data: latest } = useQuery({
+    queryKey: ['announcements', 'latest'],
+    queryFn: async (): Promise<string | null> => {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('published_at')
+        .order('published_at', { ascending: false })
+        .limit(1)
+        .maybeSingle()
+      if (error) throw error
+      return (data as { published_at: string } | null)?.published_at ?? null
+    },
+    staleTime: 5 * 60 * 1000,
+  })
+
+  if (!latest) return false
+  const seen = profile?.announcements_seen_at
+  if (!seen) return true
+  return new Date(latest).getTime() > new Date(seen).getTime()
+}
+
+/** Marque les annonces comme lues (announcements_seen_at = now() sur son profil). */
+export function useMarkAnnouncementsSeen() {
+  const qc = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      const { data: userData } = await supabase.auth.getUser()
+      if (!userData.user) throw new Error('not authenticated')
+      const { error } = await supabase
+        .from('profiles')
+        .update({ announcements_seen_at: new Date().toISOString() })
+        .eq('id', userData.user.id)
+      if (error) throw error
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: PROFILE_KEY })
+      qc.invalidateQueries({ queryKey: ['announcements', 'latest'] })
     },
   })
 }

@@ -569,6 +569,18 @@ const fr = {
   'guide.rarity.score.p3': 'Le palier est recalculable à tout moment — il n’est jamais figé.',
   'nav.guide': 'Guide',
   'guide.link': 'Comment ça marche ?',
+
+  // === Nouveautés (annonces communauté) ===
+  'news.title': 'Nouveautés',
+  'news.subtitle':
+    'Les dernières nouvelles de Shooserie : améliorations, corrections et infos.',
+  'news.unread': 'Nouvelles annonces non lues',
+  'news.empty.title': 'Rien de neuf pour le moment',
+  'news.empty.desc':
+    'Les annonces apparaîtront ici dès qu’il y aura du nouveau.',
+  'news.category.info': 'Info',
+  'news.category.feature': 'Nouveauté',
+  'news.category.fix': 'Correctif',
 }
 
 const en: typeof fr = {
@@ -1128,6 +1140,17 @@ const en: typeof fr = {
   'guide.rarity.score.p3': 'The tier can be recomputed at any time — it is never fixed.',
   'nav.guide': 'Guide',
   'guide.link': 'How does it work?',
+
+  // === What's new (community announcements) ===
+  'news.title': 'What’s new',
+  'news.subtitle':
+    'The latest from Shooserie: improvements, fixes and news.',
+  'news.unread': 'Unread announcements',
+  'news.empty.title': 'Nothing new yet',
+  'news.empty.desc': 'Announcements will show up here as soon as there’s news.',
+  'news.category.info': 'Info',
+  'news.category.feature': 'New',
+  'news.category.fix': 'Fix',
 }
 
 export type DictKey = keyof typeof fr
