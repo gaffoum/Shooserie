@@ -160,6 +160,52 @@
   color: #fff;
 }
 
+/* ============================================================
+   Thèmes South Beach — la Landing suit la maquette (design/handoff/
+   Shooserie App South Beach[ Light].dc.html). Le titre-accent et le bouton
+   primaire héritent déjà de --color-bred (→ cyan). On adapte ici fond,
+   dégradés, halo, ombre et — en light — les couleurs de texte.
+   Gradients + halo + ombre sont IDENTIQUES en dark et light (cyan + pink).
+   ============================================================ */
+
+/* Fonds */
+[data-theme='sb-dark'] .landing { background: #073763; }               /* navy Miami night */
+[data-theme='sb-light'] .landing { background: #ffffff; color: #0a2540; }
+
+/* Dégradés radiaux : cyan (haut-droite) + pink (bas-gauche). */
+[data-theme='sb-dark'] .landing__bg,
+[data-theme='sb-light'] .landing__bg {
+  background:
+    radial-gradient(circle at 72% 30%, rgba(0, 191, 255, 0.35), transparent 55%),
+    radial-gradient(circle at 20% 88%, rgba(233, 30, 99, 0.28), transparent 55%);
+}
+
+/* Halo sous la sneaker : cyan. */
+[data-theme='sb-dark'] .landing__halo,
+[data-theme='sb-light'] .landing__halo {
+  background: radial-gradient(ellipse, rgba(0, 191, 255, 0.9), transparent 70%);
+}
+
+/* Ombre portée du CTA primaire : cyan. */
+[data-theme='sb-dark'] .landing__btn-primary,
+[data-theme='sb-light'] .landing__btn-primary {
+  box-shadow: 0 10px 30px rgba(0, 191, 255, 0.45);
+}
+
+/* South Beach Light : fond clair → textes navy/slate + éléments sombres. */
+[data-theme='sb-light'] .landing__brand-name,
+[data-theme='sb-light'] .landing__title { color: #0a2540; }
+[data-theme='sb-light'] .landing__subtitle { color: #5a7183; }
+[data-theme='sb-light'] .landing__watermark { -webkit-text-stroke-color: rgba(10, 37, 64, 0.05); }
+[data-theme='sb-light'] .landing__btn-secondary {
+  border-color: rgba(10, 37, 64, 0.18);
+  color: #0a2540;
+}
+[data-theme='sb-light'] .landing__btn-secondary:hover {
+  border-color: rgba(10, 37, 64, 0.4);
+  color: #0a2540;
+}
+
 @media (min-width: 720px) {
   .landing__title { font-size: 64px; }
   .landing__subtitle { font-size: 16px; max-width: 360px; }

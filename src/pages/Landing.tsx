@@ -26,13 +26,13 @@ export function Landing() {
             <rect x="28.3" y="45" width="103.4" height="19.22" rx="5.6" fill="#F2F2F2" />
             <rect x="33" y="56.22" width="94" height="54.78" rx="8" fill="#FFFFFF" />
             <rect x="50.7" y="67.22" width="2.8" height="26" fill="#0A0A0A" />
-            <rect x="55.5" y="67.22" width="5.6" height="26" fill="#CE1141" />
+            <rect x="55.5" y="67.22" width="5.6" height="26" fill="var(--color-bred)" />
             <rect x="63.1" y="67.22" width="2.8" height="26" fill="#0A0A0A" />
             <rect x="67.9" y="67.22" width="7" height="26" fill="#0A0A0A" />
             <rect x="76.9" y="67.22" width="2.8" height="26" fill="#0A0A0A" />
             <rect x="81.7" y="67.22" width="4.2" height="26" fill="#0A0A0A" />
             <rect x="87.9" y="67.22" width="2.8" height="26" fill="#0A0A0A" />
-            <rect x="92.7" y="67.22" width="5.6" height="26" fill="#CE1141" />
+            <rect x="92.7" y="67.22" width="5.6" height="26" fill="var(--color-bred)" />
           </svg>
           <span className="lab landing__brand-name">SHOOSERIE</span>
         </div>
