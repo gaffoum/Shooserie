@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import { supabase } from './supabase'
 import { getStockXPricing, lookupBarcodeOnStockX, usdToEur } from './stockx'
 import type { Sneaker, PriceHistoryEntry } from './types'
@@ -194,6 +194,70 @@ export function useRefreshMarketPrice() {
       qc.setQueryData(keyOne(sneaker.id), sneaker)
     },
   })
+}
+
+/**
+ * Récupère la cote StockX d'une paire fraîchement créée, en arrière-plan et
+ * SANS bloquer (fire-and-forget). Appelée juste après la création : on ne
+ * l'attend jamais, la navigation se fait immédiatement.
+ *
+ * - No-op si la paire n'a pas de lien catalogue (`stockx_product_id`) ou
+ *   aucun moyen de cibler une variante (ni `stockx_variant_id`, ni `size_us`).
+ * - En cas d'échec réseau / cote absente : on ignore silencieusement, la paire
+ *   reste créée sans cote (aucune régression, aucune erreur remontée à l'UI).
+ * - En cas de succès : met à jour market_price (EUR), market_price_usd, le
+ *   variant résolu, last_price_check et price_history. Le trigger DB
+ *   `trg_sneaker_rarity` recalcule alors la rareté dans la même transaction.
+ *   On rafraîchit le cache React Query (fiche + liste) pour que la cote et la
+ *   nouvelle rareté apparaissent dès qu'elles arrivent.
+ *
+ * Prend le QueryClient en argument (plutôt qu'un hook) pour survivre au
+ * démontage du composant de création après la navigation.
+ */
+export async function backfillMarketPriceQuietly(
+  sneaker: Sneaker,
+  qc: QueryClient,
+): Promise<void> {
+  try {
+    if (!sneaker.stockx_product_id) return
+    if (!sneaker.stockx_variant_id && !sneaker.size_us) return
+
+    const pricing = await getStockXPricing({
+      productId: sneaker.stockx_product_id,
+      variantId: sneaker.stockx_variant_id ?? undefined,
+      size: sneaker.stockx_variant_id ? undefined : sneaker.size_us ?? undefined,
+    })
+
+    const usd = pricing.midPrice ?? pricing.lowestAsk
+    if (usd === null || usd === undefined) return // pas de donnée de marché
+    const eur = usdToEur(usd)
+
+    const newEntry: PriceHistoryEntry = {
+      date: pricing.fetchedAt,
+      price: eur ?? 0,
+      source: 'stockx',
+    }
+
+    const { data, error } = await supabase
+      .from('sneakers')
+      .update({
+        market_price: eur,
+        market_price_usd: usd,
+        stockx_variant_id: pricing.variantId,
+        last_price_check: pricing.fetchedAt,
+        price_history: [...(sneaker.price_history ?? []), newEntry],
+      })
+      .eq('id', sneaker.id)
+      .select()
+      .single()
+
+    if (error || !data) return
+    // La ligne renvoyée inclut la rareté recalculée par le trigger BEFORE UPDATE.
+    qc.setQueryData(keyOne(sneaker.id), data as Sneaker)
+    qc.invalidateQueries({ queryKey: KEY_ALL })
+  } catch {
+    // Non-bloquant : la paire existe déjà, une cote manquante n'est pas une erreur.
+  }
 }
 
 /**

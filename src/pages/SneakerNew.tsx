@@ -1,8 +1,9 @@
 import { useLocation, useNavigate } from 'react-router-dom'
+import { useQueryClient } from '@tanstack/react-query'
 import { AppHeader } from '@/components/AppHeader'
 import { SneakerForm } from '@/components/SneakerForm'
 import { BackLink } from '@/components/BackLink'
-import { useCreateSneaker, type SneakerInput } from '@/lib/queries'
+import { backfillMarketPriceQuietly, useCreateSneaker, type SneakerInput } from '@/lib/queries'
 import { useT } from '@/i18n/I18nContext'
 import type { CSSProperties } from 'react'
 
@@ -22,9 +23,14 @@ export function SneakerNew() {
   const lookupSource = state?.lookupSource
 
   const createMutation = useCreateSneaker()
+  const queryClient = useQueryClient()
 
   const handleSubmit = async (input: SneakerInput) => {
     const sneaker = await createMutation.mutateAsync(input)
+    // Récupère la cote StockX en arrière-plan (non bloquant) : on ne l'attend
+    // pas, la navigation est immédiate. Dès que market_price est renseigné, le
+    // trigger DB recalcule la rareté ; le cache est mis à jour à l'arrivée.
+    void backfillMarketPriceQuietly(sneaker, queryClient)
     navigate(`/sneakers/${sneaker.id}`, { replace: true })
   }
 
