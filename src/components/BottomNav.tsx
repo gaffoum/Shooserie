@@ -2,6 +2,7 @@ import { useEffect, type ReactNode } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { useT } from '@/i18n/I18nContext'
+import { useHasUnreadAnnouncements } from '@/lib/queries'
 import './BottomNav.css'
 
 /**
@@ -87,6 +88,8 @@ export function BottomNav() {
   const { user } = useAuth()
   const { pathname } = useLocation()
   const { t } = useT()
+  // Pastille « nouveautés » sur l'onglet Profil (visible depuis toutes les pages).
+  const hasUnreadNews = useHasUnreadAnnouncements()
 
   const hidden =
     !user || HIDDEN_PREFIXES.some((p) => pathname === p || pathname.startsWith(p))
@@ -116,7 +119,13 @@ export function BottomNav() {
       </Link>
 
       {right.map((d) => (
-        <NavItem key={d.key} dest={d} active={isActive(pathname, d.match)} t={t} />
+        <NavItem
+          key={d.key}
+          dest={d}
+          active={isActive(pathname, d.match)}
+          badge={d.key === 'profile' && hasUnreadNews}
+          t={t}
+        />
       ))}
     </nav>
   )
@@ -125,10 +134,12 @@ export function BottomNav() {
 function NavItem({
   dest,
   active,
+  badge = false,
   t,
 }: {
   dest: Dest
   active: boolean
+  badge?: boolean
   t: ReturnType<typeof useT>['t']
 }) {
   return (
@@ -137,7 +148,10 @@ function NavItem({
       className={'bottom-nav__item' + (active ? ' is-active' : '')}
       aria-current={active ? 'page' : undefined}
     >
-      {dest.icon}
+      <span className="bottom-nav__icon-wrap">
+        {dest.icon}
+        {badge && <span className="bottom-nav__badge" aria-label={t('news.unread')} />}
+      </span>
       <span className="lab bottom-nav__label">{t(dest.labelKey)}</span>
     </Link>
   )

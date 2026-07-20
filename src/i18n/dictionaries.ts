@@ -581,6 +581,7 @@ const fr = {
   'news.category.info': 'Info',
   'news.category.feature': 'Nouveauté',
   'news.category.fix': 'Correctif',
+  'dashboard.news.banner': 'Du nouveau sur Shooserie',
 }
 
 const en: typeof fr = {
@@ -1151,6 +1152,7 @@ const en: typeof fr = {
   'news.category.info': 'Info',
   'news.category.feature': 'New',
   'news.category.fix': 'Fix',
+  'dashboard.news.banner': 'What’s new on Shooserie',
 }
 
 export type DictKey = keyof typeof fr

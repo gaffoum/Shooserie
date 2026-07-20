@@ -52,6 +52,28 @@
   line-height: 1;
 }
 
+/* Conteneur de l'icône : ancre la pastille de notification en haut à droite. */
+.bottom-nav__icon-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Pastille « nouveautés » — petite, discrète, coin haut-droit de l'icône. */
+.bottom-nav__badge {
+  position: absolute;
+  top: -2px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-bred);
+  /* Léger liseré couleur du fond de nav pour détacher la pastille de l'icône. */
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.92);
+}
+[data-theme='dark'] .bottom-nav__badge {
+  box-shadow: 0 0 0 2px rgba(12, 12, 12, 0.94);
+}
+
 /* FAB central rouge — se détache vers le haut (margin-top négatif). */
 .bottom-nav__fab {
   flex: 0 0 auto;

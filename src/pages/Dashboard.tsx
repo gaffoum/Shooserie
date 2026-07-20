@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations, useMyProfile } from '@/lib/queries'
+import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations, useMyProfile, useHasUnreadAnnouncements } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -90,6 +90,8 @@ export function Dashboard() {
 )
 
   const { t } = useT()
+  // Bannière « nouveautés » — réutilise le hook (aucune requête en plus).
+  const hasUnreadNews = useHasUnreadAnnouncements()
   const [view, setView] = useState<ViewMode>('grid')
   // Mode de page niveau 1 : Portfolio (financier) vs Collection (classeur TCG),
   // persisté en localStorage et relu à l'init.
@@ -268,6 +270,18 @@ export function Dashboard() {
           <div style={errorBoxStyle}>
             {t('dashboard.errorLoad', { msg: (error as Error).message })}
           </div>
+        )}
+
+        {/* Bannière compacte « du nouveau » — visible tant qu'il reste des
+            annonces non lues, disparaît dès l'ouverture de /nouveautes. */}
+        {hasUnreadNews && (
+          <Link to="/nouveautes" style={newsBannerStyle}>
+            <span style={newsBannerTextStyle}>
+              <span aria-hidden>⭐</span>
+              {t('dashboard.news.banner')}
+            </span>
+            <span aria-hidden style={newsBannerChevronStyle}>›</span>
+          </Link>
         )}
 
         {pageMode === 'portfolio' ? (
@@ -688,6 +702,32 @@ const mainStyle: CSSProperties = {
   padding: '20px',
   maxWidth: 1200,
   margin: '0 auto',
+}
+const newsBannerStyle: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-between',
+  gap: 10,
+  padding: '10px 14px',
+  marginBottom: 16,
+  background: 'var(--color-bred-bg)',
+  border: '1px solid var(--color-bred)',
+  borderRadius: 'var(--radius-md)',
+  textDecoration: 'none',
+  color: 'var(--color-bred)',
+}
+const newsBannerTextStyle: CSSProperties = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  fontFamily: 'var(--font-display)',
+  fontSize: 13,
+  fontWeight: 600,
+}
+const newsBannerChevronStyle: CSSProperties = {
+  fontSize: 20,
+  lineHeight: 1,
+  flexShrink: 0,
 }
 const kpiGridStyle: CSSProperties = {
   display: 'grid',
