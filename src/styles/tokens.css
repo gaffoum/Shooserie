@@ -77,6 +77,12 @@
   --radius-card: 16px;
   --radius-btn: 14px;
 
+  /* Conteneur du Dashboard — partagé par <main> et l'en-tête « Salut… »
+   * (WelcomeHeader), pour que la salutation s'aligne sur les cartes KPI.
+   * Source de vérité unique : si la gouttière évolue, les deux suivent. */
+  --dashboard-gutter: 20px;
+  --dashboard-max: 1200px;
+
   /* === Spacing (8px grid) === */
   --space-1: 4px;
   --space-2: 8px;

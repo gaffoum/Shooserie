@@ -132,6 +132,7 @@ const fr = {
   'mystats.tile.grails': 'Grails',
   'mystats.tile.brands': 'Marques',
   'mystats.tile.worn': 'Portées',
+  'mystats.badge.title': 'Mon badge',
   'mystats.facets.title': 'Facettes débloquées',
 
   // === Portfolio (en-tête handoff) ===
@@ -706,6 +707,7 @@ const en: typeof fr = {
   'mystats.tile.grails': 'Grails',
   'mystats.tile.brands': 'Brands',
   'mystats.tile.worn': 'Worn',
+  'mystats.badge.title': 'My badge',
   'mystats.facets.title': 'Unlocked facets',
 
   // === Portfolio (handoff header) ===

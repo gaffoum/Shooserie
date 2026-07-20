@@ -10,9 +10,11 @@ import { StatusDistribution } from '../components/StatusDistribution'
 import { RankingsList } from '../components/RankingsList'
 import { StarRankBadge } from '../components/StarRankBadge'
 import { FacetsList } from '../components/FacetsList'
+import { BadgeDisplay } from '../components/BadgeDisplay'
+import { BadgeProgressBar } from '../components/BadgeProgressBar'
 import { useSneakers, useMyProfile } from '../lib/queries'
 import { normalizeBrand } from '../lib/collectionGrouping'
-import { computeFacets } from '../lib/badges'
+import { computeFacets, computeGrade, gradeProgress } from '../lib/badges'
 import { useT } from '@/i18n/I18nContext'
 import {
   useMyWearStatusDistribution,
@@ -44,7 +46,11 @@ export default function Rankings() {
       pairsWithWears: worn,
       pairsForSale: forSale,
     })
-    return { total, grails, brands, worn, facets }
+    // Badge de collectionneur (archétype) + progression vers le suivant.
+    // Déplacé ici depuis l'en-tête profil : c'est une info de second niveau.
+    const badge = computeGrade(total)
+    const badgeProgress = gradeProgress(total)
+    return { total, grails, brands, worn, facets, badge, badgeProgress }
   }, [sneakers])
 
   const distQ = useMyWearStatusDistribution()
@@ -75,6 +81,17 @@ export default function Rankings() {
           <StatTile value={stats.grails} label={t('mystats.tile.grails')} accent="var(--rarity-grail)" />
           <StatTile value={stats.brands} label={t('mystats.tile.brands')} />
           <StatTile value={stats.worn} label={t('mystats.tile.worn')} />
+        </div>
+
+        {/* Badge de collectionneur (archétype) + progression vers le suivant.
+            C'est ici — et non plus dans l'en-tête profil — que la progression
+            du badge se déplie (info de second niveau). */}
+        <div style={{ marginBottom: 28 }}>
+          <h2 style={facetsTitleStyle}>{t('mystats.badge.title')}</h2>
+          <div style={badgeCardStyle}>
+            <BadgeDisplay code={stats.badge.code} size="lg" showLabel longLabel />
+            <BadgeProgressBar progress={stats.badgeProgress} />
+          </div>
         </div>
 
         {/* Facettes débloquées */}
@@ -211,6 +228,15 @@ const tileLabelStyle: CSSProperties = {
   fontSize: 10,
   letterSpacing: '1.5px',
   color: 'var(--color-text-muted)',
+}
+const badgeCardStyle: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+  background: 'var(--color-surface)',
+  border: '1px solid var(--color-border)',
+  borderRadius: 'var(--radius-lg)',
+  padding: 16,
 }
 const facetsTitleStyle: CSSProperties = {
   fontFamily: 'var(--font-display)',

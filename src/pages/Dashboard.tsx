@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations, useMyProfile, useHasUnreadAnnouncements } from '@/lib/queries'
+import { useSneakers, useRefreshAllMarketPrices, useModelOwnerCounts, useMyConversations, useHasUnreadAnnouncements } from '@/lib/queries'
 import { aggregateKpis, deltaColor, formatEur, formatPct, listBrands, listTags, portfolioTimeline } from '@/lib/format'
 import { useT } from '@/i18n/I18nContext'
 import { AppHeader } from '@/components/AppHeader'
@@ -24,7 +24,6 @@ import type { DictKey } from '@/i18n/dictionaries'
 import { WelcomeHeader } from '../components/WelcomeHeader'
 import { LabelsButton } from '@/components/LabelsButton'
 import { BinderView } from '@/components/collection/BinderView'
-import { StarRankBadge } from '@/components/StarRankBadge'
 import { PortfolioHeader } from '@/components/PortfolioHeader'
 
 /* =====================================================
@@ -243,11 +242,6 @@ export function Dashboard() {
   const kpis = useMemo(() => aggregateKpis(allSneakers), [allSneakers])
   const timeline = useMemo(() => portfolioTimeline(allSneakers), [allSneakers])
 
-  // Étoiles / rang — emplacement temporaire sur le Portfolio, migrera vers la
-  // partie sociale (profil / leaderboard). Toute la logique vit dans
-  // StarRankBadge + lib/ranks.ts.
-  const { data: myProfile } = useMyProfile()
-
   return (
     <div style={{ minHeight: '100vh', background: 'var(--color-bg)' }}>
       <WelcomeHeader />
@@ -293,19 +287,8 @@ export function Dashboard() {
               deltaPct={kpis.count > 0 ? kpis.deltaPct : null}
             />
 
-            {/* Étoiles + rang — cliquable → « Ma progression ». */}
-            <div style={{ display: 'flex', marginBottom: 10 }}>
-              <Link
-                to="/progression"
-                style={{ textDecoration: 'none', color: 'inherit', display: 'block', width: '100%' }}
-                aria-label={t('progression.title')}
-              >
-                <StarRankBadge
-                  starsTotal={myProfile?.stars_total}
-                  rank={myProfile?.rank}
-                />
-              </Link>
-            </div>
+            {/* Le rang d'étoiles (héros + progression) vit désormais dans
+                l'en-tête « Salut… » (WelcomeHeader) — plus de doublon ici. */}
 
             {/* KPIs secondaires (la valeur estimée est déjà dans la bannière). */}
             <section style={kpiGridStyle}>
@@ -699,8 +682,8 @@ function findDuplicates(
 }
 
 const mainStyle: CSSProperties = {
-  padding: '20px',
-  maxWidth: 1200,
+  padding: 'var(--dashboard-gutter)',
+  maxWidth: 'var(--dashboard-max)',
   margin: '0 auto',
 }
 const newsBannerStyle: CSSProperties = {

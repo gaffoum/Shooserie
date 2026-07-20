@@ -125,13 +125,17 @@ function getButtonStyle(
       }
     case 'secondary':
     default:
+      // Bouton à contour clair, posé sur une carte `--color-surface` (état vide
+      // du Dashboard). En sombre, un fond `--color-surface` se fondait dans la
+      // carte : on prend `--color-surface-alt` + `--color-border-strong` pour
+      // détacher le bouton dans les deux thèmes tout en restant secondaire.
       return {
         ...base,
         padding: '8px 14px',
         fontSize: 11,
-        background: 'var(--color-surface)',
+        background: 'var(--color-surface-alt)',
         color: 'var(--color-text)',
-        border: '1px solid var(--color-border)',
+        border: '1px solid var(--color-border-strong)',
       }
   }
 }
