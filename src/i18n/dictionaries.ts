@@ -533,6 +533,10 @@ const fr = {
   'theme.light': 'Clair',
   'theme.dark': 'Sombre',
   'theme.system': 'Système',
+  'theme.sbDark': 'South Beach Dark',
+  'theme.sbLight': 'South Beach Light',
+  'theme.section': 'Apparence',
+  'theme.desc': 'Choisis ton thème. La préférence est mémorisée sur cet appareil.',
 
   // Mode de page : Portfolio / Collection
   'dashboard.mode.aria': 'Mode d’affichage',
@@ -1106,6 +1110,10 @@ const en: typeof fr = {
   'theme.light': 'Light',
   'theme.dark': 'Dark',
   'theme.system': 'System',
+  'theme.sbDark': 'South Beach Dark',
+  'theme.sbLight': 'South Beach Light',
+  'theme.section': 'Appearance',
+  'theme.desc': 'Pick your theme. Your preference is saved on this device.',
 
   // Mode de page : Portfolio / Collection
   'dashboard.mode.aria': 'Display mode',

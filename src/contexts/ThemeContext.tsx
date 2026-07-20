@@ -1,42 +1,77 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
-type ThemePref = 'light' | 'dark' | 'system'
-type Resolved = 'light' | 'dark'
-const KEY = 'shooserie:theme'
+/**
+ * Thème de l'app — QUATRE valeurs pilotées par `data-theme` sur <html> :
+ *   dark · light · sb-dark · sb-light   (sb = « South Beach / Miami »).
+ *
+ * `resolved` conserve la famille claire/sombre (light|dark) — les composants
+ * qui choisissent un asset selon la luminosité (écussons de rang, logo…)
+ * continuent de lire `resolved` sans changement.
+ *
+ * Persistance : la préférence est stockée en localStorage. Toute valeur inconnue
+ * (ancien 'system', clé corrompue, thème retiré…) retombe sur `dark`.
+ */
+export type Theme = 'dark' | 'light' | 'sb-dark' | 'sb-light'
+type Family = 'light' | 'dark'
 
-const Ctx = createContext<{ pref: ThemePref; resolved: Resolved; setPref: (p: ThemePref) => void }>({
-  pref: 'system', resolved: 'light', setPref: () => {},
+const KEY = 'shooserie:theme'
+const THEMES: readonly Theme[] = ['dark', 'light', 'sb-dark', 'sb-light']
+const DEFAULT_THEME: Theme = 'dark'
+
+/** Famille claire/sombre de chaque thème (choix des assets light/dark). */
+const FAMILY: Record<Theme, Family> = {
+  dark: 'dark',
+  'sb-dark': 'dark',
+  light: 'light',
+  'sb-light': 'light',
+}
+
+/** Couleur de la barre d'état (meta theme-color) alignée sur le fond de page. */
+const META_COLOR: Record<Theme, string> = {
+  dark: '#0A0A0A',
+  light: '#F5F5F5',
+  'sb-dark': '#073763',
+  'sb-light': '#E9F3FB',
+}
+
+/** Normalise une valeur stockée : inconnue → dark (fallback exigé). */
+function normalize(v: string | null | undefined): Theme {
+  return THEMES.includes(v as Theme) ? (v as Theme) : DEFAULT_THEME
+}
+
+const Ctx = createContext<{
+  theme: Theme
+  /** Famille claire/sombre du thème courant (compat consommateurs existants). */
+  resolved: Family
+  setTheme: (t: Theme) => void
+}>({
+  theme: DEFAULT_THEME,
+  resolved: 'dark',
+  setTheme: () => {},
 })
 
-function systemDark() {
-  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-}
-
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [pref, setPref] = useState<ThemePref>(() => {
-    const s = localStorage.getItem(KEY) as ThemePref | null
-    return s === 'light' || s === 'dark' || s === 'system' ? s : 'system'
-  })
-  const [resolved, setResolved] = useState<Resolved>('light')
+  const [theme, setThemeState] = useState<Theme>(() => normalize(localStorage.getItem(KEY)))
 
   useEffect(() => {
-    function apply() {
-      const r: Resolved = pref === 'system' ? (systemDark() ? 'dark' : 'light') : pref
-      setResolved(r)
-      document.documentElement.setAttribute('data-theme', r)
-      const meta = document.querySelector('meta[name="theme-color"]')
-      if (meta) meta.setAttribute('content', r === 'dark' ? '#0A0A0A' : '#F5F5F5')
-    }
-    apply()
-    localStorage.setItem(KEY, pref)
-    if (pref === 'system' && window.matchMedia) {
-      const mq = window.matchMedia('(prefers-color-scheme: dark)')
-      mq.addEventListener('change', apply)
-      return () => mq.removeEventListener('change', apply)
-    }
-  }, [pref])
+    document.documentElement.setAttribute('data-theme', theme)
+    const meta = document.querySelector('meta[name="theme-color"]')
+    if (meta) meta.setAttribute('content', META_COLOR[theme])
+    localStorage.setItem(KEY, theme)
+  }, [theme])
 
-  return <Ctx.Provider value={{ pref, resolved, setPref }}>{children}</Ctx.Provider>
+  const setTheme = (t: Theme) => setThemeState(normalize(t))
+
+  return (
+    <Ctx.Provider value={{ theme, resolved: FAMILY[theme], setTheme }}>
+      {children}
+    </Ctx.Provider>
+  )
 }
 
-export function useTheme() { return useContext(Ctx) }
+export function useTheme() {
+  return useContext(Ctx)
+}
+
+/** Liste ordonnée des thèmes — pour le sélecteur des Paramètres et le cycle. */
+export const THEME_ORDER: readonly Theme[] = THEMES

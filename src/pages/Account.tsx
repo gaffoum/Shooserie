@@ -14,6 +14,8 @@ import {
 } from '@/lib/queries'
 import { StarRankBadge } from '@/components/StarRankBadge'
 import { useLogout } from '@/lib/useLogout'
+import { useTheme, THEME_ORDER, type Theme } from '@/contexts/ThemeContext'
+import { THEME_LABEL_KEY } from '@/components/ThemeToggle'
 import type { DictKey } from '@/i18n/dictionaries'
 
 /**
@@ -68,6 +70,7 @@ export function Account() {
           </Link>
         </section>
 		<CollectionVisibilitySection />
+        <ThemeSection />
         <EmailSection currentEmail={currentEmail} />
         <PasswordSection email={currentEmail} />
         {currentEmail === ADMIN_EMAIL && <AdminSection />}
@@ -75,6 +78,112 @@ export function Account() {
       </main>
     </div>
   )
+}
+
+/* =====================================================
+ * Theme section — sélecteur de thème (4 options) dans les Paramètres.
+ *
+ * Remplace l'ancien simple toggle : les 4 thèmes (Sombre, Clair, South Beach
+ * Dark, South Beach Light) sont présentés comme des options sélectionnables,
+ * chacune avec une pastille d'aperçu (fond + accent). La préférence est
+ * persistée côté client par le ThemeProvider (fallback dark si inconnue).
+ * ===================================================== */
+
+const THEME_SWATCH: Record<Theme, { bg: string; accent: string }> = {
+  dark: { bg: '#0A0A0A', accent: '#CE1141' },
+  light: { bg: '#ECECEC', accent: '#CE1141' },
+  'sb-dark': { bg: '#073763', accent: '#00BFFF' },
+  'sb-light': { bg: '#E9F3FB', accent: '#00BFFF' },
+}
+
+function ThemeSection() {
+  const { t } = useT()
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <section style={sectionStyle}>
+      <h2 style={sectionTitleStyle}>{t('theme.section')}</h2>
+      <p style={themeDescStyle}>{t('theme.desc')}</p>
+      <div style={themeGridStyle}>
+        {THEME_ORDER.map((th) => {
+          const active = th === theme
+          const sw = THEME_SWATCH[th]
+          return (
+            <button
+              key={th}
+              type="button"
+              onClick={() => setTheme(th)}
+              aria-pressed={active}
+              style={themeOptionStyle(active)}
+            >
+              <span
+                aria-hidden
+                style={{
+                  ...themeSwatchStyle,
+                  background: sw.bg,
+                  boxShadow: `inset 0 0 0 2px ${sw.accent}`,
+                }}
+              />
+              <span style={themeOptionLabelStyle}>{t(THEME_LABEL_KEY[th])}</span>
+              {active && (
+                <span aria-hidden style={themeCheckStyle}>
+                  ✓
+                </span>
+              )}
+            </button>
+          )
+        })}
+      </div>
+    </section>
+  )
+}
+
+const themeDescStyle: CSSProperties = {
+  fontSize: 13,
+  color: 'var(--color-text-muted)',
+  lineHeight: 1.5,
+  margin: '0 0 14px',
+}
+const themeGridStyle: CSSProperties = {
+  display: 'grid',
+  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gap: 8,
+}
+const themeOptionStyle = (active: boolean): CSSProperties => ({
+  display: 'flex',
+  alignItems: 'center',
+  gap: 10,
+  padding: '10px 12px',
+  borderRadius: 'var(--radius-md)',
+  border: `1px solid ${active ? 'var(--color-bred)' : 'var(--color-border)'}`,
+  background: active ? 'var(--color-bred-bg)' : 'var(--color-surface)',
+  cursor: 'pointer',
+  fontFamily: 'var(--font-display)',
+  textAlign: 'left',
+  minWidth: 0,
+})
+const themeSwatchStyle: CSSProperties = {
+  width: 26,
+  height: 26,
+  borderRadius: 6,
+  border: '1px solid rgba(127,127,127,0.35)',
+  flexShrink: 0,
+}
+const themeOptionLabelStyle: CSSProperties = {
+  fontSize: 13,
+  fontWeight: 600,
+  color: 'var(--color-text)',
+  overflow: 'hidden',
+  textOverflow: 'ellipsis',
+  whiteSpace: 'nowrap',
+  minWidth: 0,
+}
+const themeCheckStyle: CSSProperties = {
+  marginLeft: 'auto',
+  color: 'var(--color-bred)',
+  fontWeight: 700,
+  fontSize: 14,
+  flexShrink: 0,
 }
 
 /* =====================================================

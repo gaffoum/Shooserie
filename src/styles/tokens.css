@@ -142,3 +142,72 @@
 
   --color-neutral-chip-bg: rgba(255, 255, 255, 0.08);
 }
+
+/* === Thème South Beach — Dark (« Miami nights », fond navy) ===
+ * Extrait de Design/handoff/Shooserie App South Beach.dc.html.
+ * Accent principal = cyan (#00BFFF) ; secondaire = pink (#E91E63).
+ * Raretés métaux + ors du grail (--rarity-* / --grail-*) : REPRISES telles
+ * quelles du :root (les maquettes ne les redéfinissent pas), donc héritées. */
+[data-theme='sb-dark'] {
+  color-scheme: dark;
+  --color-bg: #073763;               /* navy « Miami night » */
+  --color-surface: #0E4372;
+  --color-surface-alt: #16507E;
+  --color-border: #1E4E79;
+  --color-border-strong: #2C5C85;
+
+  --color-text: #F2F2F2;
+  --color-text-muted: #A9C1D6;       /* bleuté, lisible sur navy */
+  --color-text-faint: #7E94A8;
+
+  --color-bred: #00BFFF;             /* accent principal = cyan */
+  --color-bred-hover: #5CD1FF;
+  --color-bred-bg: rgba(0, 191, 255, 0.16);
+  --color-royal: #E91E63;            /* accent secondaire = pink Miami */
+  --color-royal-dark: #C2185B;
+  --color-university: #5CD1FF;
+  --color-label-blue: #FFAAD4;       /* eyebrow/label = pink clair (sur navy) */
+  --color-success: #00E676;
+
+  --color-up: #00E676;
+  --color-down: #F05252;             /* pas d'état « down » en maquette → base */
+  --color-up-bg: rgba(0, 230, 118, 0.16);
+  --color-down-bg: rgba(240, 82, 82, 0.16);
+
+  --color-neutral-chip-bg: rgba(255, 255, 255, 0.08);
+  --nav-inactive: #7E94A8;
+}
+
+/* === Thème South Beach — Light (« Miami day », cartes blanches) ===
+ * Extrait de Design/handoff/Shooserie App South Beach Light.dc.html.
+ * Fond page bleu très pâle, surfaces blanches, texte navy. Couleurs-texte
+ * (up, label) assombries vs maquette pour rester lisibles sur blanc. */
+[data-theme='sb-light'] {
+  color-scheme: light;
+  --color-bg: #E9F3FB;               /* bleu très pâle */
+  --color-surface: #FFFFFF;
+  --color-surface-alt: #F1F6FB;
+  --color-border: #D5E3EF;
+  --color-border-strong: #BED3E4;
+
+  --color-text: #0A2540;             /* navy */
+  --color-text-muted: #6E8598;
+  --color-text-faint: #8CA2B3;
+
+  --color-bred: #00BFFF;             /* accent principal = cyan */
+  --color-bred-hover: #5CD1FF;
+  --color-bred-bg: rgba(0, 191, 255, 0.12);
+  --color-royal: #E91E63;            /* accent secondaire = pink Miami */
+  --color-royal-dark: #C2185B;
+  --color-university: #00A6DE;       /* cyan assombri (lisible sur blanc) */
+  --color-label-blue: #C2185B;       /* pink foncé (lisible sur blanc) */
+  --color-success: #00C853;
+
+  --color-up: #00A24C;               /* vert assombri = +value lisible sur blanc */
+  --color-down: #DC2626;
+  --color-up-bg: rgba(0, 200, 83, 0.12);
+  --color-down-bg: rgba(220, 38, 38, 0.10);
+
+  --color-neutral-chip-bg: rgba(10, 37, 64, 0.06);
+  --nav-inactive: #8CA2B3;
+}

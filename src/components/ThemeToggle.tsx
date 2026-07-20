@@ -1,32 +1,42 @@
 import type { CSSProperties } from 'react'
-import { useTheme } from '@/contexts/ThemeContext'
+import { useTheme, THEME_ORDER, type Theme } from '@/contexts/ThemeContext'
 import { useT } from '@/i18n/I18nContext'
+import type { DictKey } from '@/i18n/dictionaries'
 
 /**
- * Bouton compact de thème. Cycle clair → sombre → système → clair.
- * L'icône reflète la préférence courante (soleil / lune / écran « auto »).
- * Style basé sur les tokens pour suivre le thème actif.
+ * Bouton compact de thème (header). Cycle les 4 thèmes :
+ * Sombre → Clair → South Beach Dark → South Beach Light → Sombre.
+ * L'icône reflète la famille (lune = sombre, soleil = clair) ; une pastille
+ * cyan signale les thèmes South Beach. Le sélecteur complet vit dans les
+ * Paramètres (Account).
  */
+export const THEME_LABEL_KEY: Record<Theme, DictKey> = {
+  dark: 'theme.dark',
+  light: 'theme.light',
+  'sb-dark': 'theme.sbDark',
+  'sb-light': 'theme.sbLight',
+}
+
 export function ThemeToggle() {
-  const { pref, setPref } = useTheme()
+  const { theme, setTheme } = useTheme()
   const { t } = useT()
 
-  const order = ['light', 'dark', 'system'] as const
-  const next = order[(order.indexOf(pref) + 1) % order.length]
-
-  const label =
-    pref === 'light' ? t('theme.light') : pref === 'dark' ? t('theme.dark') : t('theme.system')
+  const next = THEME_ORDER[(THEME_ORDER.indexOf(theme) + 1) % THEME_ORDER.length]
+  const isDarkFamily = theme === 'dark' || theme === 'sb-dark'
+  const isSouthBeach = theme === 'sb-dark' || theme === 'sb-light'
+  const label = t(THEME_LABEL_KEY[theme])
 
   return (
     <button
       type="button"
-      onClick={() => setPref(next)}
+      onClick={() => setTheme(next)}
       className="app-header-theme"
       style={buttonStyle}
       aria-label={t('theme.toggle.aria')}
       title={`${t('theme.toggle.aria')} — ${label}`}
     >
-      {pref === 'light' ? <SunIcon /> : pref === 'dark' ? <MoonIcon /> : <SystemIcon />}
+      {isDarkFamily ? <MoonIcon /> : <SunIcon />}
+      {isSouthBeach && <span style={sbDotStyle} aria-hidden />}
     </button>
   )
 }
@@ -48,16 +58,8 @@ function MoonIcon() {
   )
 }
 
-function SystemIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-      <rect x="2" y="3" width="20" height="14" rx="2" />
-      <path d="M8 21h8M12 17v4" />
-    </svg>
-  )
-}
-
 const buttonStyle: CSSProperties = {
+  position: 'relative',
   display: 'inline-flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -70,4 +72,14 @@ const buttonStyle: CSSProperties = {
   cursor: 'pointer',
   flexShrink: 0,
   padding: 0,
+}
+
+const sbDotStyle: CSSProperties = {
+  position: 'absolute',
+  top: 4,
+  right: 4,
+  width: 6,
+  height: 6,
+  borderRadius: '50%',
+  background: 'var(--color-bred)',
 }
